@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BudGender {
+  Male
+  Female
+}
+
+enum BudColor {
+  Light
+  Medium
+  Dark
+}
+
+enum BudShine {
+  Yes
+  No
+}
+
+// Description: User data following sign-up workflow.
+model User {
+  address       String   @id @db.VarChar(42)
+  signature     String   @db.Text
+  r             String   @db.Text
+  s             String   @db.Text
+  v             Int      @db.SmallInt
+  gameKeyId     Int?     @db.Integer
+  breedingPoint Int      @default(0) @db.Integer
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  pairs BreedPair[]
+
+  @@unique([address])
+  @@index([address])
+}
+
+model BreedPair {
+  id          Int      @id @default(autoincrement())
+  maleBudId   Int
+  femaleBudId Int
+  startRate   Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userAddress String   @db.VarChar(42)
+
+  // Relationships
+  user User @relation(fields: [userAddress], references: [address])
+
+  @@unique([maleBudId, femaleBudId])
+}
+
+model BreedLevel {
+  id        Int      @id @default(autoincrement())
+  pairId    Int
+  level     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  buds BreedBud[]
+
+  @@unique([pairId, level])
+  @@index([pairId, level])
+}
+
+model BreedBud {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar
+  image     String    @db.VarChar
+  thc       Int
+  gen       Int
+  size      Int
+  gender    BudGender
+  shine     BudShine
+  color     BudColor
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  levelId   Int
+
+  // Relationship
+  level BreedLevel @relation(fields: [levelId], references: [id])
+
+  @@index([id, thc])
+  @@index([levelId])
+}
