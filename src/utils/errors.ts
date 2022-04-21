@@ -8,7 +8,9 @@ export function UnauthorizedError(message = 'Request is not authorized.') {
   return err;
 }
 
-export function BadRequestError(message = 'Request payload is in invalid format.') {
+export function BadRequestError(
+  message = 'Request payload is in invalid format.',
+) {
   const err = new HttpException(
     { code: 'BadRequest', message },
     HttpStatus.BAD_REQUEST,
@@ -16,14 +18,15 @@ export function BadRequestError(message = 'Request payload is in invalid format.
   return err;
 }
 
-export function ConflictRequestError(message = 'The same resource already exists.') {
+export function ConflictRequestError(
+  message = 'The same resource already exists.',
+) {
   const err = new HttpException(
     { code: 'Conflict', message },
     HttpStatus.CONFLICT,
   );
   return err;
 }
-
 
 export function NotFoundError(message = 'Resource is not found.') {
   const err = new HttpException(

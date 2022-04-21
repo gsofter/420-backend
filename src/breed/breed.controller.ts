@@ -7,8 +7,10 @@ import { CreateBreedPairDto } from './dto/breed-pair.dto';
 
 @Controller('breed')
 export class BreedController {
-
-  constructor(private readonly breedService: BreedService, private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly breedService: BreedService,
+    private readonly prismaService: PrismaService,
+  ) {}
 
   @Get('pairs')
   async getPairs(@Req() req: Request) {
@@ -22,12 +24,12 @@ export class BreedController {
         maleBudId: true,
         femaleBudId: true,
         createdAt: true,
-      }
+      },
     });
 
     return {
       success: true,
-      data: pairs
+      data: pairs,
     };
   }
 
@@ -35,7 +37,7 @@ export class BreedController {
   async pair(@Req() req: Request, @Body() body: CreateBreedPairDto) {
     const user = req.user;
     try {
-      await this.breedService.verifyBudPairs({ ...body, address: user});
+      await this.breedService.verifyBudPairs({ ...body, address: user });
     } catch (e) {
       throw BadRequestError(e.message);
     }
@@ -45,9 +47,9 @@ export class BreedController {
         maleBudId_femaleBudId: {
           maleBudId: body.maleBudId,
           femaleBudId: body.femaleBudId,
-        }
-      }
-    })
+        },
+      },
+    });
 
     if (result) {
       throw ConflictRequestError('Breed pair already exists');
@@ -59,12 +61,12 @@ export class BreedController {
         maleBudId: body.maleBudId,
         femaleBudId: body.femaleBudId,
         startRate: this.breedService.getStartSuccessRate(user),
-      }
+      },
     });
 
     return {
       success: true,
-      data: pair
+      data: pair,
     };
   }
 }

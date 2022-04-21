@@ -8,7 +8,10 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService, private readonly prismaService: PrismaService ) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly prismaService: PrismaService,
+  ) {}
 
   @Post('login')
   async login(@Body() body: LoginDto) {

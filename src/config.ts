@@ -3,7 +3,7 @@ import { Network } from './types';
 export const ADDRESSES = {
   rinkeby: {
     MULTICALL: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
-    BUD: ''
+    BUD: '',
   },
   mainnet: {
     MULTICALL: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696', // https://github.com/makerdao/multicall#multicall2-contract-addresses,

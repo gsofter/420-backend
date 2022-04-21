@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { Injectable, Logger } from '@nestjs/common';
-import * as jwt from "jsonwebtoken";
+import * as jwt from 'jsonwebtoken';
 import { BigNumber } from 'ethers';
 
 @Injectable()
@@ -56,18 +56,17 @@ Timestamp: ${timestamp}`;
     const jwtPassPhrase = this.configService.get<string>('jwt.passPhrase');
 
     return jwt.sign({ address, gameKeyId }, jwtPassPhrase, {
-      algorithm: "HS256",
-      issuer: "420 Game",
-      expiresIn: "1d",
+      algorithm: 'HS256',
+      issuer: '420 Game',
+      expiresIn: '1d',
     });
-  };
-  
+  }
+
   jwtDecodeUser(token: string) {
     const jwtPassPhrase = this.configService.get<string>('jwt.passPhrase');
     return jwt.verify(token, jwtPassPhrase, {
-      algorithms: ["HS256"],
-      issuer: "420 Game",
+      algorithms: ['HS256'],
+      issuer: '420 Game',
     });
-  };
-  
+  }
 }

@@ -42,20 +42,25 @@ export class BreedService {
       throw new Error('Invalid budId for female');
     }
 
-    let [owner1, owner2] = ['', '']
+    let [owner1, owner2] = ['', ''];
     try {
-      [owner1, owner2] = await multicall(this.rpcProvider, ADDRESSES[network].MULTICALL, BudAbi, [
-        {
-          contractAddress: ADDRESSES[network].BUD,
-          functionName: 'ownerOf',
-          params: [maleBudId],
-        },
-        {
-          contractAddress: ADDRESSES[network].BUD,
-          functionName: 'ownerOf',
-          params: [femaleBudId],
-        },
-      ]);
+      [owner1, owner2] = await multicall(
+        this.rpcProvider,
+        ADDRESSES[network].MULTICALL,
+        BudAbi,
+        [
+          {
+            contractAddress: ADDRESSES[network].BUD,
+            functionName: 'ownerOf',
+            params: [maleBudId],
+          },
+          {
+            contractAddress: ADDRESSES[network].BUD,
+            functionName: 'ownerOf',
+            params: [femaleBudId],
+          },
+        ],
+      );
     } catch {
       throw new Error('Check BUDs ownershipf. RPC call error');
     }

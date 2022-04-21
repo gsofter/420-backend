@@ -1,7 +1,7 @@
-import { providers } from "ethers";
-import { Interface } from "@ethersproject/abi";
-import { Contract } from "@ethersproject/contracts";
-import multicall2Abi from "../abis/multicall2.json";
+import { providers } from 'ethers';
+import { Interface } from '@ethersproject/abi';
+import { Contract } from '@ethersproject/contracts';
+import multicall2Abi from '../abis/multicall2.json';
 
 export interface Call {
   contractAddress: string;
@@ -17,7 +17,12 @@ export interface Call {
  * @param abi abi generated from the contract code
  * @param calls Array of Call objects to run through multicall
  */
-export const multicall = async (provider: providers.Provider, address: string, abi: any[], calls: Call[]) => {
+export const multicall = async (
+  provider: providers.Provider,
+  address: string,
+  abi: any[],
+  calls: Call[],
+) => {
   // Setup contracts
   const multicallContract = new Contract(address, multicall2Abi, provider);
   const itf = new Interface(abi);

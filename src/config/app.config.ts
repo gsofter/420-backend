@@ -13,7 +13,7 @@ async function config(): Promise<AppConfig> {
     network: {
       name: network,
       chainId: network === 'mainnet' ? 1 : 4,
-      rpc: "https://" + network + ".infura.io/v3/" + process.env.INFURA_API_KEY,
+      rpc: 'https://' + network + '.infura.io/v3/' + process.env.INFURA_API_KEY,
     },
     db: {
       url: process.env.DATABASE_URL,

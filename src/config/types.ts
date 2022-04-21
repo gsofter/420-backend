@@ -1,25 +1,25 @@
 export type AppConfig = {
   env: {
-    name: 'development' | 'production',
-    network: 'rinkeby' | 'mainnet',
-    isProd: boolean,
-  },
+    name: 'development' | 'production';
+    network: 'rinkeby' | 'mainnet';
+    isProd: boolean;
+  };
   network: {
-    name: 'rinkeby' | 'mainnet',
-    chainId: number,
-    rpc: string,
-  }
+    name: 'rinkeby' | 'mainnet';
+    chainId: number;
+    rpc: string;
+  };
   db: {
-    url: string,
-  },
+    url: string;
+  };
   api: {
-    port: number
-  },
+    port: number;
+  };
   jwt: {
-    passPhrase: string
-  },
+    passPhrase: string;
+  };
   breed: {
-    timePeriod: number
-  },
+    timePeriod: number;
+  };
   rpc: string;
 };
