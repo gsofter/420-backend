@@ -3,6 +3,7 @@
 ## Stack
 
 - Postgres
+- Prisma
 - TypeScript
 - Nest.js
 ## Setup
