@@ -23,7 +23,9 @@ export class BreedService {
   }
 
   /**
-   * TBD
+   * TBD - not implemented yet
+   * This will return the start success rate for the pair. Dependent on the in-game items user holds
+   * 
    * @param address user address
    * @returns rate
    */
@@ -31,6 +33,13 @@ export class BreedService {
     return 20;
   }
 
+  /**
+   * Verify if user owns buds referenced by maleBudId, and femaleBudId
+   * 
+   * If such conditions are not met, the function throws an error
+   * @param param0 CreateBudPair
+   * @returns true
+   */
   async verifyBudPairs({ address, maleBudId, femaleBudId }: CreateBudPair) {
     const network = this.configService.get<Network>('network.name');
 

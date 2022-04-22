@@ -6,6 +6,7 @@ import { HashTableModule } from './hash-table/hash-table.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { BreedModule } from './breed/breed.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { BreedModule } from './breed/breed.module';
     BreedModule,
     PrismaModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule implements NestModule {
