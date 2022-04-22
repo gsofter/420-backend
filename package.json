@@ -12,7 +12,7 @@
     "start": "nest start",
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "setup": "psql -f ./prisma/config.sql",
     "migrate:dev": "NODE_ENV=development prisma migrate deploy && prisma generate",
@@ -25,7 +25,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "hash-table": "ts-node ./data/thcHashTable.ts",
     "postinstall": "yarn hash-table",
-    "deploy": "yarn && yarn start:prod"
+    "deploy": "yarn && yarn build && yarn start:prod"
   },
   "jest": {
     "collectCoverageFrom": [
