@@ -34,5 +34,5 @@ fs.createReadStream(__dirname + '/thc_hash_table.csv')
   })
   .on('end', (rowCount: number) => {
     console.log(`Parsed ${rowCount} rows`);
-    fs.writeFileSync(__dirname + '/thc_hash_table.json', JSON.stringify(rateTable, null, 2));
+    fs.writeFileSync(__dirname + '/hashTable.json', JSON.stringify(rateTable, null, 2));
   });

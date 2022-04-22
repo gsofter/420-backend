@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Req } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'src/types';
 import { BadRequestError, ConflictRequestError } from 'src/utils/errors';
@@ -7,6 +7,8 @@ import { CreateBreedPairDto } from './dto/breed-pair.dto';
 
 @Controller('breed')
 export class BreedController {
+  private logger = new Logger('BreedController');
+
   constructor(
     private readonly breedService: BreedService,
     private readonly prismaService: PrismaService,

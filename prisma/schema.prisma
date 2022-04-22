@@ -11,8 +11,8 @@ datasource db {
 }
 
 enum BudGender {
-  Male
-  Female
+  M
+  F
 }
 
 enum BudColor {

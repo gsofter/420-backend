@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { ethers } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { CreateBudPair } from './breed.types';
+import { generateRandomBud } from './../utils/bud';
 import { multicall } from 'src/utils/multicall';
 import { ADDRESSES } from 'src/config';
 import BudAbi from 'src/abis/bud.json';
@@ -79,5 +80,16 @@ export class BreedService {
     }
 
     return true;
+  }
+
+  startBreedLevel() {
+    const buds = [
+      generateRandomBud({ targetGender: 'M'}),
+      generateRandomBud({ targetGender: 'F'}),
+      generateRandomBud({ targetGender: 'F'}),
+      generateRandomBud({ targetGender: 'M'}),
+    ]
+
+    return buds;
   }
 }
