@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { BreedModule } from './breed/breed.module';
 import { AppController } from './app.controller';
+import { BudModule } from './bud/bud.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AppController } from './app.controller';
     UserModule,
     BreedModule,
     PrismaModule,
+    BudModule,
   ],
   controllers: [AppController],
   providers: [],
