@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { BreedService } from './breed.service';
 import { BreedController } from './breed.controller';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { BudModule } from './../bud/bud.module';
+import { HashTableModule } from './../hash-table/hash-table.module';
+import { PrismaModule } from './../prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, BudModule, HashTableModule],
   providers: [BreedService],
   controllers: [BreedController],
 })

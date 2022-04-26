@@ -38,8 +38,9 @@ export class BreedController {
   @Post('pair')
   async pair(@Req() req: Request, @Body() body: CreateBreedPairDto) {
     const user = req.user;
+    const dtoWithUser = { ...body, address: user };
     try {
-      await this.breedService.verifyBudPairs({ ...body, address: user });
+      await this.breedService.verifyBudPairs(dtoWithUser);
     } catch (e) {
       throw BadRequestError(e.message);
     }
@@ -57,12 +58,14 @@ export class BreedController {
       throw ConflictRequestError('Breed pair already exists');
     }
 
+    const startSuccessRate = await this.breedService.getStartSuccessRate(dtoWithUser);
+
     const pair = await this.prismaService.breedPair.create({
       data: {
         userAddress: user,
         maleBudId: body.maleBudId,
         femaleBudId: body.femaleBudId,
-        startRate: this.breedService.getStartSuccessRate(user),
+        startRate: startSuccessRate,
       },
     });
 

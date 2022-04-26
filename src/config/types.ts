@@ -20,6 +20,11 @@ export type AppConfig = {
   };
   breed: {
     timePeriod: number;
+    baseSuccessRate: number;
   };
   rpc: string;
+  metadataApi: {
+    key: string;
+    url: string;
+  }
 };

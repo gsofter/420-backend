@@ -14,3 +14,8 @@ export type Bud = {
   shine: BudShine
   color: BudColor
 };
+
+export type BudWithId = Bud & {
+  id: number
+  revealed: boolean
+}

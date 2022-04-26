@@ -8,12 +8,14 @@ import { multicall } from 'src/utils/multicall';
 import { ADDRESSES } from 'src/config';
 import BudAbi from 'src/abis/bud.json';
 import { Network } from 'src/types';
+import { BudService } from 'src/bud/bud.service';
+import { HashTableService } from 'src/hash-table/hash-table.service';
 
 @Injectable()
 export class BreedService {
   private rpcProvider: JsonRpcProvider;
 
-  constructor(private configService: ConfigService) {
+  constructor(private configService: ConfigService, private budService: BudService, private hashTableService: HashTableService) {
     const rpcUrl = configService.get<string>('network.rpc');
     const chainId = configService.get<number>('network.chainId');
 
@@ -30,8 +32,23 @@ export class BreedService {
    * @param address user address
    * @returns rate
    */
-  getStartSuccessRate(address: string): number {
-    return 20;
+  async getStartSuccessRate({ address, maleBudId, femaleBudId }: CreateBudPair) {
+    const baseSuccessRate = this.configService.get<number>('breed.baseSuccessRate');
+
+    // Get bud metadatas
+    const metadatas = await this.budService.getMetadatas([maleBudId, femaleBudId]);
+
+    let bonusRate = 0;
+    for (const metadata of metadatas) {
+      bonusRate += this.hashTableService.lookUpBeginningSuccessRate({
+        thcId: metadata.thc,
+        budSize: metadata.size
+      });
+    }
+
+    // TODO: Add bouns rate if user owns eligible in-game items
+
+    return baseSuccessRate + bonusRate;
   }
 
   /**

@@ -1,17 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
 import hashTable from '../../data/hashTable.json';
+import hashTableBegin from '../../data/hashTableBegin.json';
+import { HashTableLookUpRequest } from './hash-table.types';
 
 @Injectable()
 export class HashTableService {
   private logger = new Logger('HashTableService');
 
   /**
-   * Return the success rate for a given thcId and budSize
+   * For given (thcId, budSize) pair, returns the positive or negative rate that's receiving at each level of breeding
    * 
    * @param obj thcId, budSize
-   * @returns Number
+   * @returns rate
    */
-  lookUpHashTable(obj: { thcId: number; budSize: number }) {
+  lookUpBreedRate(obj: HashTableLookUpRequest) {
     const { thcId, budSize } = obj;
     const rate = hashTable[thcId]?.[budSize];
 
@@ -24,4 +26,16 @@ export class HashTableService {
     );
     return 0;
   }
+
+  /**
+   * For given (thcId, budSize) pair, returns the beginning success rate if found in the table. If not, return s0
+   * 
+   * @param param0 HashTableLookUpRequest
+   * @returns rate
+   */
+  lookUpBeginningSuccessRate({ thcId, budSize }: HashTableLookUpRequest) {
+    return hashTableBegin[thcId]?.[budSize] || 0;
+  }
+
+  
 }

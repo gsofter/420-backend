@@ -26,7 +26,12 @@ async function config(): Promise<AppConfig> {
     },
     breed: {
       timePeriod: env === 'production' ? BREED_TIME : 30,
+      baseSuccessRate: 20,
     },
+    metadataApi: {
+      key: process.env.METADATA_API_KEY,
+      url: "https://420.looklabs.xyz"
+    }
   } as AppConfig;
 
   if (!config.jwt.passPhrase) {
