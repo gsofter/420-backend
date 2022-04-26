@@ -46,13 +46,14 @@ model User {
 }
 
 model BreedPair {
-  id          Int      @id @default(autoincrement())
-  maleBudId   Int
-  femaleBudId Int
-  startRate   Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userAddress String   @db.VarChar(42)
+  id           Int      @id @default(autoincrement())
+  maleBudId    Int
+  femaleBudId  Int
+  rate         Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  userAddress  String   @db.VarChar(42)
+  currentLevel Int      @default(0)
 
   // Relationships
   user User @relation(fields: [userAddress], references: [address])

@@ -36,7 +36,7 @@ export class BreedController {
   }
 
   @Post('pair')
-  async pair(@Req() req: Request, @Body() body: CreateBreedPairDto) {
+  async createPair(@Req() req: Request, @Body() body: CreateBreedPairDto) {
     const user = req.user;
     const dtoWithUser = { ...body, address: user };
     try {
@@ -65,7 +65,7 @@ export class BreedController {
         userAddress: user,
         maleBudId: body.maleBudId,
         femaleBudId: body.femaleBudId,
-        startRate: startSuccessRate,
+        rate: startSuccessRate,
       },
     });
 
@@ -73,5 +73,10 @@ export class BreedController {
       success: true,
       data: pair,
     };
+  }
+
+  @Post('levelUp')
+  async levelBreedingUp(@Req() req: Request, @Body() body: CreateBreedPairDto) {
+
   }
 }

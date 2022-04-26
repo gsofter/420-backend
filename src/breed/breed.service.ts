@@ -10,12 +10,13 @@ import BudAbi from 'src/abis/bud.json';
 import { Network } from 'src/types';
 import { BudService } from 'src/bud/bud.service';
 import { HashTableService } from 'src/hash-table/hash-table.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class BreedService {
   private rpcProvider: JsonRpcProvider;
 
-  constructor(private configService: ConfigService, private budService: BudService, private hashTableService: HashTableService) {
+  constructor(private configService: ConfigService, private budService: BudService, private hashTableService: HashTableService, private prismaService: PrismaService) {
     const rpcUrl = configService.get<string>('network.rpc');
     const chainId = configService.get<number>('network.chainId');
 
@@ -108,5 +109,24 @@ export class BreedService {
     ]
 
     return buds;
+  }
+
+  async advanceToBreedLevel(pairId: number) {
+    const breedPair = await this.prismaService.breedPair.findFirst({
+      where: {
+        id: pairId,
+      }
+    });
+
+    if (!breedPair) {
+      throw new Error('Breed pair not found');
+    }
+
+    await this.prismaService.breedLevel.findFirst({
+      where: {
+        pairId: pairId,
+      },
+      
+    })
   }
 }
