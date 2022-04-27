@@ -220,6 +220,7 @@ export class BreedService {
         id: {
           in: [maleBudId, femaleBudId],
         },
+        levelId: breedLevel.id,
       }
     });
 
