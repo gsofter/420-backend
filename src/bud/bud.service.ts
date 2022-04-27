@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { BudGender } from '@prisma/client';
 import axios from 'axios';
 import { BudWithId } from 'src/types';
 
@@ -61,5 +62,27 @@ export class BudService {
     }
 
     return [];
+  }
+
+  /**
+   * Check if bud pair genders come in (M, F) pair
+   * 
+   * @param buds an array of buds with at least bud id and gender info
+   * @param maleBudId id of male bud
+   * @param femaleBudId id of female bud
+   * @returns boolean
+   */
+  checkBudPairGenders(buds: Array<{id: number, gender: BudGender}>, maleBudId: number, femaleBudId: number) {
+    if (buds.length < 2) {
+      return false;
+    }
+
+    for (const bud of buds) {
+      if ((bud.id === maleBudId && bud.gender !== 'M') || (bud.id === femaleBudId && bud.gender !== 'F')) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
