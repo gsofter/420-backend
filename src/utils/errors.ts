@@ -35,3 +35,11 @@ export function NotFoundError(message = 'Resource is not found.') {
   );
   return err;
 }
+
+export function BreedingError(message = 'There was an error while breeding.') {
+  const err = new HttpException(
+    { code: 'BreedingError', message },
+    HttpStatus.INTERNAL_SERVER_ERROR,
+  );
+  return err;
+}

@@ -67,6 +67,7 @@ model BreedLevel {
   level     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  bonusRate Int      @default(0)
 
   // Relationships
   buds BreedBud[]
