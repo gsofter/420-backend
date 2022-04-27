@@ -56,7 +56,8 @@ model BreedPair {
   currentLevel Int      @default(0)
 
   // Relationships
-  user User @relation(fields: [userAddress], references: [address])
+  user   User         @relation(fields: [userAddress], references: [address])
+  levels BreedLevel[]
 
   @@unique([maleBudId, femaleBudId])
 }
@@ -67,10 +68,11 @@ model BreedLevel {
   level     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  bonusRate Float      @default(0)
+  bonusRate Float    @default(0)
 
   // Relationships
   buds BreedBud[]
+  pair BreedPair  @relation(fields: [pairId], references: [id])
 
   @@unique([pairId, level])
   @@index([pairId, level])
