@@ -6,7 +6,7 @@ import { CreateBudPair } from './breed.types';
 import { generateRandomBud } from './../utils/bud';
 import { multicall } from 'src/utils/multicall';
 import { ADDRESSES } from 'src/config';
-import BudAbi from 'src/abis/bud.json';
+import * as BudAbi from 'src/abis/bud.json';
 import { Network } from 'src/types';
 import { BudService } from 'src/bud/bud.service';
 import { HashTableService } from 'src/hash-table/hash-table.service';
@@ -56,9 +56,13 @@ export class BreedService {
 
     let bonusRate = 0;
     for (const metadata of metadatas) {
+      if (!metadata.revealed) {
+        throw new Error('Bud not revealed');
+      }
+      
       bonusRate += this.hashTableService.lookUpBeginningSuccessRate({
         thcId: metadata.thc,
-        budSize: metadata.size,
+        budSize: metadata.budSize,
       });
     }
 
@@ -104,12 +108,29 @@ export class BreedService {
           },
         ],
       );
-    } catch {
+    } catch (e) {
+      console.log('error', e)
       throw new Error('Check BUDs ownershipf. RPC call error');
     }
 
     if (owner1 !== address || owner2 !== address) {
       throw new Error('Not the buds owner');
+    }
+
+    // Verify bud metadata
+    const metadatas = await this.budService.getMetadatas([
+      maleBudId,
+      femaleBudId,
+    ]);
+
+    for (const metadata of metadatas) {
+      if (!metadata.revealed) {
+        throw new Error(`Bud #${metadata.id} not revealed`);
+      }
+    }
+
+    if (!(metadatas[0].gender === 'M' && metadatas[1].gender === 'F')) {
+      throw new Error('Bud gender does not match');
     }
 
     return true;
@@ -200,20 +221,24 @@ export class BreedService {
 
     let bonusRate = 0;
 
+    const buds = await this.prismaService.breedBud.findMany({
+      where: {
+        id: {
+          in: [maleBudId, femaleBudId],
+        },
+      }
+    });
+
+    if (buds.length < 2) {
+      throw new Error('Breed buds not found');
+    }
+
     // Get additional bonus rates
     try {
-      const buds = await this.prismaService.breedBud.findMany({
-        where: {
-          id: {
-            in: [maleBudId, femaleBudId],
-          },
-        }
-      });
-
       for (const bud of buds) {
         bonusRate += this.hashTableService.lookUpBreedRate({
           thcId: bud.thc,
-          budSize: bud.size,
+          budSize: bud.budSize,
         });
       }
 

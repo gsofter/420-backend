@@ -41,7 +41,7 @@ export const generateRandomBud = (_options = defaultOptions): Bud => {
     name: nameAndImage.name,
     image: nameAndImage.image,
     thc: randomNumber(maxThc, 1),
-    size: randomNumber(maxBudSize, 1),
+    budSize: randomNumber(maxBudSize, 1),
     shine: budShines[randomNumber(budShines.length)] as BudShine,
     gender: budGenders[randomNumber(budGenders.length)] as BudGender,
     color: budColors[randomNumber(budColors.length)] as BudColor,

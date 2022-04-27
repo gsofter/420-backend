@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import hashTable from '../../data/hashTable.json';
-import hashTableBegin from '../../data/hashTableBegin.json';
+import * as hashTable from '../../data/hashTable.json';
+import * as hashTableBegin from '../../data/hashTableBegin.json';
 import { HashTableLookUpRequest } from './hash-table.types';
 
 @Injectable()
@@ -35,7 +35,5 @@ export class HashTableService {
    */
   lookUpBeginningSuccessRate({ thcId, budSize }: HashTableLookUpRequest) {
     return hashTableBegin[thcId]?.[budSize] || 0;
-  }
-
-  
+  } 
 }

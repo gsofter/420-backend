@@ -9,7 +9,7 @@ export type Bud = {
   name: string
   image: string
   thc: number
-  size: number
+  budSize: number
   gender: BudGender
   shine: BudShine
   color: BudColor

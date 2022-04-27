@@ -41,6 +41,7 @@ export class BreedController {
   async createPair(@Req() req: Request, @Body() body: CreateBreedPairDto) {
     const user = req.user;
     const dtoWithUser = { ...body, address: user };
+
     try {
       await this.breedService.verifyBudPairs(dtoWithUser);
     } catch (e) {
