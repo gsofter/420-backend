@@ -130,7 +130,7 @@ export class BreedService {
     }
 
     if (!(metadatas[0].gender === 'M' && metadatas[1].gender === 'F')) {
-      throw new Error('Bud gender does not match');
+      throw new Error('Bud pair genders do not match');
     }
 
     return true;
@@ -229,8 +229,15 @@ export class BreedService {
       }
     });
 
+    // Verify bud genders in (M, F) pair
     if (buds.length < 2) {
       throw new Error('Breed buds not found');
+    }
+
+    for (const bud of buds) {
+      if ((bud.id === maleBudId && bud.gender !== 'M') || (bud.id === femaleBudId && bud.gender !== 'F')) {
+        throw new Error('Bud pair genders do not match');
+      }
     }
 
     // Get additional bonus rates
