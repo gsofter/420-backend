@@ -82,7 +82,7 @@ model BreedBud {
   image     String    @db.VarChar
   thc       Int
   gen       Int
-  size      Int
+  budSize      Int
   gender    BudGender
   shine     BudShine
   color     BudColor
