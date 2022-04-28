@@ -1,39 +1,48 @@
-import { Body, Controller, Get, Logger, Post, Req } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Get, Logger, Post, Query, Req, UseInterceptors } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'src/types';
 import { BadRequestError, BreedingError, ConflictRequestError, NotFoundError } from 'src/utils/errors';
 import { BreedService } from './breed.service';
-import { CreateBreedPairDto } from './dto/breed-pair.dto';
+import { BreedPairQueryDto, CreateBreedPairDto } from './dto/breed-pair.dto';
 import { BreedUpDto } from './dto/breed-up.dto';
 import { getBonusRateStatus } from './../utils/breed';
+import { BreedPairDto } from './dto/breed.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('breed')
+@UseInterceptors(ClassSerializerInterceptor)
 export class BreedController {
   private logger = new Logger('BreedController');
+  private breedTime = 0;
 
   constructor(
+    private readonly configService: ConfigService,
     private readonly breedService: BreedService,
     private readonly prismaService: PrismaService,
-  ) {}
+  ) {
+    this.breedTime = this.configService.get<number>('breed.timePeriod');
+  }
 
   @Get('pairs')
-  async getPairs(@Req() req: Request) {
+  async getPairs(@Req() req: Request, @Query() { pairId }: BreedPairQueryDto) {
     const user = req.user;
     const pairs = await this.prismaService.breedPair.findMany({
       where: {
         userAddress: user,
+        id: pairId
       },
-      select: {
-        id: true,
-        maleBudId: true,
-        femaleBudId: true,
-        createdAt: true,
-      },
+      include: {
+        levels: {
+          include: {
+            buds: true
+          }
+        }
+      }
     });
 
     return {
       success: true,
-      data: pairs,
+      data: pairs.map(pair => new BreedPairDto(pair, this.breedTime)),
     };
   }
 
@@ -78,7 +87,7 @@ export class BreedController {
 
     return {
       success: true,
-      data: pair,
+      data: new BreedPairDto(pair, this.breedTime),
     };
   }
 

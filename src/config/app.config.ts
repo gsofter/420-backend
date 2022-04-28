@@ -3,7 +3,7 @@ import type { AppConfig } from './types';
 async function config(): Promise<AppConfig> {
   const env = process.env.NODE_ENV || 'development';
   const network = process.env.NETWORK || 'rinkeby';
-  const BREED_TIME = 2 * 60 * 60; // 2 hours
+  const BREED_TIME = 2 * 60 * 60 * 24; // 2 days
 
   const config = {
     env: {
@@ -25,7 +25,7 @@ async function config(): Promise<AppConfig> {
       passPhrase: process.env.JWT_PASS_PHRASE,
     },
     breed: {
-      timePeriod: env === 'production' ? BREED_TIME : 5,
+      timePeriod: env === 'production' ? BREED_TIME : 2 * 60 * 60 * 24,
       baseSuccessRate: 20,
     },
     metadataApi: {

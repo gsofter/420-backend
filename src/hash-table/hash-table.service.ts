@@ -17,7 +17,7 @@ export class HashTableService {
     const { thcId, budSize } = obj;
     const rate = hashTable[thcId]?.[budSize];
 
-    if (rate) {
+    if (rate !== undefined || rate !== null) {
       return Number(rate);
     }
 
