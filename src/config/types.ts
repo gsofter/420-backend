@@ -9,6 +9,9 @@ export type AppConfig = {
     chainId: number;
     rpc: string;
   };
+  admin: {
+    key: string;
+  };
   db: {
     url: string;
   };

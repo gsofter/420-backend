@@ -28,6 +28,6 @@ import { BudModule } from './bud/bud.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('breed/*');
+    consumer.apply(AuthMiddleware).forRoutes('breeds/*');
   }
 }

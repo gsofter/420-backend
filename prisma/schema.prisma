@@ -43,6 +43,7 @@ model User {
 
   @@unique([address])
   @@index([address])
+  BreedingPointLog BreedingPointLog[]
 }
 
 model BreedPair {
@@ -97,4 +98,17 @@ model BreedBud {
 
   @@index([id, thc])
   @@index([levelId])
+}
+
+model BreedingPointLog {
+  id          Int      @id @default(autoincrement())
+  userAddress String
+  txHash      String
+  block       Int
+  amount      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  user User @relation(fields: [userAddress], references: [address])
 }

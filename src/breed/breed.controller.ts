@@ -9,7 +9,7 @@ import { getBonusRateStatus } from './../utils/breed';
 import { BreedPairDto } from './dto/breed.dto';
 import { ConfigService } from '@nestjs/config';
 
-@Controller('breed')
+@Controller('breeds')
 @UseInterceptors(ClassSerializerInterceptor)
 export class BreedController {
   private logger = new Logger('BreedController');
@@ -23,6 +23,7 @@ export class BreedController {
     this.breedTime = this.configService.get<number>('breed.timePeriod');
   }
 
+  // TODO: Pagination, includeOptions, etc.
   @Get('pairs')
   async getPairs(@Req() req: Request, @Query() { pairId }: BreedPairQueryDto) {
     const user = req.user;
