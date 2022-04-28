@@ -1,5 +1,14 @@
 import { BreedingPointDto } from './dto/breeding-point.dto';
-import { Body, Controller, Logger, Post, Put, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { splitSignature, verifyMessage } from 'ethers/lib/utils';
 import type { Request } from 'src/types';
@@ -18,6 +27,30 @@ export class UserController {
     private readonly configService: ConfigService,
     private readonly prismaService: PrismaService,
   ) {}
+
+  @Get('/')
+  async getUser(@Req() req: Request) {
+    const { user: address } = req;
+
+    const user = await this.prismaService.user.findUnique({
+      where: { address },
+      select: {
+        address: true,
+        breedingPoint: true,
+        gameKeyId: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) {
+      throw NotFoundError('User not found.');
+    }
+
+    return {
+      success: true,
+      data: user,
+    };
+  }
 
   @Post('login')
   async login(@Body() body: LoginDto) {
@@ -97,14 +130,14 @@ export class UserController {
       });
 
       return {
-        success: true
-      }
+        success: true,
+      };
     } catch (e) {
       this.logger.error('addBreedingPoint: ' + e.message);
     }
 
     return {
-      success: false
-    }
+      success: false,
+    };
   }
 }
