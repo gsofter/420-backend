@@ -262,7 +262,8 @@ export class BreedService {
    */
   breedTimeElapsed(startDate: Date) {
     const breedTime = this.configService.get<number>('breed.timePeriod');
+
     const elapsed = Date.now() - startDate.getTime();
-    return elapsed >= breedTime;
+    return elapsed >= breedTime * 1000;
   }
 }
