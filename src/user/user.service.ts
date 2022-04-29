@@ -2,14 +2,18 @@ import { ConfigService } from '@nestjs/config';
 import { Injectable, Logger } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { BigNumber } from 'ethers';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
   // Buffer (in milliseconds) for signature validity allowance check.
   private timestampBuffer = 300000;
   private logger = new Logger('UserService');
+  private breedingPointPerLevel = 0;
 
-  constructor(private configService: ConfigService) {}
+  constructor(private configService: ConfigService, private prismaService: PrismaService) {
+    this.breedingPointPerLevel = this.configService.get<number>('breed.breedingPointPerLevel')
+  }
 
   /**
    * Retrieve the message the user will sign to login
@@ -67,6 +71,19 @@ Timestamp: ${timestamp}`;
     return jwt.verify(token, jwtPassPhrase, {
       algorithms: ['HS256'],
       issuer: '420 Game',
+    });
+  }
+
+  async consumeBreedingPoint(user: string) {
+    const userObject = await this.prismaService.user.findUnique({ where: { address: user } });
+
+    if (userObject.breedingPoint < this.breedingPointPerLevel) {
+      throw new Error('Not enough breeding point');
+    }
+    
+    return await this.prismaService.user.update({
+      where: { address: user },
+      data: { breedingPoint: userObject.breedingPoint - this.breedingPointPerLevel },
     });
   }
 }

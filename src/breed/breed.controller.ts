@@ -25,19 +25,23 @@ import { getBonusRateStatus } from './../utils/breed';
 import { BreedPairDto } from './dto/breed.dto';
 import { ConfigService } from '@nestjs/config';
 import { BreedPairStatus } from '@prisma/client';
+import { UserService } from 'src/user/user.service';
 
 @Controller('breeds')
 @UseInterceptors(ClassSerializerInterceptor)
 export class BreedController {
   private logger = new Logger('BreedController');
   private breedTime = 0;
+  private breedingPointPerLevel = 0;
 
   constructor(
     private readonly configService: ConfigService,
     private readonly breedService: BreedService,
     private readonly prismaService: PrismaService,
+    private readonly userService: UserService,
   ) {
     this.breedTime = this.configService.get<number>('breed.timePeriod');
+    this.breedingPointPerLevel = this.configService.get<number>('breed.breedingPointPerLevel');
   }
 
   // TODO: Pagination, includeOptions, etc.
@@ -109,8 +113,8 @@ export class BreedController {
         data: new BreedPairDto(pair, this.breedTime),
       };
     } catch (e) {
-      this.logger.error('createPair', e);
       if (isPrismaError(e)) {
+        this.logger.error('createPair', e);
         throw BreedingError();
       }
       throw e;
@@ -127,6 +131,9 @@ export class BreedController {
         id: pairId,
         userAddress: req.user,
       },
+      include: {
+        user: true
+      }
     });
 
     if (!pair) {
@@ -152,6 +159,9 @@ export class BreedController {
       // Get the bonus rate for the current level
       const bonusRate = await this.breedService.advanceBreedLevel(pair, budIds);
 
+      // Update breeding point balance
+      await this.userService.consumeBreedingPoint(req.user);
+
       // Generate the next level buds
       await this.breedService.startBreedLevel(pair);
 
@@ -162,11 +172,12 @@ export class BreedController {
         },
       };
     } catch (e) {
-      this.logger.error('levelUp', e);
       if (isPrismaError(e)) {
+        this.logger.error('levelUp', e);
         throw BreedingError();
       }
-      throw e;
+      
+      throw BadRequestError(e.message);
     }
   }
 }
