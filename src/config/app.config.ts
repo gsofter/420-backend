@@ -28,7 +28,7 @@ async function config(): Promise<AppConfig> {
       passPhrase: process.env.JWT_PASS_PHRASE,
     },
     breed: {
-      timePeriod: env === 'production' ? BREED_TIME : 60 * 60,
+      timePeriod: network === 'mainnet' ? BREED_TIME : 60 * 60,
       baseSuccessRate: 20,
     },
     metadataApi: {
