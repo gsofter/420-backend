@@ -10,6 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum BreedPairStatus {
+  PAIRED
+  COMPLETED
+}
+
 enum BudGender {
   M
   F
@@ -41,20 +46,21 @@ model User {
   // Relationships
   pairs BreedPair[]
 
+  BreedingPointLog BreedingPointLog[]
   @@unique([address])
   @@index([address])
-  BreedingPointLog BreedingPointLog[]
 }
 
 model BreedPair {
-  id           Int      @id @default(autoincrement())
+  id           Int             @id @default(autoincrement())
   maleBudId    Int
   femaleBudId  Int
   rate         Float
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  userAddress  String   @db.VarChar(42)
-  currentLevel Int      @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  userAddress  String          @db.VarChar(42)
+  currentLevel Int             @default(0)
+  status       BreedPairStatus
 
   // Relationships
   user   User         @relation(fields: [userAddress], references: [address])

@@ -3,3 +3,7 @@ export type CreateBudPair = {
   femaleBudId: number;
   address: string;
 };
+
+export type VerifyBudsOptions = {
+  checkMetadata?: boolean;
+}

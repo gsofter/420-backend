@@ -3,6 +3,7 @@ import {
   BreedBud,
   BreedLevel,
   BreedPair,
+  BreedPairStatus,
   BudColor,
   BudGender,
   BudShine,
@@ -25,6 +26,7 @@ export class BreedPairDto implements BreedPair {
 
   userAddress: string;
   currentLevel: number;
+  status: BreedPairStatus;
 
   levels: BreedLevelDto[];
 
@@ -37,6 +39,7 @@ export class BreedPairDto implements BreedPair {
     this.updatedAt = pair.updatedAt;
     this.userAddress = pair.userAddress;
     this.currentLevel = pair.currentLevel;
+    this.status = pair.status;
 
     if (pair.levels) {
       this.levels = pair.levels.map(

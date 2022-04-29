@@ -55,7 +55,7 @@ export class BudService {
 
       return metadatas.map(({ _id, __v, ...r }) => ({
         ...r,
-        tokenId: _id.toString(),
+        id: Number(_id),
       }));
     } catch (e) {
       this.logger.error('getBudsMetadata: ' + e.message);

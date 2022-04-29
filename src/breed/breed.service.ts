@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ethers } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { CreateBudPair } from './breed.types';
+import { CreateBudPair, VerifyBudsOptions } from './breed.types';
 import { generateRandomBud } from './../utils/bud';
 import { multicall } from 'src/utils/multicall';
 import { ADDRESSES } from 'src/config';
@@ -11,10 +11,11 @@ import { Network } from 'src/types';
 import { BudService } from 'src/bud/bud.service';
 import { HashTableService } from 'src/hash-table/hash-table.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { BreedPair } from '@prisma/client';
+import { BreedPair, BreedPairStatus } from '@prisma/client';
 
 @Injectable()
 export class BreedService {
+  private readonly logger = new Logger('BreedService');
   private rpcProvider: JsonRpcProvider;
 
   constructor(
@@ -56,10 +57,6 @@ export class BreedService {
 
     let bonusRate = 0;
     for (const metadata of metadatas) {
-      if (!metadata.revealed) {
-        throw new Error('Bud not revealed');
-      }
-      
       bonusRate += this.hashTableService.lookUpBeginningSuccessRate({
         thcId: metadata.thc,
         budSize: metadata.budSize,
@@ -72,13 +69,38 @@ export class BreedService {
   }
 
   /**
+   * Return a pair where given femaleBudId or maleBudId is in breeding
+   *
+   * @param maleBudId number
+   * @param femaleBudId number
+   * @returns BreedPair
+   */
+  async findPairInBreeding(maleBudId: number, femaleBudId: number) {
+    return this.prismaService.breedPair.count({
+      where: {
+        status: BreedPairStatus.PAIRED,
+        OR: [
+          {
+            femaleBudId: femaleBudId,
+          },
+          { maleBudId: maleBudId },
+        ],
+      },
+    });
+  }
+
+  /**
    * Verify if user owns buds referenced by maleBudId, and femaleBudId
    *
    * If such conditions are not met, the function throws an error
    * @param param0 CreateBudPair
-   * @returns true
+   * @param checkMetadata If true, will check if buds are revealed and have correct metadatas
+   * @returns
    */
-  async verifyBudPairs({ address, maleBudId, femaleBudId }: CreateBudPair) {
+  async verifyBudPairs(
+    { address, maleBudId, femaleBudId }: CreateBudPair,
+    { checkMetadata = true }: VerifyBudsOptions = {},
+  ) {
     const network = this.configService.get<Network>('network.name');
 
     if (isNaN(maleBudId) || maleBudId < 0 || maleBudId >= 20000) {
@@ -109,7 +131,7 @@ export class BreedService {
         ],
       );
     } catch (e) {
-      console.log('error', e)
+      this.logger.error('multicall error check', e);
       throw new Error('Check BUDs ownershipf. RPC call error');
     }
 
@@ -117,17 +139,25 @@ export class BreedService {
       throw new Error('Not the buds owner');
     }
 
-    // Verify bud metadata
-    const metadatas = await this.budService.getMetadatas([
-      maleBudId,
-      femaleBudId,
-    ]);
+    if (checkMetadata) {
+      // Verify bud metadata
+      const metadatas = await this.budService.getMetadatas([
+        maleBudId,
+        femaleBudId,
+      ]);
 
-    if(!this.budService.checkBudPairGenders(metadatas, maleBudId, femaleBudId)) {
-      throw new Error('Bud pair genders do not match');
+      for await (const metadata of metadatas) {
+        if (!metadata.revealed) {
+          throw new Error('Bud is not revealed');
+        }
+      }
+
+      if (
+        !this.budService.checkBudPairGenders(metadatas, maleBudId, femaleBudId)
+      ) {
+        throw new Error('Bud pair genders do not match');
+      }
     }
-
-    return true;
   }
 
   /**
@@ -151,40 +181,36 @@ export class BreedService {
       throw new Error('Max breed level reached');
     }
 
-    try {
-      const newLevel = breedPair.currentLevel + 1;
-      const breedLevel = await this.prismaService.breedLevel.create({
-        data: {
-          level: newLevel,
-          pairId: breedPair.id,
-          bonusRate: 0,
-        },
-      });
+    const newLevel = breedPair.currentLevel + 1;
+    const breedLevel = await this.prismaService.breedLevel.create({
+      data: {
+        level: newLevel,
+        pairId: breedPair.id,
+        bonusRate: 0,
+      },
+    });
 
-      // Create buds
-      await this.prismaService.breedBud.createMany({
-        data: buds.map((bud) => ({ ...bud, levelId: breedLevel.id, gen: 0 })),
-      });
+    // Create buds
+    await this.prismaService.breedBud.createMany({
+      data: buds.map((bud) => ({ ...bud, levelId: breedLevel.id, gen: 0 })),
+    });
 
-      // Update breed pair
-      await this.prismaService.breedPair.update({
-        where: {
-          id: breedPair.id,
-        },
-        data: {
-          currentLevel: newLevel,
-        },
-      });
+    // Update breed pair
+    await this.prismaService.breedPair.update({
+      where: {
+        id: breedPair.id,
+      },
+      data: {
+        currentLevel: newLevel,
+      },
+    });
 
-      return breedLevel;
-    } catch (e) {
-      throw new Error('Error creating new level: ' + e.message);
-    }
+    return breedLevel;
   }
 
   /**
    * Advance to the next level if required time elapsed, get the positive or negative rate
-   * 
+   *
    * @param breedPair BreedPair
    * @param param1 { maleBudId, femaleBudId }
    */
@@ -221,37 +247,33 @@ export class BreedService {
           in: [maleBudId, femaleBudId],
         },
         levelId: breedLevel.id,
-      }
+      },
     });
 
     // Verify bud genders in (M, F) pair
-    if(!this.budService.checkBudPairGenders(buds, maleBudId, femaleBudId)) {
+    if (!this.budService.checkBudPairGenders(buds, maleBudId, femaleBudId)) {
       throw new Error('Bud pair genders do not match');
     }
 
     // Get additional bonus rates
-    try {
-      for (const bud of buds) {
-        bonusRate += this.hashTableService.lookUpBreedRate({
-          thcId: bud.thc,
-          budSize: bud.budSize,
-        });
-      }
-
-      // Record bonus rate in the breed level
-      await this.prismaService.breedLevel.update({
-        where: {
-          id: breedLevel.id,
-        },
-        data: {
-          bonusRate,
-        },
+    for (const bud of buds) {
+      bonusRate += this.hashTableService.lookUpBreedRate({
+        thcId: bud.thc,
+        budSize: bud.budSize,
       });
-
-      return bonusRate;
-    } catch (e) {
-      throw new Error(`Error getting buds (bonusRate: ${bonusRate}): ${e.message}`);
     }
+
+    // Record bonus rate in the breed level
+    await this.prismaService.breedLevel.update({
+      where: {
+        id: breedLevel.id,
+      },
+      data: {
+        bonusRate,
+      },
+    });
+
+    return bonusRate;
   }
 
   /**
