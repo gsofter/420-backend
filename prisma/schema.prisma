@@ -13,6 +13,7 @@ datasource db {
 enum BreedPairStatus {
   PAIRED
   COMPLETED
+  MAX_REACHED
 }
 
 enum BudGender {

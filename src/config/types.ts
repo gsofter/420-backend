@@ -25,6 +25,7 @@ export type AppConfig = {
     timePeriod: number;
     baseSuccessRate: number;
     breedingPointPerLevel: number;
+    targetLevel: number;
   };
   rpc: string;
   metadataApi: {

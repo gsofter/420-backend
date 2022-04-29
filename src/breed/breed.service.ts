@@ -17,6 +17,7 @@ import { BreedPair, BreedPairStatus } from '@prisma/client';
 export class BreedService {
   private readonly logger = new Logger('BreedService');
   private rpcProvider: JsonRpcProvider;
+  private breedTargetLevel = 0;
 
   constructor(
     private configService: ConfigService,
@@ -26,6 +27,7 @@ export class BreedService {
   ) {
     const rpcUrl = configService.get<string>('network.rpc');
     const chainId = configService.get<number>('network.chainId');
+    this.breedTargetLevel = configService.get<number>('breed.targetLevel');
 
     this.rpcProvider = new ethers.providers.StaticJsonRpcProvider(
       rpcUrl,
@@ -169,43 +171,44 @@ export class BreedService {
    * @returns Promise<BreedLevel>
    */
   async startBreedLevel(breedPair: BreedPair) {
-    const buds = [
-      generateRandomBud({ targetGender: 'M' }),
-      generateRandomBud({ targetGender: 'F' }),
-      generateRandomBud({ targetGender: 'F' }),
-      generateRandomBud({ targetGender: 'M' }),
-    ];
+    const newLevel = breedPair.currentLevel + 1;
+    const maxLevelReached = newLevel >= this.breedTargetLevel;
 
     // Max level reached
-    if (breedPair.currentLevel >= 5) {
-      throw new Error('Max breed level reached');
+    if (!maxLevelReached) {
+      const buds = [
+        generateRandomBud({ targetGender: 'M' }),
+        generateRandomBud({ targetGender: 'F' }),
+        generateRandomBud({ targetGender: 'F' }),
+        generateRandomBud({ targetGender: 'M' }),
+      ];
+
+      const breedLevel = await this.prismaService.breedLevel.create({
+        data: {
+          level: newLevel,
+          pairId: breedPair.id,
+          bonusRate: 0,
+        },
+      });
+  
+      // Create buds
+      await this.prismaService.breedBud.createMany({
+        data: buds.map((bud) => ({ ...bud, levelId: breedLevel.id, gen: 0 })),
+      });
     }
-
-    const newLevel = breedPair.currentLevel + 1;
-    const breedLevel = await this.prismaService.breedLevel.create({
-      data: {
-        level: newLevel,
-        pairId: breedPair.id,
-        bonusRate: 0,
-      },
-    });
-
-    // Create buds
-    await this.prismaService.breedBud.createMany({
-      data: buds.map((bud) => ({ ...bud, levelId: breedLevel.id, gen: 0 })),
-    });
 
     // Update breed pair
     await this.prismaService.breedPair.update({
       where: {
         id: breedPair.id,
       },
-      data: {
+      data: maxLevelReached ? {
+        status: BreedPairStatus.MAX_REACHED,
+        currentLevel: newLevel,
+      } : {
         currentLevel: newLevel,
       },
     });
-
-    return breedLevel;
   }
 
   /**
@@ -287,5 +290,10 @@ export class BreedService {
 
     const elapsed = Date.now() - startDate.getTime();
     return elapsed >= breedTime * 1000;
+  }
+
+  getFinalBreedRate(pairId: number) {
+    // await this.prismaService.$queryRaw()
+    return 30;
   }
 }

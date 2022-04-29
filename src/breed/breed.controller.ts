@@ -26,13 +26,14 @@ import { BreedPairDto } from './dto/breed.dto';
 import { ConfigService } from '@nestjs/config';
 import { BreedPairStatus } from '@prisma/client';
 import { UserService } from 'src/user/user.service';
+import { BreedFinalizeDto } from './dto/breed-finalize.dto';
 
 @Controller('breeds')
 @UseInterceptors(ClassSerializerInterceptor)
 export class BreedController {
   private logger = new Logger('BreedController');
   private breedTime = 0;
-  private breedingPointPerLevel = 0;
+  private breedTargetLevel = 0;
 
   constructor(
     private readonly configService: ConfigService,
@@ -41,7 +42,7 @@ export class BreedController {
     private readonly userService: UserService,
   ) {
     this.breedTime = this.configService.get<number>('breed.timePeriod');
-    this.breedingPointPerLevel = this.configService.get<number>('breed.breedingPointPerLevel');
+    this.breedTargetLevel = this.configService.get<number>('breed.targetLevel');
   }
 
   // TODO: Pagination, includeOptions, etc.
@@ -61,7 +62,7 @@ export class BreedController {
         },
       },
     });
-    
+
     return {
       success: true,
       data: pairs.map((pair) => new BreedPairDto(pair, this.breedTime)),
@@ -82,10 +83,10 @@ export class BreedController {
     }
 
     if (
-      await this.breedService.findPairInBreeding(
+      (await this.breedService.findPairInBreeding(
         body.maleBudId,
         body.femaleBudId,
-      ) > 0
+      )) > 0
     ) {
       throw ConflictRequestError('One of the bud pairs is in breeding');
     }
@@ -131,13 +132,14 @@ export class BreedController {
         id: pairId,
         userAddress: req.user,
       },
-      include: {
-        user: true
-      }
     });
 
     if (!pair) {
       throw NotFoundError('Breed pair not found');
+    }
+
+    if (pair.currentLevel >= this.breedTargetLevel) {
+      throw BadRequestError('Target level reached. Do finalize!');
     }
 
     // Verify the original pair status again..
@@ -176,8 +178,30 @@ export class BreedController {
         this.logger.error('levelUp', e);
         throw BreedingError();
       }
-      
+
       throw BadRequestError(e.message);
     }
+  }
+
+  @Post('finalize')
+  async finalizeBreeding(
+    @Req() req: Request,
+    @Body() { pairId }: BreedFinalizeDto,
+  ) {
+    const pair = await this.prismaService.breedPair.findFirst({
+      where: {
+        id: pairId,
+        userAddress: req.user,
+      },
+    });
+
+    if (!pair) {
+      throw NotFoundError('Breed pair not found');
+    }
+
+    if (pair.currentLevel !== this.breedTargetLevel) {
+      throw BadRequestError('Breed target level not reached');
+    }
+    
   }
 }

@@ -31,6 +31,7 @@ async function config(): Promise<AppConfig> {
       timePeriod: network === 'mainnet' ? BREED_TIME : 10,
       baseSuccessRate: 20,
       breedingPointPerLevel: 10,
+      targetLevel: 5 + 1, // +1 for the finalize
     },
     metadataApi: {
       key: process.env.METADATA_API_KEY,
