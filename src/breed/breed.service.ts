@@ -1,3 +1,4 @@
+import { randomNumber, winRandomChance } from './../utils/number';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ethers } from 'ethers';
@@ -292,8 +293,39 @@ export class BreedService {
     return elapsed >= breedTime * 1000;
   }
 
-  getFinalBreedRate(pairId: number) {
-    // await this.prismaService.$queryRaw()
-    return 30;
+  async finalizeBreeding(pair: BreedPair) {
+    const bonus = await this.prismaService.$queryRaw<[{sum: number}]>`
+      SELECT sum("BreedLevel"."bonusRate")
+      FROM "BreedLevel"
+      WHERE "BreedLevel"."pairId" = ${pair.id}
+        AND "BreedLevel"."level" >= 1
+        AND "BreedLevel"."level" <= 5;
+    `
+
+    const finalRate = pair.rate + bonus[0].sum;
+
+    return this.diceGen1(finalRate);
+  }
+
+  private diceGen1(rate: number) {
+    const success = winRandomChance(rate);
+
+    if (!success) {
+      return {
+        success: false,
+        data: null
+      }
+    }
+
+    const bud = generateRandomBud();
+    const thcAndBudSize = this.hashTableService.lookUpGen1Bud(rate);
+
+    return {
+      success: true,
+      data: {
+        ...bud,
+        ...thcAndBudSize
+      }
+    }
   }
 }

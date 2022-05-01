@@ -203,5 +203,12 @@ export class BreedController {
       throw BadRequestError('Breed target level not reached');
     }
     
+    const data = await this.breedService.finalizeBreeding(pair);
+
+    // TODO: if data.success is true, then we should 
+    // 1. upate pair.status === FINALIZED
+    // 2. Record the bud metadata, and return a random request id
+
+    return data;
   }
 }

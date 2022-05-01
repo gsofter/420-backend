@@ -1,11 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { randomNumber } from 'src/utils/number';
 import * as hashTable from '../../data/hashTable.json';
 import * as hashTableBegin from '../../data/hashTableBegin.json';
+import * as hashTableGen1 from '../../data/hashTableGen1.json';
 import { HashTableLookUpRequest } from './hash-table.types';
 
 @Injectable()
 export class HashTableService {
   private logger = new Logger('HashTableService');
+  private gen1Rates: number[];
+
+  constructor() {
+    this.gen1Rates = Object.keys(hashTableGen1).map(x => Number(x));
+    this.gen1Rates.sort((a, b) => a - b);
+  }
 
   /**
    * For given (thcId, budSize) pair, returns the positive or negative rate that's receiving at each level of breeding
@@ -35,5 +43,32 @@ export class HashTableService {
    */
   lookUpBeginningSuccessRate({ thcId, budSize }: HashTableLookUpRequest) {
     return hashTableBegin[thcId]?.[budSize] || 0;
-  } 
+  }
+
+  /**
+   * Get the random {thc, budSize} within the target rate range
+   * @param rate number
+   * @returns 
+   */
+  lookUpGen1Bud(rate: number): { thc: number, budSize: number } {
+    const matchedRate = this.getMatchingGen1Rate(rate);
+    const randomGroup = hashTableGen1[matchedRate][randomNumber(hashTableGen1[matchedRate].length - 1)];
+
+    return {
+      thc: Number(randomGroup.thc),
+      budSize: Number(randomGroup.size),
+    };
+  }
+
+  private getMatchingGen1Rate(rate: number) {
+    for (const gen1Rate of this.gen1Rates) {
+      if (rate <= gen1Rate) {
+        return gen1Rate;
+      }
+    }
+    
+    // above than 50
+    // TODO: Missing group from [51, 100]
+    return this.gen1Rates[this.gen1Rates.length - 1];
+  }
 }
