@@ -2,13 +2,16 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BudGender } from '@prisma/client';
 import axios from 'axios';
+import { HashTableService } from 'src/hash-table/hash-table.service';
 import { BudWithId } from 'src/types';
+import { generateRandomBud } from './../utils/bud';
+import { winRandomChance } from './../utils/number';
 
 @Injectable()
 export class BudService {
   private logger = new Logger('BudService');
 
-  constructor(private configService: ConfigService) {}
+  constructor(private configService: ConfigService, private hashTableService: HashTableService) {}
 
   /**
    * Get metadatas of given bud ids
@@ -84,5 +87,27 @@ export class BudService {
     }
 
     return true;
+  }
+  
+  diceGen1Bud(rate: number) {
+    const success = winRandomChance(rate);
+
+    if (!success) {
+      return {
+        success: false,
+        data: null
+      }
+    }
+
+    const bud = generateRandomBud();
+    const thcAndBudSize = this.hashTableService.lookUpGen1Bud(rate);
+
+    return {
+      success: true,
+      data: {
+        ...bud,
+        ...thcAndBudSize
+      }
+    }
   }
 }

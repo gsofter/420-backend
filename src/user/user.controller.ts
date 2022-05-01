@@ -17,6 +17,8 @@ import { LoginDto } from './dto/login.dto';
 import { UserService } from './user.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
+import { BurnGen0Buds } from './dto/burn-gen0-buds.dto';
+import { BudService } from 'src/bud/bud.service';
 
 @Controller('users')
 export class UserController {
@@ -24,6 +26,7 @@ export class UserController {
 
   constructor(
     private readonly userService: UserService,
+    private readonly budService: BudService,
     private readonly configService: ConfigService,
     private readonly prismaService: PrismaService,
   ) {}
@@ -95,7 +98,7 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard('admin'))
-  @Put('breeding-point')
+  @Put('breedingPoint')
   async addBreedingPoint(@Body() body: BreedingPointDto) {
     const { address, txHash, block, network, amount } = body;
 
@@ -139,5 +142,28 @@ export class UserController {
     return {
       success: false,
     };
+  }
+
+  @UseGuards(AuthGuard('admin'))
+  @Post('burnBuds')
+  async burnGen0Buds(@Body() body: BurnGen0Buds) {
+    const { address, txHash, block, network, maleBudId, femaleBudId } = body;
+
+    if (network !== this.configService.get<string>('network.name')) {
+      throw BadRequestError('Invalid network');
+    }
+
+    const user = await this.prismaService.user.findUnique({
+      where: { address },
+    });
+
+    if (!user) {
+      throw NotFoundError('User not found.');
+    }
+
+    // 75 rate
+    const data = this.budService.diceGen1Bud(this.configService.get<number>('breed.burnSuccessRate'));
+
+    // TODO: Record gen1 bud
   }
 }

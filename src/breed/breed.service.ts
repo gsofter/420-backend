@@ -1,4 +1,3 @@
-import { randomNumber, winRandomChance } from './../utils/number';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ethers } from 'ethers';
@@ -304,28 +303,6 @@ export class BreedService {
 
     const finalRate = pair.rate + bonus[0].sum;
 
-    return this.diceGen1(finalRate);
-  }
-
-  private diceGen1(rate: number) {
-    const success = winRandomChance(rate);
-
-    if (!success) {
-      return {
-        success: false,
-        data: null
-      }
-    }
-
-    const bud = generateRandomBud();
-    const thcAndBudSize = this.hashTableService.lookUpGen1Bud(rate);
-
-    return {
-      success: true,
-      data: {
-        ...bud,
-        ...thcAndBudSize
-      }
-    }
+    return this.budService.diceGen1Bud(finalRate);
   }
 }

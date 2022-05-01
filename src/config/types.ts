@@ -25,6 +25,7 @@ export type AppConfig = {
     timePeriod: number;
     baseSuccessRate: number;
     breedingPointPerLevel: number;
+    burnSuccessRate: number;
     targetLevel: number;
   };
   rpc: string;
