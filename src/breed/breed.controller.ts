@@ -162,11 +162,11 @@ export class BreedController {
     }
 
     try {
-      // Get the bonus rate for the current level
-      const bonusRate = await this.breedService.advanceBreedLevel(pair, budIds);
-
       // Update breeding point balance
       await this.userService.consumeBreedingPoint(req.user);
+      
+      // Get the bonus rate for the current level
+      const bonusRate = await this.breedService.advanceBreedLevel(pair, budIds);
 
       // Generate the next level buds
       await this.breedService.startBreedLevel(pair);
