@@ -192,6 +192,7 @@ export class BreedController {
       where: {
         id: pairId,
         userAddress: req.user,
+        status: BreedPairStatus.MAX_REACHED,
       },
     });
 
