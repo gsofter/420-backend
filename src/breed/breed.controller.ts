@@ -209,6 +209,19 @@ export class BreedController {
     // 1. upate pair.status === FINALIZED
     // 2. Record the bud metadata, and return a random request id
 
+    if (!data.success) {
+      const pair = await this.prismaService.breedPair.update({
+        where: {
+          id: pairId,
+        },
+        data: {
+          status: data.success ? BreedPairStatus.COMPLETED : BreedPairStatus.FAILED,
+        }
+      });
+    }
+
+
+
     return data;
   }
 }
