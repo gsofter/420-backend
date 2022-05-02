@@ -96,7 +96,6 @@ export class BreedBudDto implements BreedBud {
   name: string;
   image: string;
   thc: number;
-  gen: number;
   budSize: number;
   gender: BudGender;
   shine: BudShine;
@@ -113,7 +112,6 @@ export class BreedBudDto implements BreedBud {
     this.name = bud.name;
     this.image = bud.image;
     this.thc = bud.thc;
-    this.gen = bud.gen;
     this.budSize = bud.budSize;
     this.gender = bud.gender;
     this.shine = bud.shine;
