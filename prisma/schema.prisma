@@ -94,7 +94,6 @@ model BreedBud {
   name      String    @db.VarChar
   image     String    @db.VarChar
   thc       Int
-  gen       Int
   budSize   Int
   gender    BudGender
   shine     BudShine
@@ -121,4 +120,34 @@ model BreedingPointLog {
 
   // Relationships
   user User @relation(fields: [userAddress], references: [address])
+}
+
+model Gen1MintRequest {
+  id        String    @db.VarChar(32)
+  createdAt DateTime  @default(now())
+  usedAt    DateTime?
+
+  // Relationships
+  @@unique([id])
+  Gen1Bud Gen1Bud[]
+}
+
+model Gen1Bud {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar
+  image     String    @db.VarChar
+  thc       Int
+  budSize   Int
+  gender    BudGender
+  shine     BudShine
+  color     BudColor
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  requestId String
+
+  // Relationship
+  request Gen1MintRequest @relation(fields: [requestId], references: [id])
+
+  @@index([id, thc])
+  @@index([requestId])
 }
