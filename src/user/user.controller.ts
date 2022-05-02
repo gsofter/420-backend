@@ -12,7 +12,11 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { verifyMessage } from 'ethers/lib/utils';
 import type { Request } from 'src/types';
-import { BadRequestError, NotFoundError } from 'src/utils/errors';
+import {
+  BadRequestError,
+  ConflictRequestError,
+  NotFoundError,
+} from 'src/utils/errors';
 import { LoginDto } from './dto/login.dto';
 import { UserService } from './user.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -20,6 +24,7 @@ import { ConfigService } from '@nestjs/config';
 import { BurnGen0Buds } from './dto/burn-gen0-buds.dto';
 import { BudService } from 'src/bud/bud.service';
 import { ethers } from 'ethers';
+import { BreedPairStatus } from '@prisma/client';
 
 @Controller('users')
 export class UserController {
@@ -68,7 +73,6 @@ export class UserController {
     const derivedAddress = verifyMessage(message, signature);
 
     if (derivedAddress === address) {
-
       const user = await this.prismaService.user.upsert({
         create: {
           address: address,
@@ -95,14 +99,14 @@ export class UserController {
   async getGen1Buds(@Req() req: Request) {
     const buds = await this.prismaService.gen1Bud.findMany({
       where: {
-        minterAddress: req.user
-      }
+        minterAddress: req.user,
+      },
     });
 
     return {
       success: true,
-      data: buds
-    }
+      data: buds,
+    };
   }
 
   @UseGuards(AuthGuard('admin'))
@@ -170,28 +174,49 @@ export class UserController {
     }
 
     // TODO: Verify maleBudId and femaleBudId, check in paired status
-    await this.budService.verifyBudPairs({
-      address: ethers.constants.AddressZero,
-      maleBudId,
-      femaleBudId,
-    }, { checkMetadata: true});
+    await this.budService.verifyBudPairs(
+      {
+        address: ethers.constants.AddressZero,
+        maleBudId,
+        femaleBudId,
+      },
+      { checkMetadata: true },
+    );
+
+    if (
+      (await this.prismaService.breedPair.count({
+        where: {
+          status: BreedPairStatus.PAIRED,
+          OR: [
+            {
+              femaleBudId: femaleBudId,
+            },
+            { maleBudId: maleBudId },
+          ],
+        },
+      })) > 0
+    ) {
+      throw ConflictRequestError('One of the bud pairs is in breeding');
+    }
 
     // TODO: Event verification
 
     // 75 rate
-    const result = this.budService.diceGen1Bud(this.configService.get<number>('breed.burnSuccessRate'));
+    const result = this.budService.diceGen1Bud(
+      this.configService.get<number>('breed.burnSuccessRate'),
+    );
 
     if (result.success) {
       return {
-        success: true, 
-        data: await this.budService.getMintRequestId(address, result.data)
-      }
+        success: true,
+        data: await this.budService.getMintRequestId(address, result.data),
+      };
     }
 
     // TODO: Emit socket event
     return {
       success: false,
-      data: null
-    }
+      data: null,
+    };
   }
 }
