@@ -3,19 +3,25 @@ import { ConfigService } from '@nestjs/config';
 import { BudGender } from '@prisma/client';
 import axios from 'axios';
 import { HashTableService } from 'src/hash-table/hash-table.service';
-import { BudWithId } from 'src/types';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Bud, BudWithId } from 'src/types';
 import { generateRandomBud } from './../utils/bud';
 import { winRandomChance } from './../utils/number';
+import { DiceGen1BudResponse } from './bud.types';
 
 @Injectable()
 export class BudService {
   private logger = new Logger('BudService');
 
-  constructor(private configService: ConfigService, private hashTableService: HashTableService) {}
+  constructor(
+    private configService: ConfigService,
+    private hashTableService: HashTableService,
+    private prismaService: PrismaService,
+  ) {}
 
   /**
    * Get metadatas of given bud ids
-   * 
+   *
    * @param tokenIds an array of bud token id
    * @returns Promise<BudWithId[]>
    */
@@ -69,34 +75,47 @@ export class BudService {
 
   /**
    * Check if bud pair genders come in (M, F) pair
-   * 
+   *
    * @param buds an array of buds with at least bud id and gender info
    * @param maleBudId id of male bud
    * @param femaleBudId id of female bud
    * @returns boolean
    */
-  checkBudPairGenders(buds: Array<{id: number, gender: BudGender}>, maleBudId: number, femaleBudId: number) {
+  checkBudPairGenders(
+    buds: Array<{ id: number; gender: BudGender }>,
+    maleBudId: number,
+    femaleBudId: number,
+  ) {
     if (buds.length < 2) {
       return false;
     }
 
     for (const bud of buds) {
-      if ((bud.id === maleBudId && bud.gender !== 'M') || (bud.id === femaleBudId && bud.gender !== 'F')) {
+      if (
+        (bud.id === maleBudId && bud.gender !== 'M') ||
+        (bud.id === femaleBudId && bud.gender !== 'F')
+      ) {
         return false;
       }
     }
 
     return true;
   }
-  
-  diceGen1Bud(rate: number) {
+
+  /**
+   * Roll a dice and if wins under the chance, return gen1 bud with traits in hash table
+   *
+   * @param rate number
+   * @returns DiceGen1BudResponse
+   */
+  diceGen1Bud(rate: number): DiceGen1BudResponse {
     const success = winRandomChance(rate);
 
     if (!success) {
       return {
         success: false,
-        data: null
-      }
+        data: null,
+      };
     }
 
     const bud = generateRandomBud();
@@ -106,8 +125,50 @@ export class BudService {
       success: true,
       data: {
         ...bud,
-        ...thcAndBudSize
-      }
+        ...thcAndBudSize,
+      },
+    };
+  }
+
+  /**
+   * Create a Gen1 bud with requested metadata and assign a request id to it.
+   * If this is called after breeding, pairId should not be null.
+   * Returns an assigned requestId if successful.
+   * 
+   * @param bud Bud
+   * @param pairId number | null
+   * @returns requestId
+   */
+  async getMintRequestId(bud: Bud, pairId: number | null = null) {
+    const request = await this.prismaService.gen1MintRequest.findFirst({
+      where: {
+        usedAt: null,
+      },
+    });
+
+    if (!request) {
+      throw new Error('Mint request is full');
     }
+
+    // Create a Gen1 bud associated with the mint request
+    await this.prismaService.gen1Bud.create({
+      data: {
+        ...bud,
+        requestId: request.id,
+        pairId,
+      },
+    });
+
+    // Update the mint request `usedAt` field
+    await this.prismaService.gen1MintRequest.update({
+      where: {
+        id: request.id,
+      },
+      data: {
+        usedAt: new Date(),
+      },
+    });
+
+    return request.id;
   }
 }

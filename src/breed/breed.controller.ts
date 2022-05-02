@@ -27,6 +27,7 @@ import { ConfigService } from '@nestjs/config';
 import { BreedPairStatus } from '@prisma/client';
 import { UserService } from 'src/user/user.service';
 import { BreedFinalizeDto } from './dto/breed-finalize.dto';
+import { BudService } from 'src/bud/bud.service';
 
 @Controller('breeds')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -40,6 +41,7 @@ export class BreedController {
     private readonly breedService: BreedService,
     private readonly prismaService: PrismaService,
     private readonly userService: UserService,
+    private readonly budService: BudService,
   ) {
     this.breedTime = this.configService.get<number>('breed.timePeriod');
     this.breedTargetLevel = this.configService.get<number>('breed.targetLevel');
@@ -207,26 +209,39 @@ export class BreedController {
     }
 
     try {
-      const data = await this.breedService.finalizeBreeding(pair);
+      const result = await this.breedService.finalizeBreeding(pair);
 
       // TODO: if data.success is true, then we should
       // 1. upate pair.status === FINALIZED
       // 2. Record the bud metadata, and return a random request id
 
-      if (data.success) {
+      if (result.success) {
         const pair = await this.prismaService.breedPair.update({
           where: {
             id: pairId,
           },
           data: {
-            status: data.success
+            status: result.success
               ? BreedPairStatus.COMPLETED
               : BreedPairStatus.FAILED,
           },
         });
+
+        const requestId = await this.budService.getMintRequestId(
+          result.data,
+          pair.id,
+        );
+
+        return {
+          success: true,
+          data: requestId,
+        };
       }
 
-      return data;
+      return {
+        success: false,
+        data: null,
+      };
     } catch (e) {
       if (isPrismaError(e)) {
         this.logger.error('finalize', e);

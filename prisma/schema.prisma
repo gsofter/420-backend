@@ -123,13 +123,12 @@ model BreedingPointLog {
 }
 
 model Gen1MintRequest {
-  id        String    @db.VarChar(32)
-  createdAt DateTime  @default(now())
-  usedAt    DateTime?
+  id          String    @db.VarChar(32)
+  createdAt   DateTime  @default(now())
+  requestedAt DateTime?
 
-  // Relationships
-  @@unique([id])
   Gen1Bud Gen1Bud[]
+  @@unique([id])
 }
 
 model Gen1Bud {
@@ -143,7 +142,10 @@ model Gen1Bud {
   color     BudColor
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  requestId String
+
+  // Foreign keys
+  requestId String @unique
+  pairId    Int
 
   // Relationship
   request Gen1MintRequest @relation(fields: [requestId], references: [id])
