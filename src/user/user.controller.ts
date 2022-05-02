@@ -67,22 +67,15 @@ export class UserController {
     const derivedAddress = verifyMessage(message, signature);
 
     if (derivedAddress === address) {
-      const { r, s, v } = splitSignature(signature);
 
       const user = await this.prismaService.user.upsert({
         create: {
           address: address,
           signature: signature,
-          r,
-          s,
-          v,
           gameKeyId: gameKey,
         },
         update: {
           signature: signature,
-          r,
-          s,
-          v,
           gameKeyId: gameKey,
         },
         where: { address: address },
@@ -161,9 +154,23 @@ export class UserController {
       throw NotFoundError('User not found.');
     }
 
-    // 75 rate
-    const data = this.budService.diceGen1Bud(this.configService.get<number>('breed.burnSuccessRate'));
+    // TODO: Verify maleBudId and femaleBudId, check in paired status
+    // TODO: Event verification
 
-    // TODO: Record gen1 bud
+    // 75 rate
+    const result = this.budService.diceGen1Bud(this.configService.get<number>('breed.burnSuccessRate'));
+
+    if (result.success) {
+      return {
+        success: true, 
+        data: await this.budService.getMintRequestId(address, result.data)
+      }
+    }
+
+    // TODO: Emit socket event
+    return {
+      success: false,
+      data: null
+    }
   }
 }

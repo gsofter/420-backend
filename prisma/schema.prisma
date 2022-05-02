@@ -37,9 +37,6 @@ enum BudShine {
 model User {
   address       String   @id @db.VarChar(42)
   signature     String   @db.Text
-  r             String   @db.Text
-  s             String   @db.Text
-  v             Int      @db.SmallInt
   gameKeyId     Int?     @db.Integer
   breedingPoint Int      @default(0) @db.Integer
   createdAt     DateTime @default(now())
