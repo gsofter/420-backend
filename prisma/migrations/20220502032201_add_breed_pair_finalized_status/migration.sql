@@ -1,2 +1,2 @@
 -- AlterEnum
-ALTER TYPE "BreedPairStatus" ADD VALUE 'FINALIZED';
+ALTER TYPE "BreedPairStatus" ADD VALUE 'FAILED';
