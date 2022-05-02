@@ -63,6 +63,8 @@ export class BreedLevelDto implements BreedLevel {
   bonusRate: number;
 
   buds: BreedBudDto[];
+  maleBreedBudId: number | null
+  femaleBreedBudId: number | null
 
   constructor(level: BreedLevel & { buds?: BreedBud[] }, breedTime?: number) {
     this.id = level.id;
@@ -70,6 +72,8 @@ export class BreedLevelDto implements BreedLevel {
     this.level = level.level;
     this.createdAt = level.createdAt;
     this.updatedAt = level.updatedAt;
+    this.maleBreedBudId = level.maleBreedBudId;
+    this.femaleBreedBudId = level.femaleBreedBudId;
 
     let isBreedTimeElapsed = false;
     if (breedTime) {
