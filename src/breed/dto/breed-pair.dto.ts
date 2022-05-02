@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateBreedPairDto {
   @IsNumber()
@@ -14,4 +14,8 @@ export class BreedPairQueryDto {
   @IsNumber()
   @IsOptional()
   pairId?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  includePastBreeding?: boolean;
 }

@@ -53,6 +53,7 @@ export class BreedController {
       where: {
         userAddress: user,
         id: pairId,
+        // status: includePastBreeding ? undefined : BreedPairStatus.PAIRED,
       },
       include: {
         levels: {
@@ -131,6 +132,7 @@ export class BreedController {
       where: {
         id: pairId,
         userAddress: req.user,
+        status: BreedPairStatus.PAIRED,
       },
     });
 
@@ -203,10 +205,10 @@ export class BreedController {
     if (pair.currentLevel !== this.breedTargetLevel) {
       throw BadRequestError('Breed target level not reached');
     }
-    
+
     const data = await this.breedService.finalizeBreeding(pair);
 
-    // TODO: if data.success is true, then we should 
+    // TODO: if data.success is true, then we should
     // 1. upate pair.status === FINALIZED
     // 2. Record the bud metadata, and return a random request id
 
@@ -216,12 +218,12 @@ export class BreedController {
           id: pairId,
         },
         data: {
-          status: data.success ? BreedPairStatus.COMPLETED : BreedPairStatus.FAILED,
-        }
+          status: data.success
+            ? BreedPairStatus.COMPLETED
+            : BreedPairStatus.FAILED,
+        },
       });
     }
-
-
 
     return data;
   }
