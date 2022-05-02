@@ -4,6 +4,3 @@ export type CreateBudPair = {
   address: string;
 };
 
-export type VerifyBudsOptions = {
-  checkMetadata?: boolean;
-}

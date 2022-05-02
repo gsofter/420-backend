@@ -78,7 +78,7 @@ export class BreedController {
     const dtoWithUser = { ...body, address: user };
 
     try {
-      await this.breedService.verifyBudPairs(dtoWithUser, {
+      await this.budService.verifyBudPairs(dtoWithUser, {
         checkMetadata: true,
       });
     } catch (e) {
@@ -149,7 +149,7 @@ export class BreedController {
     // Verify the original pair status again..
     // People might have transferred/sold the buds in the meantime
     try {
-      await this.breedService.verifyBudPairs(
+      await this.budService.verifyBudPairs(
         {
           address: pair.userAddress,
           maleBudId: pair.maleBudId,

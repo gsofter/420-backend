@@ -1,13 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ethers } from 'ethers';
-import { JsonRpcProvider } from '@ethersproject/providers';
-import { CreateBudPair, VerifyBudsOptions } from './breed.types';
+import { CreateBudPair } from './breed.types';
 import { generateRandomBud } from './../utils/bud';
-import { multicall } from 'src/utils/multicall';
-import { ADDRESSES } from 'src/config';
-import * as BudAbi from 'src/abis/bud.json';
-import { Network } from 'src/types';
 import { BudService } from 'src/bud/bud.service';
 import { HashTableService } from 'src/hash-table/hash-table.service';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -16,7 +10,6 @@ import { BreedPair, BreedPairStatus } from '@prisma/client';
 @Injectable()
 export class BreedService {
   private readonly logger = new Logger('BreedService');
-  private rpcProvider: JsonRpcProvider;
   private breedTargetLevel = 0;
 
   constructor(
@@ -25,14 +18,7 @@ export class BreedService {
     private hashTableService: HashTableService,
     private prismaService: PrismaService,
   ) {
-    const rpcUrl = configService.get<string>('network.rpc');
-    const chainId = configService.get<number>('network.chainId');
     this.breedTargetLevel = configService.get<number>('breed.targetLevel');
-
-    this.rpcProvider = new ethers.providers.StaticJsonRpcProvider(
-      rpcUrl,
-      chainId,
-    );
   }
 
   /**
@@ -89,77 +75,6 @@ export class BreedService {
         ],
       },
     });
-  }
-
-  /**
-   * Verify if user owns buds referenced by maleBudId, and femaleBudId
-   *
-   * If such conditions are not met, the function throws an error
-   * @param param0 CreateBudPair
-   * @param checkMetadata If true, will check if buds are revealed and have correct metadatas
-   * @returns
-   */
-  async verifyBudPairs(
-    { address, maleBudId, femaleBudId }: CreateBudPair,
-    { checkMetadata = true }: VerifyBudsOptions = {},
-  ) {
-    const network = this.configService.get<Network>('network.name');
-
-    if (isNaN(maleBudId) || maleBudId < 0 || maleBudId >= 20000) {
-      throw new Error('Invalid budId for male');
-    }
-
-    if (isNaN(femaleBudId) || femaleBudId < 0 || femaleBudId >= 20000) {
-      throw new Error('Invalid budId for female');
-    }
-
-    let [owner1, owner2] = ['', ''];
-    try {
-      [owner1, owner2] = await multicall(
-        this.rpcProvider,
-        ADDRESSES[network].MULTICALL,
-        BudAbi,
-        [
-          {
-            contractAddress: ADDRESSES[network].BUD,
-            functionName: 'ownerOf',
-            params: [maleBudId],
-          },
-          {
-            contractAddress: ADDRESSES[network].BUD,
-            functionName: 'ownerOf',
-            params: [femaleBudId],
-          },
-        ],
-      );
-    } catch (e) {
-      this.logger.error('multicall error check', e);
-      throw new Error('Check BUDs ownershipf. RPC call error');
-    }
-
-    if (owner1 !== address || owner2 !== address) {
-      throw new Error('Not the buds owner');
-    }
-
-    if (checkMetadata) {
-      // Verify bud metadata
-      const metadatas = await this.budService.getMetadatas([
-        maleBudId,
-        femaleBudId,
-      ]);
-
-      for await (const metadata of metadatas) {
-        if (!metadata.revealed) {
-          throw new Error('Bud is not revealed');
-        }
-      }
-
-      if (
-        !this.budService.checkBudPairGenders(metadatas, maleBudId, femaleBudId)
-      ) {
-        throw new Error('Bud pair genders do not match');
-      }
-    }
   }
 
   /**

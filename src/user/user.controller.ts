@@ -19,6 +19,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { BurnGen0Buds } from './dto/burn-gen0-buds.dto';
 import { BudService } from 'src/bud/bud.service';
+import { ethers } from 'ethers';
 
 @Controller('users')
 export class UserController {
@@ -169,6 +170,12 @@ export class UserController {
     }
 
     // TODO: Verify maleBudId and femaleBudId, check in paired status
+    await this.budService.verifyBudPairs({
+      address: ethers.constants.AddressZero,
+      maleBudId,
+      femaleBudId,
+    }, { checkMetadata: true});
+
     // TODO: Event verification
 
     // 75 rate
