@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { splitSignature, verifyMessage } from 'ethers/lib/utils';
+import { verifyMessage } from 'ethers/lib/utils';
 import type { Request } from 'src/types';
 import { BadRequestError, NotFoundError } from 'src/utils/errors';
 import { LoginDto } from './dto/login.dto';
@@ -88,6 +88,20 @@ export class UserController {
     }
 
     throw BadRequestError('Signature and Address do not match.');
+  }
+
+  @Get('gen1Buds')
+  async getGen1Buds(@Req() req: Request) {
+    const buds = await this.prismaService.gen1Bud.findMany({
+      where: {
+        minterAddress: req.user
+      }
+    });
+
+    return {
+      success: true,
+      data: buds
+    }
   }
 
   @UseGuards(AuthGuard('admin'))
