@@ -135,14 +135,15 @@ export class BudService {
    * If this is called after breeding, pairId should not be null.
    * Returns an assigned requestId if successful.
    * 
+   * @param minter string
    * @param bud Bud
    * @param pairId number | null
    * @returns requestId
    */
-  async getMintRequestId(bud: Bud, pairId: number | null = null) {
+  async getMintRequestId(minter: string, bud: Bud, pairId: number | null = null) {
     const request = await this.prismaService.gen1MintRequest.findFirst({
       where: {
-        usedAt: null,
+        requestedAt: null,
       },
     });
 
@@ -156,6 +157,7 @@ export class BudService {
         ...bud,
         requestId: request.id,
         pairId,
+        minterAddress: minter,
       },
     });
 
@@ -165,7 +167,7 @@ export class BudService {
         id: request.id,
       },
       data: {
-        usedAt: new Date(),
+        requestedAt: new Date(),
       },
     });
 

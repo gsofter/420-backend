@@ -132,16 +132,17 @@ model Gen1MintRequest {
 }
 
 model Gen1Bud {
-  id        Int       @id @default(autoincrement())
-  name      String    @db.VarChar
-  image     String    @db.VarChar
-  thc       Int
-  budSize   Int
-  gender    BudGender
-  shine     BudShine
-  color     BudColor
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id            Int       @id @default(autoincrement())
+  name          String    @db.VarChar
+  image         String    @db.VarChar
+  thc           Int
+  budSize       Int
+  gender        BudGender
+  shine         BudShine
+  color         BudColor
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  minterAddress String
 
   // Foreign keys
   requestId String @unique

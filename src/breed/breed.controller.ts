@@ -228,6 +228,7 @@ export class BreedController {
         });
 
         const requestId = await this.budService.getMintRequestId(
+          req.user,
           result.data,
           pair.id,
         );
