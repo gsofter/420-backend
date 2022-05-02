@@ -108,7 +108,7 @@ export class BreedService {
   
       // Create buds
       await this.prismaService.breedBud.createMany({
-        data: buds.map((bud) => ({ ...bud, levelId: breedLevel.id, gen: 0 })),
+        data: buds.map((bud) => ({ ...bud, levelId: breedLevel.id })),
       });
     }
 
