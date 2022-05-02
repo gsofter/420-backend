@@ -273,6 +273,8 @@ export class BreedService {
       },
       data: {
         bonusRate,
+        maleBreedBudId: maleBudId,
+        femaleBreedBudId: femaleBudId,
       },
     });
 

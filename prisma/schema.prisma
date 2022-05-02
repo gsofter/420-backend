@@ -71,12 +71,14 @@ model BreedPair {
 }
 
 model BreedLevel {
-  id        Int      @id @default(autoincrement())
-  pairId    Int
-  level     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  bonusRate Float    @default(0)
+  id               Int      @id @default(autoincrement())
+  pairId           Int
+  level            Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  bonusRate        Float    @default(0)
+  maleBreedBudId   Int?
+  femaleBreedBudId Int?
 
   // Relationships
   buds BreedBud[]
