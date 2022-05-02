@@ -206,25 +206,34 @@ export class BreedController {
       throw BadRequestError('Breed target level not reached');
     }
 
-    const data = await this.breedService.finalizeBreeding(pair);
+    try {
+      const data = await this.breedService.finalizeBreeding(pair);
 
-    // TODO: if data.success is true, then we should
-    // 1. upate pair.status === FINALIZED
-    // 2. Record the bud metadata, and return a random request id
+      // TODO: if data.success is true, then we should
+      // 1. upate pair.status === FINALIZED
+      // 2. Record the bud metadata, and return a random request id
 
-    if (!data.success) {
-      const pair = await this.prismaService.breedPair.update({
-        where: {
-          id: pairId,
-        },
-        data: {
-          status: data.success
-            ? BreedPairStatus.COMPLETED
-            : BreedPairStatus.FAILED,
-        },
-      });
+      if (data.success) {
+        const pair = await this.prismaService.breedPair.update({
+          where: {
+            id: pairId,
+          },
+          data: {
+            status: data.success
+              ? BreedPairStatus.COMPLETED
+              : BreedPairStatus.FAILED,
+          },
+        });
+      }
+
+      return data;
+    } catch (e) {
+      if (isPrismaError(e)) {
+        this.logger.error('finalize', e);
+        throw BreedingError();
+      }
+
+      throw BadRequestError(e.message);
     }
-
-    return data;
   }
 }
