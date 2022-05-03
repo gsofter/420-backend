@@ -52,8 +52,8 @@ export class BreedController {
   // TODO: Pagination, includeOptions, etc.
   @Get('pairs')
   async getPairs(@Req() req: Request, @Query() { pairId }: BreedPairQueryDto) {
-    this.appGateway.handleMessage(null, 'getPairs');
-    
+    this.appGateway.handleMessage(null, 'getPairs socket emit');
+
     const user = req.user;
     const pairs = await this.prismaService.breedPair.findMany({
       where: {
