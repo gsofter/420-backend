@@ -28,6 +28,7 @@ import { BreedPairStatus } from '@prisma/client';
 import { UserService } from 'src/user/user.service';
 import { BreedFinalizeDto } from './dto/breed-finalize.dto';
 import { BudService } from 'src/bud/bud.service';
+import { AppGateway } from 'src/app.gateway';
 
 @Controller('breeds')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -42,6 +43,7 @@ export class BreedController {
     private readonly prismaService: PrismaService,
     private readonly userService: UserService,
     private readonly budService: BudService,
+    private readonly appGateway: AppGateway,
   ) {
     this.breedTime = this.configService.get<number>('breed.timePeriod');
     this.breedTargetLevel = this.configService.get<number>('breed.targetLevel');
@@ -50,6 +52,8 @@ export class BreedController {
   // TODO: Pagination, includeOptions, etc.
   @Get('pairs')
   async getPairs(@Req() req: Request, @Query() { pairId }: BreedPairQueryDto) {
+    this.appGateway.handleMessage(null, 'getPairs');
+    
     const user = req.user;
     const pairs = await this.prismaService.breedPair.findMany({
       where: {

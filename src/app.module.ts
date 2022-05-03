@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { BreedModule } from './breed/breed.module';
 import { AppController } from './app.controller';
 import { BudModule } from './bud/bud.module';
+import { AppGateway } from './app.gateway';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { BudModule } from './bud/bud.module';
     BudModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [AppGateway],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
