@@ -11,7 +11,10 @@ import { Socket, Server } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: "*",
+    methods: ["GET", "HEAD", "POST", "OPTIONS"],
+    allowedHeaders: ["X-Socket-Event"],
+    credentials: true
   },
 })
 export class AppGateway
