@@ -1,7 +1,11 @@
+require('dotenv-flow').config();
+
 import * as crypto from 'crypto';
 
+console.log(`Running on ${process.env.NETWORK} \n`);
+
 const LENGTH = 16;
-const TOTAL_SUPPLY = 30;
+const TOTAL_SUPPLY = process.env.NETWORK === 'mainnet' ? 30 * 1000 : 30;
 
 const generateRequestIds = (): string[] => {
   const _generateRandomId = (): string => {
