@@ -11,8 +11,13 @@ export class UserService {
   private logger = new Logger('UserService');
   private breedingPointPerLevel = 0;
 
-  constructor(private configService: ConfigService, private prismaService: PrismaService) {
-    this.breedingPointPerLevel = this.configService.get<number>('breed.breedingPointPerLevel')
+  constructor(
+    private configService: ConfigService,
+    private prismaService: PrismaService,
+  ) {
+    this.breedingPointPerLevel = this.configService.get<number>(
+      'breed.breedingPointPerLevel',
+    );
   }
 
   /**
@@ -75,15 +80,19 @@ Timestamp: ${timestamp}`;
   }
 
   async consumeBreedingPoint(user: string) {
-    const userObject = await this.prismaService.user.findUnique({ where: { address: user } });
+    const userObject = await this.prismaService.user.findUnique({
+      where: { address: user },
+    });
 
     if (userObject.breedingPoint < this.breedingPointPerLevel) {
       throw new Error('Not enough breeding point');
     }
-    
+
     return await this.prismaService.user.update({
       where: { address: user },
-      data: { breedingPoint: userObject.breedingPoint - this.breedingPointPerLevel },
+      data: {
+        breedingPoint: userObject.breedingPoint - this.breedingPointPerLevel,
+      },
     });
   }
 }

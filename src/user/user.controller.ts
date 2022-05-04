@@ -162,6 +162,8 @@ export class UserController {
       throw NotFoundError('User not found.');
     }
 
+    // TODO: Enable bud gender check and breeding status
+    
     // await this.budService.verifyBudPairs(
     //   {
     //     address: ethers.constants.AddressZero,

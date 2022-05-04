@@ -148,6 +148,6 @@ model Gen1Bud {
   // Relationship
   request Gen1MintRequest @relation(fields: [requestId], references: [id])
 
-  @@index([id, thc])
+  @@index([minterAddress, id])
   @@index([requestId])
 }
