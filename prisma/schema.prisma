@@ -124,8 +124,8 @@ model Gen1MintRequest {
   createdAt   DateTime  @default(now())
   requestedAt DateTime?
 
-  Gen1Bud Gen1Bud[]
   @@unique([id])
+  Gen1Bud Gen1Bud[]
 }
 
 model Gen1Bud {
