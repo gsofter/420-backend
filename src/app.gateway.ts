@@ -9,6 +9,16 @@ import {
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 
+type EmitGen0BudsBurnedPayload = {
+  success: boolean;
+  data: {
+    address: string;
+    maleBudId: number;
+    femaleBudId: number;
+    newBudId: number;
+  } | null;
+};
+
 @WebSocketGateway({
   cors: {
     origin: "*",
@@ -30,7 +40,7 @@ export class AppGateway
     this.server.emit('msgToClient', payload);
   }
 
-  emitGen0BudsBurned(payload: any) {
+  emitGen0BudsBurned(payload: EmitGen0BudsBurnedPayload) {
     this.server.emit('gen0BudsBurned', payload);
   }
 

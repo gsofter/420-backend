@@ -160,6 +160,7 @@ export class UserController {
 
   @UseGuards(AuthGuard('admin'))
   @Post('burnBuds')
+  // TODO: Event verification
   async burnGen0Buds(@Body() body: BurnGen0Buds) {
     const { address, txHash, block, network, maleBudId, femaleBudId } = body;
 
@@ -175,35 +176,32 @@ export class UserController {
       throw NotFoundError('User not found.');
     }
 
-    // TODO: Verify maleBudId and femaleBudId, check in paired status
-    await this.budService.verifyBudPairs(
-      {
-        address: ethers.constants.AddressZero,
-        maleBudId,
-        femaleBudId,
-      },
-      { checkMetadata: true },
-    );
+    // await this.budService.verifyBudPairs(
+    //   {
+    //     address: ethers.constants.AddressZero,
+    //     maleBudId,
+    //     femaleBudId,
+    //   },
+    //   { checkMetadata: true },
+    // );
 
-    if (
-      (await this.prismaService.breedPair.count({
-        where: {
-          status: BreedPairStatus.PAIRED,
-          OR: [
-            {
-              femaleBudId: femaleBudId,
-            },
-            { maleBudId: maleBudId },
-          ],
-        },
-      })) > 0
-    ) {
-      throw ConflictRequestError('One of the bud pairs is in breeding');
-    }
+    // if (
+    //   (await this.prismaService.breedPair.count({
+    //     where: {
+    //       status: BreedPairStatus.PAIRED,
+    //       OR: [
+    //         {
+    //           femaleBudId: femaleBudId,
+    //         },
+    //         { maleBudId: maleBudId },
+    //       ],
+    //     },
+    //   })) > 0
+    // ) {
+    //   throw ConflictRequestError('One of the bud pairs is in breeding');
+    // }
 
-    // TODO: Event verification
-
-    // 75 rate
+    // Roll the dice
     const result = this.budService.diceGen1Bud(
       this.configService.get<number>('breed.burnSuccessRate'),
     );
@@ -212,10 +210,13 @@ export class UserController {
       const newBud = await this.budService.createGen1BudMintRequest(address, result.data);
 
       this.appGateway.emitGen0BudsBurned({
-        address,
-        maleBudId,
-        femaleBudId,
-        newBudId: newBud.id,
+        success: true,
+        data: {
+          address,
+          maleBudId,
+          femaleBudId,
+          newBudId: newBud.id,
+        }
       });
 
       return {
@@ -224,7 +225,11 @@ export class UserController {
       };
     }
 
-    // TODO: Emit socket event
+    this.appGateway.emitGen0BudsBurned({
+      success: true,
+      data: null
+    });
+
     return {
       success: false,
       data: null,

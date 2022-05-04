@@ -143,7 +143,7 @@ model Gen1Bud {
 
   // Foreign keys
   requestId String @unique
-  pairId    Int
+  pairId    Int?
 
   // Relationship
   request Gen1MintRequest @relation(fields: [requestId], references: [id])
