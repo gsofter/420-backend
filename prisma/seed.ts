@@ -1,27 +1,34 @@
-import { PrismaClient, Prisma } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client';
+import gen1RequestIds from './seeds/gen1MintRequest';
+import giftCardRequestIds from './seeds/giftCardRequest';
 
-const prisma = new PrismaClient()
-
-// const userData: Prisma.UserCreateInput[] = [
-  
-// ]
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log(`Start seeding ...`)
-  // for (const u of userData) {
-  //   const user = await prisma.user.create({
-  //     data: u,
-  //   })
-  //   console.log(`Created user with id: ${user.id}`)
-  // }
-  console.log(`Seeding finished.`)
+  console.log(`Start seeding Gen1MintRequest ...`);
+
+  let requestIds = gen1RequestIds();
+  let failed = 0;
+  for (const id of requestIds) {
+    try {
+      await prisma.gen1MintRequest.create({
+        data: {
+          id,
+        },
+      });
+    } catch (e) {
+      failed ++;
+      console.log(`Failed to create Gen1MintRequest ${id}`);
+    }
+  }
+  console.log(`Seeding Gen1MintRequest finished. Added ${requestIds.length - failed} records.`);
 }
 
 main()
   .catch((e) => {
-    console.error(e)
-    process.exit(1)
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });
