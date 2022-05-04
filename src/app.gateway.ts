@@ -30,6 +30,10 @@ export class AppGateway
     this.server.emit('msgToClient', payload);
   }
 
+  emitGen0BudsBurned(payload: any) {
+    this.server.emit('gen0BudsBurned', payload);
+  }
+
   afterInit(server: Server) {
     this.logger.log('Init');
   }

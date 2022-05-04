@@ -25,12 +25,14 @@ import { BurnGen0Buds } from './dto/burn-gen0-buds.dto';
 import { BudService } from 'src/bud/bud.service';
 import { ethers } from 'ethers';
 import { BreedPairStatus } from '@prisma/client';
+import { AppGateway } from 'src/app.gateway';
 
 @Controller('users')
 export class UserController {
   private readonly logger = new Logger('UserController');
 
   constructor(
+    private readonly appGateway: AppGateway,
     private readonly userService: UserService,
     private readonly budService: BudService,
     private readonly configService: ConfigService,
@@ -207,9 +209,18 @@ export class UserController {
     );
 
     if (result.success) {
+      const newBud = await this.budService.createGen1BudMintRequest(address, result.data);
+
+      this.appGateway.emitGen0BudsBurned({
+        address,
+        maleBudId,
+        femaleBudId,
+        newBudId: newBud.id,
+      });
+
       return {
         success: true,
-        data: await this.budService.getMintRequestId(address, result.data),
+        data: newBud.requestId,
       };
     }
 

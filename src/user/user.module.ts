@@ -5,10 +5,11 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { AuthMiddleware } from 'src/middlewares/auth.middleware';
 import { AdminGuardStrategy } from 'src/guards/admin.guard';
 import { BudModule } from 'src/bud/bud.module';
+import { AppGateway } from 'src/app.gateway';
 
 @Module({
   imports: [PrismaModule, BudModule],
-  providers: [UserService, AdminGuardStrategy],
+  providers: [UserService, AdminGuardStrategy, AppGateway],
   controllers: [UserController],
   exports: [UserService],
 })

@@ -223,9 +223,9 @@ export class BudService {
    * @param minter string
    * @param bud Bud
    * @param pairId number | null
-   * @returns requestId
+   * @returns Gen1Bud
    */
-  async getMintRequestId(minter: string, bud: Bud, pairId: number | null = null) {
+  async createGen1BudMintRequest(minter: string, bud: Bud, pairId: number | null = null) {
     const request = await this.prismaService.gen1MintRequest.findFirst({
       where: {
         requestedAt: null,
@@ -237,7 +237,7 @@ export class BudService {
     }
 
     // Create a Gen1 bud associated with the mint request
-    await this.prismaService.gen1Bud.create({
+    const gen1Bud = await this.prismaService.gen1Bud.create({
       data: {
         ...bud,
         requestId: request.id,
@@ -256,6 +256,6 @@ export class BudService {
       },
     });
 
-    return request.id;
+    return gen1Bud;
   }
 }
