@@ -235,7 +235,7 @@ export class BreedController {
 
         return {
           success: true,
-          data: gen1Bud.requestId,
+          data: gen1Bud,
         };
       }
 

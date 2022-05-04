@@ -17,16 +17,17 @@ async function main() {
 
   let requestIds = gen1RequestIds();
   let failed = 0;
-  for (const id of requestIds) {
+  for (const v of requestIds) {
     try {
       await prisma.gen1MintRequest.create({
         data: {
-          id,
+          id: v.id,
+          proof: v.proof,
         },
       });
     } catch (e) {
       failed++;
-      console.log(`Failed to create Gen1MintRequest ${id}`);
+      console.log(`Failed to create Gen1MintRequest ${v.id}`);
     }
   }
   console.log(

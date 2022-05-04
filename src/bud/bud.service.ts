@@ -244,6 +244,9 @@ export class BudService {
         pairId,
         minterAddress: minter,
       },
+      include: {
+        request: true,
+      }
     });
 
     // Update the mint request `usedAt` field

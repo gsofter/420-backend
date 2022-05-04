@@ -163,7 +163,7 @@ export class UserController {
     }
 
     // TODO: Enable bud gender check and breeding status
-    
+
     // await this.budService.verifyBudPairs(
     //   {
     //     address: ethers.constants.AddressZero,
@@ -209,7 +209,7 @@ export class UserController {
 
       return {
         success: true,
-        data: newBud.requestId,
+        data: newBud,
       };
     }
 
