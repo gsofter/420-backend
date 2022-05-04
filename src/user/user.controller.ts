@@ -97,20 +97,6 @@ export class UserController {
     throw BadRequestError('Signature and Address do not match.');
   }
 
-  @Get('gen1Buds')
-  async getGen1Buds(@Req() req: Request) {
-    const buds = await this.prismaService.gen1Bud.findMany({
-      where: {
-        minterAddress: req.user,
-      },
-    });
-
-    return {
-      success: true,
-      data: buds,
-    };
-  }
-
   @UseGuards(AuthGuard('admin'))
   @Put('breedingPoint')
   async addBreedingPoint(@Body() body: BreedingPointDto) {

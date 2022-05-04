@@ -30,5 +30,6 @@ import { AppGateway } from './app.gateway';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(AuthMiddleware).forRoutes('breeds/*');
+    consumer.apply(AuthMiddleware).forRoutes('buds/*');
   }
 }
