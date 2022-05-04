@@ -21,6 +21,9 @@ export type AppConfig = {
   jwt: {
     passPhrase: string;
   };
+  bud: {
+    renameAllowedTime: number;
+  },
   breed: {
     timePeriod: number;
     baseSuccessRate: number;

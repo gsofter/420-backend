@@ -46,7 +46,9 @@ export class BudController {
       throw new Error('Bud not found.');
     }
 
-    if (!bud.request.requestedAt || bud.request.requestedAt.getTime() + 5 * 60 * 1000 < Date.now()) {
+    const limit = this.configService.get<number>('bud.renameAllowedTime'); // milliseconds
+
+    if (!bud.request.requestedAt || bud.request.requestedAt.getTime() + limit < Date.now()) {
       throw new Error('Rename too late.');
     }
 

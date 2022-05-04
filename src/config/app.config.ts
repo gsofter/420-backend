@@ -27,12 +27,15 @@ async function config(): Promise<AppConfig> {
     jwt: {
       passPhrase: process.env.JWT_PASS_PHRASE,
     },
+    bud: {
+      renameAllowedTime: 5 * 60 * 1000 // 5 minutes in millisceonds
+    },
     breed: {
       timePeriod: network === 'mainnet' ? BREED_TIME : 10,
       baseSuccessRate: 20,
       breedingPointPerLevel: 10,
       burnSuccessRate: 75,
-      targetLevel: 5 + 1, // +1 for the finalize
+      targetLevel: 5 + 1, // +1 for the finalize,
     },
     metadataApi: {
       key: process.env.METADATA_API_KEY,
