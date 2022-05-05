@@ -214,7 +214,7 @@ export class UserController {
     }
 
     this.appGateway.emitGen0BudsBurned({
-      success: true,
+      success: false,
       data: null
     });
 
