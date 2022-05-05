@@ -19,6 +19,9 @@ export class BudController {
         id: budId,
         minterAddress: req.user,
       },
+      include: {
+        request: true,
+      },
     });
 
     return {
