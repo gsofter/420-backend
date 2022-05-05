@@ -54,6 +54,8 @@ const generateRequestIds = () => {
     })
   }
 
+  console.log(`Gen1MintRequest Merkle root: ${tree.getHexRoot()}`);
+
   return leaves;
 };
 
