@@ -12,10 +12,6 @@ export class CreateBreedPairDto {
   @IsNumber()
   @IsNotEmpty()
   slotId!: number;
-
-  @IsNumber()
-  @IsOptional()
-  gameKeyId?: number;
 }
 
 export class BreedPairQueryDto {
