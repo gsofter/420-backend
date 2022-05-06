@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { forwardRef, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { PrismaModule } from 'src/prisma/prisma.module';
@@ -9,7 +9,7 @@ import { AppGateway } from 'src/app.gateway';
 import { LandModule } from 'src/land/land.module';
 
 @Module({
-  imports: [PrismaModule, BudModule, LandModule],
+  imports: [PrismaModule, BudModule, forwardRef(() => LandModule)],
   providers: [UserService, AdminGuardStrategy, AppGateway],
   controllers: [UserController],
   exports: [UserService],

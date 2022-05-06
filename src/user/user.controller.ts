@@ -2,7 +2,9 @@ import { BreedingPointDto } from './dto/breeding-point.dto';
 import {
   Body,
   Controller,
+  forwardRef,
   Get,
+  Inject,
   Logger,
   Post,
   Put,
@@ -37,9 +39,11 @@ export class UserController {
     private readonly appGateway: AppGateway,
     private readonly userService: UserService,
     private readonly budService: BudService,
-    private readonly landService: LandService,
     private readonly configService: ConfigService,
     private readonly prismaService: PrismaService,
+
+    @Inject(forwardRef(() => LandService))
+    private readonly landService: LandService,
   ) {}
 
   @Get('/')

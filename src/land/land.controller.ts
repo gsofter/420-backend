@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Put, Req } from '@nestjs/common';
+import { Body, Controller, forwardRef, Get, Inject, Put, Req } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BreedSlotType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -13,8 +13,10 @@ export class LandController {
 
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly userService: UserService,
     private readonly configService: ConfigService,
+
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
   ) {
     this.bpToOpen = this.configService.get<number>('breed.breedingPointToOpenSlot');
     this.bpForIndoor = this.configService.get<number>('breed.breedingPointToCovertIndoor');
