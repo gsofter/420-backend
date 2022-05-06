@@ -100,7 +100,8 @@ export class BreedController {
       throw ConflictRequestError('One of the bud pairs is in breeding');
     }
 
-    const slots = await this.landService.findOpenBreedSlots(user, null, body.slotId);
+    const slots = await this.landService.findOpenBreedSlots(user, undefined, undefined);
+
     if (!slots || slots.length !== 1) {
       throw BadRequestError('No open slots found');
     }

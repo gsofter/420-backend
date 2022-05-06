@@ -11,18 +11,12 @@ export class LandService {
     const where: any = {
       userAddress,
       isOpen: true,
+      gameKeyTokenId,
+      id: slotId,
     };
 
-    if (slotId) {
-      where.id = slotId;
-    }
-
-    if (gameKeyTokenId) {
-      where.gameKeyTokenId = gameKeyTokenId;
-    }
-
     const slots = await this.prismaService.breedSlot.findMany({
-      where,
+      where
     });
 
     return slots;
