@@ -14,6 +14,7 @@ import { verifyMessage } from 'ethers/lib/utils';
 import type { Request } from 'src/types';
 import {
   BadRequestError,
+  BreedingError,
   ConflictRequestError,
   NotFoundError,
 } from 'src/utils/errors';
@@ -26,6 +27,7 @@ import { BudService } from 'src/bud/bud.service';
 import { ethers } from 'ethers';
 import { BreedPairStatus } from '@prisma/client';
 import { AppGateway } from 'src/app.gateway';
+import { LandService } from 'src/land/land.service';
 
 @Controller('users')
 export class UserController {
@@ -35,6 +37,7 @@ export class UserController {
     private readonly appGateway: AppGateway,
     private readonly userService: UserService,
     private readonly budService: BudService,
+    private readonly landService: LandService,
     private readonly configService: ConfigService,
     private readonly prismaService: PrismaService,
   ) {}
@@ -75,6 +78,12 @@ export class UserController {
     const derivedAddress = verifyMessage(message, signature);
 
     if (derivedAddress === address) {
+      try {
+        await this.landService.createFreeLandSlots(address, gameKeyId);
+      } catch {
+        throw BreedingError('Error during open up free slots');
+      }
+
       const user = await this.prismaService.user.upsert({
         create: {
           address: address,
@@ -222,5 +231,12 @@ export class UserController {
       success: false,
       data: null,
     };
+  }
+
+  @UseGuards(AuthGuard('admin'))
+  @Post('openLandSlots')
+  async openNewLandSlots() {
+    // TODO: To be implemented
+    return "To be implemented";
   }
 }

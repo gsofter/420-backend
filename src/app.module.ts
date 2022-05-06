@@ -9,6 +9,7 @@ import { BreedModule } from './breed/breed.module';
 import { AppController } from './app.controller';
 import { BudModule } from './bud/bud.module';
 import { AppGateway } from './app.gateway';
+import { LandModule } from './land/land.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AppGateway } from './app.gateway';
     BreedModule,
     PrismaModule,
     BudModule,
+    LandModule,
   ],
   controllers: [AppController],
   providers: [AppGateway],
@@ -31,5 +33,6 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(AuthMiddleware).forRoutes('breeds/*');
     consumer.apply(AuthMiddleware).forRoutes('buds/*');
+    consumer.apply(AuthMiddleware).forRoutes('lands/*');
   }
 }

@@ -33,7 +33,9 @@ async function config(): Promise<AppConfig> {
     breed: {
       timePeriod: network === 'mainnet' ? BREED_TIME : 10,
       baseSuccessRate: 20,
-      breedingPointPerLevel: 10,
+      breedingPointPerLevel: 15,
+      breedingPointToOpenSlot: 65,
+      breedingPointToCovertIndoor: 10,
       burnSuccessRate: 75,
       targetLevel: 5 + 1, // +1 for the finalize,
     },

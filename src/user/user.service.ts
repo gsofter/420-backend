@@ -9,15 +9,11 @@ export class UserService {
   // Buffer (in milliseconds) for signature validity allowance check.
   private timestampBuffer = 300000;
   private logger = new Logger('UserService');
-  private breedingPointPerLevel = 0;
 
   constructor(
     private configService: ConfigService,
     private prismaService: PrismaService,
   ) {
-    this.breedingPointPerLevel = this.configService.get<number>(
-      'breed.breedingPointPerLevel',
-    );
   }
 
   /**
@@ -79,19 +75,19 @@ Timestamp: ${timestamp}`;
     });
   }
 
-  async consumeBreedingPoint(user: string) {
+  async consumeBreedingPoint(user: string, amount: number) {
     const userObject = await this.prismaService.user.findUnique({
       where: { address: user },
     });
 
-    if (userObject.breedingPoint < this.breedingPointPerLevel) {
+    if (userObject.breedingPoint < amount) {
       throw new Error('Not enough breeding point');
     }
 
     return await this.prismaService.user.update({
       where: { address: user },
       data: {
-        breedingPoint: userObject.breedingPoint - this.breedingPointPerLevel,
+        breedingPoint: userObject.breedingPoint - amount,
       },
     });
   }

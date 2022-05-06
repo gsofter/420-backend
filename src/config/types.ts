@@ -28,6 +28,8 @@ export type AppConfig = {
     timePeriod: number;
     baseSuccessRate: number;
     breedingPointPerLevel: number;
+    breedingPointToOpenSlot: number;
+    breedingPointToCovertIndoor: number;
     burnSuccessRate: number;
     targetLevel: number;
   };

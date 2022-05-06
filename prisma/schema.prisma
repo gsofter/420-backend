@@ -65,6 +65,7 @@ model BreedPair {
   userAddress  String          @db.VarChar(42)
   currentLevel Int             @default(0)
   status       BreedPairStatus
+  slotId       Int
 
   // Relationships
   user   User         @relation(fields: [userAddress], references: [address])
@@ -111,6 +112,19 @@ model BreedBud {
   @@index([levelId])
 }
 
+model BreedSlot {
+  id             Int           @id @default(autoincrement())
+  isOpen         Boolean       @default(false)
+  type           BreedSlotType @default(OUTDOOR)
+  gameKeyTokenId Int?
+  landTokenId    Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userAddress String      @db.VarChar(42)
+}
+
 model BreedingPointLog {
   id          Int      @id @default(autoincrement())
   userAddress String
@@ -130,8 +144,8 @@ model Gen1MintRequest {
   createdAt   DateTime  @default(now())
   requestedAt DateTime?
 
-  @@unique([id])
   Gen1Bud Gen1Bud[]
+  @@unique([id])
 }
 
 model Gen1Bud {

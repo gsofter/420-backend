@@ -8,6 +8,14 @@ export class CreateBreedPairDto {
   @IsNumber()
   @IsNotEmpty()
   femaleBudId!: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  slotId!: number;
+
+  @IsNumber()
+  @IsOptional()
+  gameKeyId?: number;
 }
 
 export class BreedPairQueryDto {

@@ -28,6 +28,7 @@ import { BreedPairStatus } from '@prisma/client';
 import { UserService } from 'src/user/user.service';
 import { BreedFinalizeDto } from './dto/breed-finalize.dto';
 import { BudService } from 'src/bud/bud.service';
+import { LandService } from 'src/land/land.service';
 
 @Controller('breeds')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -35,6 +36,7 @@ export class BreedController {
   private logger = new Logger('BreedController');
   private breedTime = 0;
   private breedTargetLevel = 0;
+  private breedingPointPerLevel = 0;
 
   constructor(
     private readonly configService: ConfigService,
@@ -42,9 +44,13 @@ export class BreedController {
     private readonly prismaService: PrismaService,
     private readonly userService: UserService,
     private readonly budService: BudService,
+    private readonly landService: LandService,
   ) {
     this.breedTime = this.configService.get<number>('breed.timePeriod');
     this.breedTargetLevel = this.configService.get<number>('breed.targetLevel');
+    this.breedingPointPerLevel = this.configService.get<number>(
+      'breed.breedingPointPerLevel',
+    );
   }
 
   // TODO: Pagination, includeOptions, etc.
@@ -94,6 +100,11 @@ export class BreedController {
       throw ConflictRequestError('One of the bud pairs is in breeding');
     }
 
+    const slots = await this.landService.findOpenBreedSlots(user, body.gameKeyId, body.slotId);
+    if (!slots || slots.length !== 1) {
+      throw BadRequestError('No open slots found');
+    }
+
     try {
       // Determine the start success rate
       const startSuccessRate = await this.breedService.getStartSuccessRate(
@@ -106,6 +117,7 @@ export class BreedController {
           femaleBudId: body.femaleBudId,
           rate: startSuccessRate,
           status: BreedPairStatus.PAIRED,
+          slotId: body.slotId,
         },
       });
 
@@ -163,7 +175,7 @@ export class BreedController {
 
     try {
       // Update breeding point balance
-      await this.userService.consumeBreedingPoint(req.user);
+      await this.userService.consumeBreedingPoint(req.user, this.breedingPointPerLevel);
       
       // Get the bonus rate for the current level
       const bonusRate = await this.breedService.advanceBreedLevel(pair, budIds);
