@@ -6,7 +6,7 @@ import MerkleTree from 'merkletreejs';
 
 console.log(`Running on ${process.env.NETWORK} \n`);
 
-const LENGTH = 16;
+const LENGTH = 32;
 const TOTAL_SUPPLY = process.env.NETWORK === 'mainnet' ? 30 * 1000 : 30;
 
 const generateMerkleTree = (ids: string[]): MerkleTree => {

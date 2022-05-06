@@ -17,6 +17,11 @@ enum BreedPairStatus {
   FAILED
 }
 
+enum BreedSlotType {
+  INDOOR
+  OUTDOOR
+}
+
 enum BudGender {
   M
   F
@@ -120,7 +125,7 @@ model BreedingPointLog {
 }
 
 model Gen1MintRequest {
-  id          String    @db.VarChar(32)
+  id          String    @db.VarChar(64)
   proof       String    @db.VarChar
   createdAt   DateTime  @default(now())
   requestedAt DateTime?
