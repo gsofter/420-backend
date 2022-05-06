@@ -100,7 +100,7 @@ export class BreedController {
       throw ConflictRequestError('One of the bud pairs is in breeding');
     }
 
-    const slots = await this.landService.findOpenBreedSlots(user, undefined, undefined);
+    const slots = await this.landService.findOpenBreedSlots(user, undefined, body.slotId);
 
     if (!slots || slots.length !== 1) {
       throw BadRequestError('No open slots found');
@@ -110,6 +110,7 @@ export class BreedController {
       // Determine the start success rate
       const startSuccessRate = await this.breedService.getStartSuccessRate(
         dtoWithUser,
+        slots[0]
       );
       const pair = await this.prismaService.breedPair.create({
         data: {
@@ -120,6 +121,16 @@ export class BreedController {
           status: BreedPairStatus.PAIRED,
           slotId: body.slotId,
         },
+      });
+
+      // Update slot status as Used
+      await this.prismaService.breedSlot.update({
+        where: {
+          id: body.slotId,
+        },
+        data: {
+          isUsed: true
+        }
       });
 
       // Create level 1 buds
@@ -223,6 +234,16 @@ export class BreedController {
 
     try {
       const result = await this.breedService.finalizeBreeding(pair);
+
+      // Update slot status as NotUsed
+      await this.prismaService.breedSlot.update({
+        where: {
+          id: pair.slotId,
+        },
+        data: {
+          isUsed: false
+        }
+      });
 
       // TODO: if data.success is true, then we should
       // 1. upate pair.status === FINALIZED

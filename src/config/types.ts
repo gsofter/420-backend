@@ -27,6 +27,7 @@ export type AppConfig = {
   breed: {
     timePeriod: number;
     baseSuccessRate: number;
+    indoorSlotBounsRate: number;
     breedingPointPerLevel: number;
     breedingPointToOpenSlot: number;
     breedingPointToCovertIndoor: number;

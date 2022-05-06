@@ -115,6 +115,7 @@ model BreedBud {
 model BreedSlot {
   id             Int           @id @default(autoincrement())
   isOpen         Boolean       @default(false)
+  isUsed         Boolean       @default(false)
   type           BreedSlotType @default(OUTDOOR)
   gameKeyTokenId Int?
   landTokenId    Int?

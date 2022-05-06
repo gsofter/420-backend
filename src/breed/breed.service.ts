@@ -5,7 +5,7 @@ import { generateRandomBud } from './../utils/bud';
 import { BudService } from 'src/bud/bud.service';
 import { HashTableService } from 'src/hash-table/hash-table.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { BreedPair, BreedPairStatus } from '@prisma/client';
+import { BreedPair, BreedPairStatus, BreedSlot, BreedSlotType } from '@prisma/client';
 
 @Injectable()
 export class BreedService {
@@ -32,7 +32,7 @@ export class BreedService {
     address,
     maleBudId,
     femaleBudId,
-  }: CreateBudPair) {
+  }: CreateBudPair, slot: BreedSlot) {
     const baseSuccessRate = this.configService.get<number>(
       'breed.baseSuccessRate',
     );
@@ -51,7 +51,11 @@ export class BreedService {
       });
     }
 
-    // TODO: Add bouns rate if user owns eligible in-game items
+    // TODO: Add bonus rate if user owns eligible in-game items
+    if (slot.type === BreedSlotType.INDOOR) {
+      // Add bonus rate if slot is INDOOR
+      bonusRate += this.configService.get<number>('breed.indoorSlotBounsRate');
+    }
 
     return baseSuccessRate + bonusRate;
   }

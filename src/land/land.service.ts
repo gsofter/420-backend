@@ -11,6 +11,7 @@ export class LandService {
     const where: any = {
       userAddress,
       isOpen: true,
+      isUsed: false,
       gameKeyTokenId,
       id: slotId,
     };
