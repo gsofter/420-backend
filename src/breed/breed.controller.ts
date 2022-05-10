@@ -24,7 +24,7 @@ import { BreedUpDto } from './dto/breed-up.dto';
 import { getBonusRateStatus } from './../utils/breed';
 import { BreedPairDto } from './dto/breed.dto';
 import { ConfigService } from '@nestjs/config';
-import { BreedPairStatus } from '@prisma/client';
+import { BreedPairStatus, BreedSlotType } from '@prisma/client';
 import { UserService } from 'src/user/user.service';
 import { BreedFinalizeDto } from './dto/breed-finalize.dto';
 import { BudService } from 'src/bud/bud.service';
@@ -248,17 +248,23 @@ export class BreedController {
       // TODO: if data.success is true, then we should
       // 1. upate pair.status === FINALIZED
       // 2. Record the bud metadata, and return a random request id
+      const pair = await this.prismaService.breedPair.update({
+        where: {
+          id: pairId,
+        },
+        data: {
+          status: result.success
+            ? BreedPairStatus.COMPLETED
+            : BreedPairStatus.FAILED,
+        },
+      });
 
       if (result.success) {
-        const pair = await this.prismaService.breedPair.update({
-          where: {
-            id: pairId,
-          },
+        const newSlot = await this.prismaService.breedSlot.create({
           data: {
-            status: result.success
-              ? BreedPairStatus.COMPLETED
-              : BreedPairStatus.FAILED,
-          },
+            userAddress: req.user,
+            isOpen: true,
+          }
         });
 
         const gen1Bud = await this.budService.createGen1BudMintRequest(
