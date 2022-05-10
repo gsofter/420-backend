@@ -248,7 +248,7 @@ export class BreedController {
       // TODO: if data.success is true, then we should
       // 1. upate pair.status === FINALIZED
       // 2. Record the bud metadata, and return a random request id
-      const pair = await this.prismaService.breedPair.update({
+      await this.prismaService.breedPair.update({
         where: {
           id: pairId,
         },
