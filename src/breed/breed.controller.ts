@@ -24,7 +24,7 @@ import { BreedUpDto } from './dto/breed-up.dto';
 import { getBonusRateStatus } from './../utils/breed';
 import { BreedPairDto } from './dto/breed.dto';
 import { ConfigService } from '@nestjs/config';
-import { BreedPairStatus, BreedSlotType } from '@prisma/client';
+import { BreedPairStatus } from '@prisma/client';
 import { UserService } from 'src/user/user.service';
 import { BreedFinalizeDto } from './dto/breed-finalize.dto';
 import { BudService } from 'src/bud/bud.service';
