@@ -208,7 +208,7 @@ export class UserController {
     );
 
     if (result.success) {
-      const newBud = await this.budService.createGen1BudMintRequest(address, result.data);
+      const newBud = await this.budService.issueGen1BudMint(address, result.data);
 
       this.appGateway.emitGen0BudsBurned({
         success: true,

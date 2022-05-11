@@ -267,7 +267,7 @@ export class BreedController {
           }
         });
 
-        const gen1Bud = await this.budService.createGen1BudMintRequest(
+        const gen1Bud = await this.budService.issueGen1BudMint(
           req.user,
           result.data,
           pair.id,

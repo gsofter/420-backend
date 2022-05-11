@@ -13,6 +13,7 @@ import { Network, Bud, BudWithId } from 'src/types';
 import { generateRandomBud } from './../utils/bud';
 import { winRandomChance } from './../utils/number';
 import { DiceGen1BudResponse, VerifyBudPair, VerifyBudsOptions } from './bud.types';
+import { signMintRequest } from 'src/utils/onchain/sign';
 
 @Injectable()
 export class BudService {
@@ -225,38 +226,26 @@ export class BudService {
    * @param pairId number | null
    * @returns Gen1Bud
    */
-  async createGen1BudMintRequest(minter: string, bud: Bud, pairId: number | null = null) {
-    const request = await this.prismaService.gen1MintRequest.findFirst({
-      where: {
-        requestedAt: null,
-      },
-    });
-
-    if (!request) {
-      throw new Error('Mint request is full');
-    }
-
+  async issueGen1BudMint(minter: string, bud: Bud, pairId: number | null = null) {
     // Create a Gen1 bud associated with the mint request
-    const gen1Bud = await this.prismaService.gen1Bud.create({
+    let gen1Bud = await this.prismaService.gen1Bud.create({
       data: {
         ...bud,
-        requestId: request.id,
         pairId,
         minterAddress: minter,
+        signature: '' // Meant to be updated sooner
       },
-      include: {
-        request: true,
-      }
     });
 
-    // Update the mint request `usedAt` field
-    await this.prismaService.gen1MintRequest.update({
-      where: {
-        id: request.id,
-      },
+    const signature = await signMintRequest(minter, gen1Bud.id, gen1Bud.createdAt.getTime());
+
+    gen1Bud = await this.prismaService.gen1Bud.update({
       data: {
-        requestedAt: new Date(),
+        signature
       },
+      where: {
+        id: gen1Bud.id
+      }
     });
 
     return gen1Bud;

@@ -22,9 +22,6 @@ export class BudController {
         id: budId,
         minterAddress: req.user,
       },
-      include: {
-        request: true,
-      },
     });
 
     return {
@@ -44,9 +41,6 @@ export class BudController {
           id: budId,
           minterAddress: req.user,
         },
-        include: {
-          request: true,
-        },
       });
   
       if (!bud) {
@@ -55,7 +49,7 @@ export class BudController {
   
       const limit = this.configService.get<number>('bud.renameAllowedTime'); // milliseconds
   
-      if (!bud.request.requestedAt || bud.request.requestedAt.getTime() + limit < Date.now()) {
+      if (bud.createdAt.getTime() + limit < Date.now()) {
         throw new Error('Rename too late.');
       }
   
