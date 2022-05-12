@@ -36,5 +36,6 @@ export class AppModule implements NestModule {
     consumer.apply(AuthMiddleware).forRoutes('breeds/*');
     consumer.apply(AuthMiddleware).forRoutes('buds/*');
     consumer.apply(AuthMiddleware).forRoutes('lands/*');
+    consumer.apply(AuthMiddleware).forRoutes('giftCards/*');
   }
 }

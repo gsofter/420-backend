@@ -39,10 +39,10 @@ enum BudShine {
 }
 
 enum GiftAmount {
-  USD_100
-  USD_200
-  USD_420
-  USD_1000
+  USD100
+  USD200
+  USD420
+  USD1000
 }
 
 // Description: User data following sign-up workflow.

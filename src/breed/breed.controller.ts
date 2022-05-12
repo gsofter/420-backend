@@ -29,6 +29,7 @@ import { UserService } from 'src/user/user.service';
 import { BreedFinalizeDto } from './dto/breed-finalize.dto';
 import { BudService } from 'src/bud/bud.service';
 import { LandService } from 'src/land/land.service';
+import { GiftCardService } from 'src/gift-card/gift-card.service';
 
 @Controller('breeds')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -45,6 +46,7 @@ export class BreedController {
     private readonly userService: UserService,
     private readonly budService: BudService,
     private readonly landService: LandService,
+    private readonly giftCardService: GiftCardService,
   ) {
     this.breedTime = this.configService.get<number>('breed.timePeriod');
     this.breedTargetLevel = this.configService.get<number>('breed.targetLevel');
@@ -275,8 +277,25 @@ export class BreedController {
 
         return {
           success: true,
-          data: gen1Bud,
+          data: {
+            type: 'BUD',
+            bud: gen1Bud,
+            slot: newSlot,
+          },
         };
+      }
+
+      // Try to get a git card
+      const giftCard = await this.giftCardService.dice(req.user);
+
+      if (giftCard) {
+        return {
+          success: true,
+          data: {
+            type: 'GIFT_CARD',
+            giftCard,
+          }
+        }
       }
 
       return {

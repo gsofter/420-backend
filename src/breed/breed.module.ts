@@ -6,9 +6,10 @@ import { HashTableModule } from './../hash-table/hash-table.module';
 import { PrismaModule } from './../prisma/prisma.module';
 import { UserModule } from 'src/user/user.module';
 import { LandModule } from 'src/land/land.module';
+import { GiftCardModule } from 'src/gift-card/gift-card.module';
 
 @Module({
-  imports: [PrismaModule, BudModule, HashTableModule, UserModule, LandModule],
+  imports: [PrismaModule, BudModule, HashTableModule, UserModule, LandModule, GiftCardModule],
   providers: [BreedService],
   controllers: [BreedController],
 })
