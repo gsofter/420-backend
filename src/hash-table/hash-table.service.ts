@@ -94,7 +94,6 @@ export class HashTableService {
       }
     }
 
-    console.log('lookUpRewardTable', this.rewardRates, rate, baseRate);
 
     if (baseRate > 0) {
       return hashTableReward[baseRate];
