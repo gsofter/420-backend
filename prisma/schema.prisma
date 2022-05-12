@@ -38,6 +38,13 @@ enum BudShine {
   No
 }
 
+enum GiftAmount {
+  USD_100
+  USD_200
+  USD_420
+  USD_1000
+}
+
 // Description: User data following sign-up workflow.
 model User {
   address       String   @id @db.VarChar(42)
@@ -152,10 +159,23 @@ model Gen1Bud {
   updatedAt     DateTime  @updatedAt
   minterAddress String
 
-  signature String   @db.Text
+  signature String @db.Text
 
   // Foreign keys
   pairId Int?
 
   @@index([minterAddress, id])
+}
+
+model GiftCard {
+  id            Int      @id @default(autoincrement())
+  value         GiftAmount
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  minterAddress String
+
+  signature String @db.Text
+
+  @@index([minterAddress, id])
+  @@index([value])
 }

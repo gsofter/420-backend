@@ -217,9 +217,9 @@ export class BudService {
   }
 
   /**
-   * Create a Gen1 bud with requested metadata and assign a request id to it.
+   * Create a Gen1 bud with requested metadata and generate a signature on behalf of issuer.
    * If this is called after breeding, pairId should not be null.
-   * Returns an assigned requestId if successful.
+   * Returns a Gen1Bud object if successful.
    * 
    * @param minter string
    * @param bud Bud

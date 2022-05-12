@@ -10,6 +10,7 @@ import { AppController } from './app.controller';
 import { BudModule } from './bud/bud.module';
 import { AppGateway } from './app.gateway';
 import { LandModule } from './land/land.module';
+import { GiftCardModule } from './gift-card/gift-card.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { LandModule } from './land/land.module';
     PrismaModule,
     BudModule,
     LandModule,
+    GiftCardModule,
   ],
   controllers: [AppController],
   providers: [AppGateway],

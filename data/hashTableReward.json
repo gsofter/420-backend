@@ -1,18 +1,22 @@
 {
   "2": {
-    "price": "1000",
+    "price": "USD_1000",
+    "tokenId": 3,
     "amount": 10
   },
   "3": {
-    "price": "420",
+    "price": "USD_420",
+    "tokenId": 2,
     "amount": 22
   },
   "6": {
-    "price": "200",
+    "price": "USD_200",
+    "tokenId": 1,
     "amount": 65
   },
   "9": {
-    "price": "100",
+    "price": "USD_100",
+    "tokenId": 0,
     "amount": 200
   }
 }
