@@ -40,3 +40,4 @@ export const signMintRequest = async (
 
   return null;
 };
+
