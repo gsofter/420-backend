@@ -29,6 +29,7 @@ import { ethers } from 'ethers';
 import { BreedPairStatus } from '@prisma/client';
 import { AppGateway } from 'src/app.gateway';
 import { LandService } from 'src/land/land.service';
+import { BuyLandDto } from './dto/buy-land.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -172,8 +173,27 @@ export class AdminController {
 
   @UseGuards(AuthGuard('admin'))
   @Post('openLandSlots')
-  async openNewLandSlots() {
-    // TODO: To be implemented
-    return "To be implemented";
+  async openNewLandSlots(@Body() body: BuyLandDto) {
+    const { address, txHash, block, network, landId } = body;
+
+    if (network !== this.configService.get<string>('network.name')) {
+      throw BadRequestError('Invalid network');
+    }
+
+    try {
+      await this.landService.createNewLandSlots(address, landId);
+
+      return {
+        success: true,
+        data: null
+      }
+    } catch (e) {
+      this.logger.error('openLandSlots error', e);
+    }
+
+    return {
+      success: false,
+      data: null
+    }
   }
 }
