@@ -131,6 +131,8 @@ model BreedSlot {
   updatedAt DateTime @updatedAt
 
   userAddress String @db.VarChar(42)
+
+  @@index([userAddress, isOpen])
 }
 
 model BreedingPointLog {

@@ -262,12 +262,23 @@ export class BreedController {
       });
 
       if (result.success) {
-        const newSlot = await this.prismaService.breedSlot.create({
-          data: {
+        let slot = await this.prismaService.breedSlot.findFirst({
+          where: {
             userAddress: req.user,
-            isOpen: true,
-          }
+            isOpen: false,
+          },
         });
+
+        if (slot) {
+          slot = await this.prismaService.breedSlot.update({
+            where: {
+              id: slot.id,
+            },
+            data: {
+              isOpen: true,
+            },
+          });
+        }
 
         const gen1Bud = await this.budService.issueGen1BudMint(
           req.user,
@@ -280,7 +291,7 @@ export class BreedController {
           data: {
             type: 'BUD',
             bud: gen1Bud,
-            slot: newSlot,
+            slot,
           },
         };
       }
