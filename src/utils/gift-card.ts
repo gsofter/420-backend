@@ -10,8 +10,9 @@ const giftCardTypes: Record<GiftAmount, number> = {
 };
 
 export const getGiftCardTypeId = (value: GiftAmount) => {
-  if (giftCardTypes[value]) {
-    return giftCardTypes[value];
+  const typeId = giftCardTypes[value];
+  if (!isNaN(typeId) && typeId >= 0) {
+    return typeId;
   }
 
   return -1;
