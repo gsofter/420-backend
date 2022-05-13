@@ -175,6 +175,7 @@ model GiftCard {
   minterAddress String
 
   signature String @db.Text
+  pairId Int?
 
   @@index([minterAddress, id])
   @@index([value])

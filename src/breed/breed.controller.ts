@@ -286,7 +286,7 @@ export class BreedController {
       }
 
       // Try to get a git card
-      const giftCard = await this.giftCardService.dice(req.user);
+      const giftCard = await this.giftCardService.dice(req.user, pair.id);
 
       if (giftCard) {
         return {

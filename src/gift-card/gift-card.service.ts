@@ -20,7 +20,7 @@ export class GiftCardService {
    *
    * @returns Nullable<{tokenId: number, amount: number, price: string}>
    */
-  async dice(minter: string) {
+  async dice(minter: string, pairId?: number) {
     const chance = randomNumber(100);
 
     const rewardType = this.hashTableService.lookUpRewardTable(chance);
@@ -29,6 +29,7 @@ export class GiftCardService {
       return await this.issueGitCardMint(
         minter,
         rewardType.price as GiftAmount,
+        pairId,
       );
     }
 
@@ -43,7 +44,7 @@ export class GiftCardService {
    * @param value GiftAmount
    * @returns GitCard
    */
-  async issueGitCardMint(minter: string, value: GiftAmount) {
+  async issueGitCardMint(minter: string, value: GiftAmount, pairId?: number) {
     const tokenId = getGiftCardTypeId(value);
 
     if (tokenId < 0) {
@@ -68,6 +69,7 @@ export class GiftCardService {
         value,
         minterAddress: minter,
         signature: '',
+        pairId
       },
     });
 
