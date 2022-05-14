@@ -5,6 +5,8 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { PrismaExceptionFilter } from './filters/prisma-exception.filter';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -30,6 +32,9 @@ async function bootstrap() {
       },
     }),
   );
+
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new PrismaExceptionFilter());
 
   await app.listen(port);
   logger.log('Application started on port ' + port);

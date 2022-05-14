@@ -85,13 +85,9 @@ export class BreedController {
     const user = req.user;
     const dtoWithUser = { ...body, address: user };
 
-    try {
-      await this.budService.verifyBudPairs(dtoWithUser, {
-        checkMetadata: true,
-      });
-    } catch (e) {
-      throw BadRequestError(e.message);
-    }
+    await this.budService.verifyBudPairs(dtoWithUser, {
+      checkMetadata: true,
+    });
 
     if (
       (await this.breedService.findPairInBreeding(
@@ -102,53 +98,49 @@ export class BreedController {
       throw ConflictRequestError('One of the bud pairs is in breeding');
     }
 
-    const slots = await this.landService.findOpenBreedSlots(user, undefined, body.slotId);
+    const slots = await this.landService.findOpenBreedSlots(
+      user,
+      undefined,
+      body.slotId,
+    );
 
     if (!slots || slots.length !== 1) {
       throw BadRequestError('No open slots found');
     }
 
-    try {
-      // Determine the start success rate
-      const startSuccessRate = await this.breedService.getStartSuccessRate(
-        dtoWithUser,
-        slots[0]
-      );
-      const pair = await this.prismaService.breedPair.create({
-        data: {
-          userAddress: user,
-          maleBudId: body.maleBudId,
-          femaleBudId: body.femaleBudId,
-          rate: startSuccessRate,
-          status: BreedPairStatus.PAIRED,
-          slotId: body.slotId,
-        },
-      });
+    // Determine the start success rate
+    const startSuccessRate = await this.breedService.getStartSuccessRate(
+      dtoWithUser,
+      slots[0],
+    );
+    const pair = await this.prismaService.breedPair.create({
+      data: {
+        userAddress: user,
+        maleBudId: body.maleBudId,
+        femaleBudId: body.femaleBudId,
+        rate: startSuccessRate,
+        status: BreedPairStatus.PAIRED,
+        slotId: body.slotId,
+      },
+    });
 
-      // Update slot status as Used
-      await this.prismaService.breedSlot.update({
-        where: {
-          id: body.slotId,
-        },
-        data: {
-          isUsed: true
-        }
-      });
+    // Update slot status as Used
+    await this.prismaService.breedSlot.update({
+      where: {
+        id: body.slotId,
+      },
+      data: {
+        isUsed: true,
+      },
+    });
 
-      // Create level 1 buds
-      await this.breedService.startBreedLevel(pair);
+    // Create level 1 buds
+    await this.breedService.startBreedLevel(pair);
 
-      return {
-        success: true,
-        data: new BreedPairDto(pair, this.breedTime),
-      };
-    } catch (e) {
-      if (isPrismaError(e)) {
-        this.logger.error('createPair', e);
-        throw BreedingError();
-      }
-      throw e;
-    }
+    return {
+      success: true,
+      data: new BreedPairDto(pair, this.breedTime),
+    };
   }
 
   @Post('levelUp')
@@ -174,43 +166,33 @@ export class BreedController {
 
     // Verify the original pair status again..
     // People might have transferred/sold the buds in the meantime
-    try {
-      await this.budService.verifyBudPairs(
-        {
-          address: pair.userAddress,
-          maleBudId: pair.maleBudId,
-          femaleBudId: pair.femaleBudId,
-        },
-        { checkMetadata: false },
-      );
-    } catch (e) {
-      throw BadRequestError('Breed pair status changed: ' + e.message);
-    }
+    await this.budService.verifyBudPairs(
+      {
+        address: pair.userAddress,
+        maleBudId: pair.maleBudId,
+        femaleBudId: pair.femaleBudId,
+      },
+      { checkMetadata: false },
+    );
 
-    try {
-      // Update breeding point balance
-      await this.userService.consumeBreedingPoint(req.user, this.breedingPointPerLevel);
-      
-      // Get the bonus rate for the current level
-      const bonusRate = await this.breedService.advanceBreedLevel(pair, budIds);
+    // Update breeding point balance
+    await this.userService.consumeBreedingPoint(
+      req.user,
+      this.breedingPointPerLevel,
+    );
 
-      // Generate the next level buds
-      await this.breedService.startBreedLevel(pair);
+    // Get the bonus rate for the current level
+    const bonusRate = await this.breedService.advanceBreedLevel(pair, budIds);
 
-      return {
-        success: true,
-        data: {
-          status: getBonusRateStatus(bonusRate),
-        },
-      };
-    } catch (e) {
-      if (isPrismaError(e)) {
-        this.logger.error('levelUp', e);
-        throw BreedingError();
-      }
+    // Generate the next level buds
+    await this.breedService.startBreedLevel(pair);
 
-      throw BadRequestError(e.message);
-    }
+    return {
+      success: true,
+      data: {
+        status: getBonusRateStatus(bonusRate),
+      },
+    };
   }
 
   @Post('finalize')
@@ -234,92 +216,83 @@ export class BreedController {
       throw BadRequestError('Breed target level not reached');
     }
 
-    try {
-      const result = await this.breedService.finalizeBreeding(pair);
+    const result = await this.breedService.finalizeBreeding(pair);
 
-      // Update slot status as NotUsed
-      await this.prismaService.breedSlot.update({
+    // Update slot status as NotUsed
+    await this.prismaService.breedSlot.update({
+      where: {
+        id: pair.slotId,
+      },
+      data: {
+        isUsed: false,
+      },
+    });
+
+    // TODO: if data.success is true, then we should
+    // 1. upate pair.status === FINALIZED
+    // 2. Record the bud metadata, and return a random request id
+    await this.prismaService.breedPair.update({
+      where: {
+        id: pairId,
+      },
+      data: {
+        status: result.success
+          ? BreedPairStatus.COMPLETED
+          : BreedPairStatus.FAILED,
+      },
+    });
+
+    if (result.success) {
+      let slot = await this.prismaService.breedSlot.findFirst({
         where: {
-          id: pair.slotId,
+          userAddress: req.user,
+          isOpen: false,
         },
-        data: {
-          isUsed: false
-        }
       });
 
-      // TODO: if data.success is true, then we should
-      // 1. upate pair.status === FINALIZED
-      // 2. Record the bud metadata, and return a random request id
-      await this.prismaService.breedPair.update({
-        where: {
-          id: pairId,
-        },
-        data: {
-          status: result.success
-            ? BreedPairStatus.COMPLETED
-            : BreedPairStatus.FAILED,
-        },
-      });
-
-      if (result.success) {
-        let slot = await this.prismaService.breedSlot.findFirst({
+      if (slot) {
+        slot = await this.prismaService.breedSlot.update({
           where: {
-            userAddress: req.user,
-            isOpen: false,
+            id: slot.id,
+          },
+          data: {
+            isOpen: true,
           },
         });
-
-        if (slot) {
-          slot = await this.prismaService.breedSlot.update({
-            where: {
-              id: slot.id,
-            },
-            data: {
-              isOpen: true,
-            },
-          });
-        }
-
-        const gen1Bud = await this.budService.issueGen1BudMint(
-          req.user,
-          result.data,
-          pair.id,
-        );
-
-        return {
-          success: true,
-          data: {
-            type: 'BUD',
-            bud: gen1Bud,
-            slot,
-          },
-        };
       }
 
-      // Try to get a git card
-      const giftCard = await this.giftCardService.dice(req.user, pair.id);
-
-      if (giftCard) {
-        return {
-          success: true,
-          data: {
-            type: 'GIFT_CARD',
-            giftCard,
-          }
-        }
-      }
+      const gen1Bud = await this.budService.issueGen1BudMint(
+        req.user,
+        result.data,
+        pair.id,
+      );
 
       return {
-        success: false,
-        data: null,
+        success: true,
+        data: {
+          type: 'BUD',
+          bud: gen1Bud,
+          slot,
+        },
       };
-    } catch (e) {
-      if (isPrismaError(e)) {
-        this.logger.error('finalize', e);
-        throw BreedingError();
-      }
-
-      throw BadRequestError(e.message);
     }
+
+    // Try to get a git card
+    const giftCard = await this.giftCardService.dice(req.user, pair.id);
+
+    if (giftCard) {
+      return {
+        success: true,
+        data: {
+          type: 'GIFT_CARD',
+          giftCard,
+        },
+      };
+    }
+
+    return {
+      success: false,
+      data: null,
+    };
   }
 }

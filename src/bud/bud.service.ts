@@ -12,8 +12,17 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Network, Bud, BudWithId } from 'src/types';
 import { generateRandomBud } from './../utils/bud';
 import { winRandomChance } from './../utils/number';
-import { DiceGen1BudResponse, VerifyBudPair, VerifyBudsOptions } from './bud.types';
+import {
+  DiceGen1BudResponse,
+  VerifyBudPair,
+  VerifyBudsOptions,
+} from './bud.types';
 import { signMintRequest } from 'src/utils/onchain/sign';
+import {
+  BadRequestError,
+  BreedingError,
+  UnproceesableEntityError,
+} from 'src/utils/errors';
 
 @Injectable()
 export class BudService {
@@ -96,18 +105,18 @@ export class BudService {
    * @param checkMetadata If true, will check if buds are revealed and have correct metadatas
    * @returns
    */
-   async verifyBudPairs(
+  async verifyBudPairs(
     { address, maleBudId, femaleBudId }: VerifyBudPair,
     { checkMetadata = true }: VerifyBudsOptions = {},
   ) {
     const network = this.configService.get<Network>('network.name');
 
     if (isNaN(maleBudId) || maleBudId < 0 || maleBudId >= 20000) {
-      throw new Error('Invalid budId for male');
+      throw BadRequestError('Invalid budId for male');
     }
 
     if (isNaN(femaleBudId) || femaleBudId < 0 || femaleBudId >= 20000) {
-      throw new Error('Invalid budId for female');
+      throw BadRequestError('Invalid budId for female');
     }
 
     let [owner1, owner2] = ['', ''];
@@ -131,30 +140,25 @@ export class BudService {
       );
     } catch (e) {
       this.logger.error('multicall error check', e);
-      throw new Error('Check BUDs ownershipf. RPC call error');
+      throw BreedingError('Check BUDs ownership... RPC call error');
     }
 
     if (owner1 !== address || owner2 !== address) {
-      throw new Error('Not the buds owner');
+      throw UnproceesableEntityError('Not the buds owner');
     }
 
     if (checkMetadata) {
       // Verify bud metadata
-      const metadatas = await this.getMetadatas([
-        maleBudId,
-        femaleBudId,
-      ]);
+      const metadatas = await this.getMetadatas([maleBudId, femaleBudId]);
 
       for await (const metadata of metadatas) {
         if (!metadata.revealed) {
-          throw new Error('Bud is not revealed');
+          throw UnproceesableEntityError('Bud is not revealed');
         }
       }
 
-      if (
-        !this.checkBudPairGenders(metadatas, maleBudId, femaleBudId)
-      ) {
-        throw new Error('Bud pair genders do not match');
+      if (!this.checkBudPairGenders(metadatas, maleBudId, femaleBudId)) {
+        throw UnproceesableEntityError('Bud pair genders do not match');
       }
     }
   }
@@ -220,32 +224,40 @@ export class BudService {
    * Create a Gen1 bud with requested metadata and generate a signature on behalf of issuer.
    * If this is called after breeding, pairId should not be null.
    * Returns a Gen1Bud object if successful.
-   * 
+   *
    * @param minter string
    * @param bud Bud
    * @param pairId number | null
    * @returns Gen1Bud
    */
-  async issueGen1BudMint(minter: string, bud: Bud, pairId: number | null = null) {
+  async issueGen1BudMint(
+    minter: string,
+    bud: Bud,
+    pairId: number | null = null,
+  ) {
     // Create a Gen1 bud associated with the mint request
     let gen1Bud = await this.prismaService.gen1Bud.create({
       data: {
         ...bud,
         pairId,
         minterAddress: minter,
-        signature: '' // Meant to be updated sooner
+        signature: '', // Meant to be updated sooner
       },
     });
 
-    const signature = await signMintRequest(minter, gen1Bud.id, gen1Bud.createdAt.getTime());
+    const signature = await signMintRequest(
+      minter,
+      gen1Bud.id,
+      gen1Bud.createdAt.getTime(),
+    );
 
     gen1Bud = await this.prismaService.gen1Bud.update({
       data: {
-        signature
+        signature,
       },
       where: {
-        id: gen1Bud.id
-      }
+        id: gen1Bud.id,
+      },
     });
 
     return gen1Bud;

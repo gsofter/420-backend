@@ -6,6 +6,7 @@ import { BudService } from 'src/bud/bud.service';
 import { HashTableService } from 'src/hash-table/hash-table.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BreedPair, BreedPairStatus, BreedSlot, BreedSlotType } from '@prisma/client';
+import { BadRequestError, NotFoundError, UnproceesableEntityError } from 'src/utils/errors';
 
 @Injectable()
 export class BreedService {
@@ -149,16 +150,16 @@ export class BreedService {
     });
 
     if (!breedLevel) {
-      throw new Error('Breed level not found');
+      throw NotFoundError('Breed level not found');
     }
 
     if (breedLevel.bonusRate !== 0) {
-      throw new Error('Breed rate already evaluated');
+      throw UnproceesableEntityError('Breed rate already evaluated');
     }
 
     // Check the last breeding time
     if (!this.breedTimeElapsed(breedLevel.createdAt)) {
-      throw new Error('Breeding time not elapsed');
+      throw UnproceesableEntityError('Breeding time not elapsed');
     }
 
     let bonusRate = 0;
@@ -174,7 +175,7 @@ export class BreedService {
 
     // Verify bud genders in (M, F) pair
     if (!this.budService.checkBudPairGenders(buds, maleBudId, femaleBudId)) {
-      throw new Error('Bud pair genders do not match');
+      throw BadRequestError('Bud pair genders do not match');
     }
 
     // Get additional bonus rates

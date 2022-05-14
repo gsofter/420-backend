@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { BigNumber } from 'ethers';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UnproceesableEntityError } from 'src/utils/errors';
 
 @Injectable()
 export class UserService {
@@ -81,7 +82,7 @@ Timestamp: ${timestamp}`;
     });
 
     if (userObject.breedingPoint < amount) {
-      throw new Error('Not enough breeding point');
+      throw UnproceesableEntityError('Not enough breeding point');
     }
 
     return await this.prismaService.user.update({

@@ -53,6 +53,14 @@ export function NotFoundError(message = 'Resource is not found.') {
   return err;
 }
 
+export function UnproceesableEntityError(message = 'Request cannot be processed') {
+  const err = new HttpException(
+    { code: 'UnprocessableEntity', message },
+    HttpStatus.UNPROCESSABLE_ENTITY,
+  );
+  return err;
+}
+
 export function BreedingError(message = 'There was an error. Please try again later.') {
   const err = new HttpException(
     { code: 'BreedingError', message },

@@ -4,6 +4,7 @@ import { BreedSlotType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'src/types';
 import { UserService } from 'src/user/user.service';
+import { BadRequestError, NotFoundError } from 'src/utils/errors';
 import { OpenSlotDto } from './dto/land.dto';
 
 @Controller('lands')
@@ -50,11 +51,11 @@ export class LandController {
     });
 
     if (!slot) {
-      throw new Error('Slot not found');
+      throw NotFoundError('Slot not found');
     }
 
     if (slot.isOpen) {
-      throw new Error('Slot is already open');
+      throw BadRequestError('Slot is already open');
     }
 
     // Consume breeding point
@@ -88,11 +89,11 @@ export class LandController {
     });
 
     if (!slot) {
-      throw new Error('Slot not found');
+      throw NotFoundError('Slot not found');
     }
 
     if (slot.type === BreedSlotType.INDOOR) {
-      throw new Error('This slot is already INDOOR type');
+      throw BadRequestError('This slot is already INDOOR type');
     }
 
     // Consume breeding point
