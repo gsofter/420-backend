@@ -1,10 +1,12 @@
 import { Body, Controller, forwardRef, Get, Inject, Post, Put, Req } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BreedSlotType } from '@prisma/client';
+import { BudService } from 'src/bud/bud.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'src/types';
 import { UserService } from 'src/user/user.service';
-import { BadRequestError, NotFoundError } from 'src/utils/errors';
+import { BadRequestError, NotFoundError, UnproceesableEntityError } from 'src/utils/errors';
+import { signMintRequestWithoutTokenId } from 'src/utils/onchain/sign';
 import { OpenSlotDto } from './dto/land.dto';
 
 @Controller('lands')
@@ -15,6 +17,7 @@ export class LandController {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly configService: ConfigService,
+    private readonly budService: BudService,
 
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
@@ -115,8 +118,40 @@ export class LandController {
     };
   }
 
-  @Post('purchase')
-  async purchaseLand(@Req() req: Request, @Body() { slotId }: OpenSlotDto) {
+  @Get('purchase')
+  async purchaseLand(@Req() req: Request) {
+    const timestamp = Date.now();
+    const isOg = await this.budService.checkOGOwner(req.user);
 
+    let isAllowed = isOg;
+
+    if (!isOg) {
+      const openCount = await this.prismaService.breedSlot.count({
+        where: {
+          userAddress: req.user,
+          isOpen: true
+        }
+      });
+
+      console.log('openCount', openCount);
+
+      isAllowed = openCount >= 2;
+    }
+
+    // TODO: Check the land contract if user already purchased max limit
+
+    if (!isAllowed) {
+      throw UnproceesableEntityError(`Not meeting the mint requirements`);
+    }
+
+    const signature = await signMintRequestWithoutTokenId(req.user, timestamp);
+
+    return {
+      success: true,
+      data: {
+        signature,
+        timestamp
+      }
+    }
   }
 }

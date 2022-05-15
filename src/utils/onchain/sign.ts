@@ -41,3 +41,31 @@ export const signMintRequest = async (
   return null;
 };
 
+export const signMintRequestWithoutTokenId = async (
+  address: string,
+  timestamp: number,
+): Promise<string | null> => {
+  const WALLET_PRIVATE_KEY = process.env.ISSUER_PRIVATE_KEY;
+
+  if (!WALLET_PRIVATE_KEY) {
+    return null;
+  }
+
+  try {
+    const issuerWallet = new ethers.Wallet(WALLET_PRIVATE_KEY);
+
+    const signature = await issuerWallet.signMessage(
+      Buffer.from(
+        solidityKeccak256(
+          ['address', 'uint256'],
+          [address, timestamp],
+        ).slice(2),
+        'hex',
+      ),
+    );
+
+    return signature;
+  } catch {}
+
+  return null;
+};

@@ -176,16 +176,24 @@ export class BudService {
     const network = this.configService.get<Network>('network.name');
 
     try {
-      const [erc1155Balance, erc20Balance] = await multicall(
+      const [erc1155Balance] = await multicall(
         this.rpcProvider,
         ADDRESSES[network].MULTICALL,
-        BudAbi,
+        OgErc1155Abi,
         [
           {
             contractAddress: ADDRESSES[network].OG_ERC1155,
             functionName: 'balanceOf',
             params: [address, 1],
           },
+        ],
+      );
+
+      const [erc20Balance] = await multicall(
+        this.rpcProvider,
+        ADDRESSES[network].MULTICALL,
+        OgErc20Abi,
+        [
           {
             contractAddress: ADDRESSES[network].OG_ERC20,
             functionName: 'balanceOf',
