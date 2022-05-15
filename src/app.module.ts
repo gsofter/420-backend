@@ -12,6 +12,8 @@ import { AppGateway } from './app.gateway';
 import { LandModule } from './land/land.module';
 import { GiftCardModule } from './gift-card/gift-card.module';
 import { AdminModule } from './admin/admin.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -19,6 +21,10 @@ import { AdminModule } from './admin/admin.module';
       envFilePath: '../.env',
       isGlobal: true,
       load: [appConfig],
+    }),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 60,
     }),
     PrismaModule,
     HashTableModule,
@@ -31,7 +37,14 @@ import { AdminModule } from './admin/admin.module';
     AdminModule,
   ],
   controllers: [AppController],
-  providers: [AppGateway],
+  providers: [
+    AppGateway,
+    {
+      // TODO: Check if server is behind proxy https://docs.nestjs.com/security/rate-limiting#proxies
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
