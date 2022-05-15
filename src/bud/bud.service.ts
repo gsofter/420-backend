@@ -1,12 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BudGender } from '@prisma/client';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import axios from 'axios';
 import { multicall } from 'src/utils/multicall';
 import { ADDRESSES } from 'src/config';
 import * as BudAbi from 'src/abis/bud.json';
+import * as OgErc20Abi from 'src/abis/ogErc20.json';
+import * as OgErc1155Abi from 'src/abis/ogErc1155.json';
 import { HashTableService } from 'src/hash-table/hash-table.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Network, Bud, BudWithId } from 'src/types';
@@ -23,6 +25,7 @@ import {
   BreedingError,
   UnproceesableEntityError,
 } from 'src/utils/errors';
+import { parseEther } from 'ethers/lib/utils';
 
 @Injectable()
 export class BudService {
@@ -160,6 +163,41 @@ export class BudService {
       if (!this.checkBudPairGenders(metadatas, maleBudId, femaleBudId)) {
         throw UnproceesableEntityError('Bud pair genders do not match');
       }
+    }
+  }
+
+  /**
+   * Check if user holds OG ERC1155, or ERC20 OG token.
+   * 
+   * @param address string
+   * @returns Promise<boolean>
+   */
+  async checkOGOwner(address: string) {
+    const network = this.configService.get<Network>('network.name');
+
+    try {
+      const [erc1155Balance, erc20Balance] = await multicall(
+        this.rpcProvider,
+        ADDRESSES[network].MULTICALL,
+        BudAbi,
+        [
+          {
+            contractAddress: ADDRESSES[network].OG_ERC1155,
+            functionName: 'balanceOf',
+            params: [address, 1],
+          },
+          {
+            contractAddress: ADDRESSES[network].OG_ERC20,
+            functionName: 'balanceOf',
+            params: [address],
+          },
+        ],
+      );
+
+      return BigNumber.from(erc1155Balance).gte(BigNumber.from("1")) || BigNumber.from(erc20Balance).gte(parseEther("1"));
+    } catch (e) {
+      this.logger.error('checkOGOwner multicall error', e);
+      throw BreedingError('Check BUDs ownership... RPC call error');
     }
   }
 

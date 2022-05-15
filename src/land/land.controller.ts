@@ -1,4 +1,4 @@
-import { Body, Controller, forwardRef, Get, Inject, Put, Req } from '@nestjs/common';
+import { Body, Controller, forwardRef, Get, Inject, Post, Put, Req } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BreedSlotType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -113,5 +113,10 @@ export class LandController {
       success: true,
       data: slot,
     };
+  }
+
+  @Post('purchase')
+  async purchaseLand(@Req() req: Request, @Body() { slotId }: OpenSlotDto) {
+
   }
 }
