@@ -42,7 +42,7 @@ async function config(): Promise<AppConfig> {
     },
     metadataApi: {
       key: process.env.METADATA_API_KEY,
-      url: "https://420.looklabs.xyz"
+      url: network === 'rinkeby' ? "https://420-dev.looklabs.xyz" : "https://420.looklabs.xyz"
     }
   } as AppConfig;
 
