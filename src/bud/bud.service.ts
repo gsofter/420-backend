@@ -254,7 +254,7 @@ export class BudService {
       };
     }
 
-    const bud = generateRandomBud();
+    const bud = generateRandomBud({ gen1: true });
     const thcAndBudSize = this.hashTableService.lookUpGen1Bud(rate);
 
     return {

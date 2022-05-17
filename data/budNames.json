@@ -1,83 +1,102 @@
 [
   {
     "name": "Apple Fritter",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_AppleFritter.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_AppleFritter.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_01_fantasy_0001-0240.mp4"
   },
   {
     "name": "Biscotti",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_Biscotti.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_Biscotti.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_02_fantasy_0001-0240.mp4"
   },
   {
     "name": "Blue OX",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_Blue_Ox.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_Blue_Ox.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_03_fantasy_0001-0240.mp4"
   },
   {
     "name": "Blueberry OG",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_Blueberry.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_Blueberry.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_04_fantasy_0001-0240.mp4"
   },
   {
     "name": "Blue Dream",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_BlueDream.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_BlueDream.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_05_fantasy_0001-0240.mp4"
   },
   {
     "name": "Bruce Banner",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_Bruce_Banner.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_Bruce_Banner.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_06_fantasy_0001-0240.mp4"
   },
   {
     "name": "Do-Si-Dos",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_DoSiDos.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_DoSiDos.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_07_fantasy_0001-0240.mp4"
   },
   {
     "name": "Forbidden Fruit",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_ForbiddenFruit.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_ForbiddenFruit.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_08_fantasy_0001-0240.mp4"
   },
   {
     "name": "Gelato",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_Gelato.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_Gelato.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_09_fantasy_0001-0240.mp4"
   },
   {
     "name": "Golden Goat",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_Golden_Goat.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_Golden_Goat.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_10_fantasy_0001-0240.mp4"
   },
   {
     "name": "Gorilla Glue",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_Gorilla_Glue.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_Gorilla_Glue.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_11_fantasy_0001-0240.mp4"
   },
   {
     "name": "Granddaddy Purple",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_GranddayPurple.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_GranddayPurple.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_12_fantasy_0001-0240.mp4"
   },
   {
     "name": "Grandma's Sugar Cookies",
-    "image":
-      "https://looklabs.s3.amazonaws.com/buds/420_Grandmas_Sugar_Cookies.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_Grandmas_Sugar_Cookies.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_13_fantasy_0001-0240.mp4"
   },
   {
     "name": "L.A. Confidential",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_LA_Confidential.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_LA_Confidential.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_14_fantasy_0001-0240.mp4"
   },
   {
     "name": "Northern Lights",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_Northern_Lights.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_Northern_Lights.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_15_fantasy_0001-0240.mp4"
   },
   {
     "name": "OG Kush",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_OG_Kush.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_OG_Kush.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_16_fantasy_0001-0240.mp4"
   },
   {
     "name": "Orange Bud",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_Orange_Bud.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_Orange_Bud.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_17_fantasy_0001-0240.mp4"
   },
   {
     "name": "Pink Lemonade",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_Pink_Lemonade.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_Pink_Lemonade.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_18_fantasy_0001-0240.mp4"
   },
   {
     "name": "Purple Haze",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_PurpleHaze.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_PurpleHaze.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_19_fantasy_0001-0240.mp4"
   },
   {
     "name": "White Runtz",
-    "image": "https://looklabs.s3.amazonaws.com/buds/420_White_Runtz.mp4"
+    "image": "https://looklabs.s3.amazonaws.com/buds/420_White_Runtz.mp4",
+    "gen1Video": "https://gateway.pinata.cloud/ipfs/QmZ1ycjX1sc6KuZBMf5PQb798Pv1QCA7PP6qHSEr1gubTi/Gen1_20_fantasy_0001-0240.mp4"
   }
 ]
