@@ -22,6 +22,7 @@ export class AuthMiddleware implements NestMiddleware {
     try {
       const decoded = this.userService.jwtDecodeUser(token);
       req.user = checksumAddress(decoded['address']);
+      req.gameKeyId = Number(decoded['gameKeyId']);
     } catch (error) {
       this.logger.error(error);
       return next(UnauthorizedError('Invalid access token'));

@@ -83,6 +83,7 @@ export class BreedController {
   @Post('pair')
   async createPair(@Req() req: Request, @Body() body: CreateBreedPairDto) {
     const user = req.user;
+    const gameKeyId = req.gameKeyId;
     const dtoWithUser = { ...body, address: user };
 
     await this.budService.verifyBudPairs(dtoWithUser, {
@@ -98,24 +99,24 @@ export class BreedController {
       throw ConflictRequestError('One of the bud pairs is in breeding');
     }
 
-    const slots = await this.landService.findOpenBreedSlots(
+    const slot = await this.landService.findOpenBreedSlotById(
       user,
-      undefined,
       body.slotId,
     );
 
-    if (!slots || slots.length !== 1) {
-      throw BadRequestError('No open slots found');
+    if (!slot || (slot.gameKeyId && slot.gameKeyId !== gameKeyId)) {
+      throw BadRequestError('Given slot is not open, not yours or being used for the other pair');
     }
 
     // Determine the start success rate
     const startSuccessRate = await this.breedService.getStartSuccessRate(
       dtoWithUser,
-      slots[0],
+      slot,
     );
     const pair = await this.prismaService.breedPair.create({
       data: {
         userAddress: user,
+        gameKeyId,
         maleBudId: body.maleBudId,
         femaleBudId: body.femaleBudId,
         rate: startSuccessRate,

@@ -73,6 +73,7 @@ model BreedPair {
   currentLevel Int             @default(0)
   status       BreedPairStatus
   slotId       Int
+  gameKeyId    Int
 
   // Relationships
   user   User         @relation(fields: [userAddress], references: [address])

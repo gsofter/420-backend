@@ -23,6 +23,17 @@ export class LandService {
     return slots;
   }
 
+  findOpenBreedSlotById(userAddress: string, slotId: number) {
+    return this.prismaService.breedSlot.findFirst({
+      where: {
+        userAddress,
+        isOpen: true,
+        isUsed: false,
+        id: slotId,
+      }
+    });
+  }
+
   async createFreeLandSlots(userAddress: string, gameKeyId: number) {
     const count = await this.prismaService.breedSlot.count({
       where: {
