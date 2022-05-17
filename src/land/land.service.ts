@@ -7,12 +7,12 @@ export class LandService {
 
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findOpenBreedSlots(userAddress: string, gameKeyTokenId?: number, slotId?: number) {
+  async findOpenBreedSlots(userAddress: string, gameKeyId?: number, slotId?: number) {
     const where: any = {
       userAddress,
       isOpen: true,
       isUsed: false,
-      gameKeyTokenId,
+      gameKeyId,
       id: slotId,
     };
 
@@ -26,7 +26,7 @@ export class LandService {
   async createFreeLandSlots(userAddress: string, gameKeyId: number) {
     const count = await this.prismaService.breedSlot.count({
       where: {
-        gameKeyTokenId: gameKeyId,
+        gameKeyId,
         userAddress,
         landTokenId: null,
       },
@@ -38,14 +38,14 @@ export class LandService {
     }
 
     const data: Array<{
-      gameKeyTokenId: number;
+      gameKeyId: number;
       userAddress: string;
       isOpen: boolean;
     }> = [];
 
     for (let i = 0; i < 5; i++) {
       data.push({
-        gameKeyTokenId: gameKeyId,
+        gameKeyId,
         userAddress,
         isOpen: false,
       });

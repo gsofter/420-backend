@@ -120,12 +120,12 @@ model BreedBud {
 }
 
 model BreedSlot {
-  id             Int           @id @default(autoincrement())
-  isOpen         Boolean       @default(false)
-  isUsed         Boolean       @default(false)
-  type           BreedSlotType @default(OUTDOOR)
-  gameKeyTokenId Int?
-  landTokenId    Int?
+  id          Int           @id @default(autoincrement())
+  isOpen      Boolean       @default(false)
+  isUsed      Boolean       @default(false)
+  type        BreedSlotType @default(OUTDOOR)
+  gameKeyId   Int?
+  landTokenId Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -170,14 +170,14 @@ model Gen1Bud {
 }
 
 model GiftCard {
-  id            Int      @id @default(autoincrement())
+  id            Int        @id @default(autoincrement())
   value         GiftAmount
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
   minterAddress String
 
   signature String @db.Text
-  pairId Int?
+  pairId    Int?
 
   @@index([minterAddress, id])
   @@index([value])
