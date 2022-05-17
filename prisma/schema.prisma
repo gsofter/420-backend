@@ -78,7 +78,7 @@ model BreedPair {
   user   User         @relation(fields: [userAddress], references: [address])
   levels BreedLevel[]
 
-  @@unique([maleBudId, femaleBudId, status])
+  @@index([id, userAddress, status])
 }
 
 model BreedLevel {
