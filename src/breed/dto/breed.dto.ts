@@ -30,6 +30,7 @@ export class BreedPairDto implements BreedPair {
 
   levels: BreedLevelDto[];
   slotId: number;
+  gameKeyId: number;
 
   constructor(pair: BreedPair & { levels?: BreedLevel[] }, breedTime?: number) {
     this.id = pair.id;
@@ -42,6 +43,7 @@ export class BreedPairDto implements BreedPair {
     this.currentLevel = pair.currentLevel;
     this.status = pair.status;
     this.slotId = pair.slotId;
+    this.gameKeyId = pair.gameKeyId;
 
     if (pair.levels) {
       this.levels = pair.levels.map(
