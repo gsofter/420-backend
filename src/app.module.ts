@@ -1,5 +1,9 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { DatadogTraceModule } from 'nestjs-ddtrace';
+import { LoggerModule } from 'nestjs-pino';
 import appConfig from './config/app.config';
 import { AuthMiddleware } from './middlewares/auth.middleware';
 import { HashTableModule } from './hash-table/hash-table.module';
@@ -12,8 +16,6 @@ import { AppGateway } from './app.gateway';
 import { LandModule } from './land/land.module';
 import { GiftCardModule } from './gift-card/gift-card.module';
 import { AdminModule } from './admin/admin.module';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -26,6 +28,12 @@ import { APP_GUARD } from '@nestjs/core';
       ttl: 60,
       limit: 60,
     }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: process.env.ENV !== 'production' ? 'trace' : 'info',
+      },
+    }),
+    DatadogTraceModule.forRoot(),
     PrismaModule,
     HashTableModule,
     UserModule,
