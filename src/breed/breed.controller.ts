@@ -80,6 +80,21 @@ export class BreedController {
     };
   }
 
+  @Get('pairs/all')
+  // TODO: Deprecate this.. because of performance issue
+  async getAllBreedingPairs(@Req() req: Request) {    
+    const pairs = await this.prismaService.breedPair.findMany({
+      where: {
+        status: BreedPairStatus.PAIRED,
+      },
+    });
+
+    return {
+      success: true,
+      data: pairs.map((pair) => new BreedPairDto(pair, this.breedTime)),
+    };
+  }
+
   @Post('pair')
   async createPair(@Req() req: Request, @Body() body: CreateBreedPairDto) {
     const user = req.user;
