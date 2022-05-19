@@ -31,7 +31,7 @@ async function config(): Promise<AppConfig> {
       renameAllowedTime: 5 * 60 * 1000 // 5 minutes in millisceonds
     },
     breed: {
-      timePeriod: network === 'mainnet' ? BREED_TIME : 60,
+      timePeriod: network === 'mainnet' ? BREED_TIME : 10,
       baseSuccessRate: 20,
       indoorSlotBounsRate: 5,
       breedingPointPerLevel: 15,
