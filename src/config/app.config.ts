@@ -32,7 +32,7 @@ async function config(): Promise<AppConfig> {
     },
     breed: {
       timePeriod: network === 'mainnet' ? BREED_TIME : 10,
-      baseSuccessRate: 20,
+      baseSuccessRate: 60,
       indoorSlotBounsRate: 5,
       breedingPointPerLevel: 15,
       breedingPointToOpenSlot: 42,
