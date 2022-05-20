@@ -13,10 +13,10 @@ type EmitGen0BudsBurnedPayload = {
   success: boolean;
   data: {
     address: string;
-    maleBudId: number;
-    femaleBudId: number;
-    newBudId: number;
-  } | null;
+    maleBudId?: number;
+    femaleBudId?: number;
+    newBudId?: number;
+  };
 };
 
 @WebSocketGateway({
@@ -34,11 +34,26 @@ export class AppGateway
 
   private logger: Logger = new Logger('AppGateway');
 
-  @SubscribeMessage('msgToServer')
-  handleMessage(client: Socket, payload: string): void {
+  @SubscribeMessage('simulateFailure')
+  handleFailure(client: Socket, payload: string): void {
     this.server.emit('gen0BudsBurned', {
       success: false,
-      data: null
+      data: {
+        payload
+      }
+    });
+  }
+
+  @SubscribeMessage('simulateSuccess')
+  handleSuccess(client: Socket, payload: string): void {
+    this.server.emit('gen0BudsBurned', {
+      success: true,
+      data: {
+        address: payload,
+        maleBudId: 1,
+        femaleBudId: 2,
+        newBudId: 2,
+      }
     });
   }
 

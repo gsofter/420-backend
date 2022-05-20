@@ -162,7 +162,9 @@ export class AdminController {
 
     this.appGateway.emitGen0BudsBurned({
       success: false,
-      data: null
+      data: {
+        address
+      }
     });
 
     return {
