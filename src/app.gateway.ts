@@ -36,8 +36,10 @@ export class AppGateway
 
   @SubscribeMessage('msgToServer')
   handleMessage(client: Socket, payload: string): void {
-    this.logger.log(`Message from client: ${payload}`);
-    this.server.emit('msgToClient', payload);
+    this.server.emit('gen0BudsBurned', {
+      success: false,
+      data: null
+    });
   }
 
   emitGen0BudsBurned(payload: EmitGen0BudsBurnedPayload) {
