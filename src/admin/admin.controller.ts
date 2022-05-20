@@ -12,8 +12,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { verifyMessage } from 'ethers/lib/utils';
-import type { Request } from 'src/types';
 import {
   BadRequestError,
   BreedingError,
@@ -29,6 +27,7 @@ import { ethers } from 'ethers';
 import { BreedPairStatus } from '@prisma/client';
 import { AppGateway } from 'src/app.gateway';
 import { LandService } from 'src/land/land.service';
+import { ADDRESSES } from 'src/config';
 import { BuyLandDto } from './dto/buy-land.dto';
 
 @Controller('admin')
@@ -113,7 +112,7 @@ export class AdminController {
 
     // await this.budService.verifyBudPairs(
     //   {
-    //     address: ethers.constants.AddressZero,
+    //     address: ADDRESSES[network].BUD_BURN,
     //     maleBudId,
     //     femaleBudId,
     //   },

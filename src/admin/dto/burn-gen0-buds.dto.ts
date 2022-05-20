@@ -15,7 +15,7 @@ export class BurnGen0Buds {
 
   @IsString()
   @IsIn(['rinkeby', 'mainnet'])
-  network!: string;
+  network!: 'rinkeby' | 'mainnet';
 
   @IsNumber()
   @IsNotEmpty()
