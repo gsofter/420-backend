@@ -70,6 +70,9 @@ export class BreedController {
           include: {
             buds: true,
           },
+          orderBy: {
+            level: 'asc',
+          }
         },
       },
     });
