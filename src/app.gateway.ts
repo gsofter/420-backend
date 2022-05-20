@@ -39,7 +39,7 @@ export class AppGateway
     this.server.emit('gen0BudsBurned', {
       success: false,
       data: {
-        payload
+        address: payload
       }
     });
   }
