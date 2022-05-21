@@ -72,7 +72,7 @@ export class BreedController {
           },
           orderBy: {
             level: 'asc',
-          }
+          },
         },
       },
     });
@@ -85,7 +85,7 @@ export class BreedController {
 
   @Get('pairs/all')
   // TODO: Deprecate this.. because of performance issue
-  async getAllBreedingPairs(@Req() req: Request) {    
+  async getAllBreedingPairs(@Req() req: Request) {
     const pairs = await this.prismaService.breedPair.findMany({
       where: {
         status: BreedPairStatus.PAIRED,
@@ -123,7 +123,9 @@ export class BreedController {
     );
 
     if (!slot || (slot.gameKeyId && slot.gameKeyId !== gameKeyId)) {
-      throw BadRequestError('Given slot is not open, not yours or being used for the other pair');
+      throw BadRequestError(
+        'Given slot is not open, not yours or being used for the other pair',
+      );
     }
 
     // Determine the start success rate
@@ -212,6 +214,51 @@ export class BreedController {
         status: getBonusRateStatus(bonusRate),
       },
     };
+  }
+
+  @Post('cancel')
+  async cancelBreeding(
+    @Req() req: Request,
+    @Body() { pairId }: BreedFinalizeDto,
+  ) {
+    const pair = await this.prismaService.breedPair.findFirst({
+      where: {
+        id: pairId,
+        userAddress: req.user,
+        status: {
+          in: [BreedPairStatus.MAX_REACHED, BreedPairStatus.PAIRED]
+        },
+      },
+    });
+
+    if (!pair) {
+      throw NotFoundError('Breed pair not found');
+    }
+
+    // Update breed pair as CANCELED
+    await this.prismaService.breedPair.update({
+      where: {
+        id: pair.id,
+      },
+      data: {
+        status: BreedPairStatus.CANCELED
+      },
+    });
+
+    // Mark slot unused
+    await this.prismaService.breedSlot.update({
+      where: {
+        id: pair.slotId,
+      },
+      data: {
+        isUsed: false
+      },
+    });
+
+    return {
+      success: true,
+      data: null
+    }
   }
 
   @Post('finalize')
