@@ -1,22 +1,7 @@
 import { IsIn, IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
+import { AdminDtoBase } from './base.dto';
 
-export class BreedingPointDto {
-  @IsString()
-  @IsNotEmpty()
-  address!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  txHash!: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  block!: number;
-
-  @IsString()
-  @IsIn(['rinkeby', 'mainnet'])
-  network!: string;
-
+export class BreedingPointDto extends AdminDtoBase {
   @IsNumber()
   @IsNotEmpty()
   @Min(1)

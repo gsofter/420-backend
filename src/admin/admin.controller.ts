@@ -141,8 +141,22 @@ export class AdminController {
       this.configService.get<number>('breed.burnSuccessRate'),
     );
 
+    const logData = {
+      address,
+      txHash,
+      blockNumber: block,
+      type: EventType.BURN_GEN0,
+    };
+
     if (result.success) {
       const newBud = await this.budService.issueGen1BudMint(address, result.data);
+
+      await this.prismaService.eventServiceLog.create({
+        data: {
+          ...logData,
+          data: JSON.stringify({ maleBudId, femaleBudId, gen1:{ success: true, budId: newBud.id } })
+        },
+      });
 
       this.appGateway.emitGen0BudsBurned({
         success: true,
@@ -159,6 +173,13 @@ export class AdminController {
         data: newBud,
       };
     }
+
+    await this.prismaService.eventServiceLog.create({
+      data: {
+        ...logData,
+        data: JSON.stringify({ maleBudId, femaleBudId, gen1:{ success: false, budId: null } })
+      },
+    });
 
     this.appGateway.emitGen0BudsBurned({
       success: false,
@@ -184,6 +205,16 @@ export class AdminController {
 
     try {
       await this.landService.createNewLandSlots(address, landId);
+
+      await this.prismaService.eventServiceLog.create({
+        data: {
+          address,
+          txHash,
+          blockNumber: block,
+          type: EventType.MINT_LAND,
+          data: JSON.stringify({ landId })
+        },
+      });
 
       return {
         success: true,

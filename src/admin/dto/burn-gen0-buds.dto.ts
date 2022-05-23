@@ -1,22 +1,7 @@
-import { IsIn, IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, Max, Min } from 'class-validator';
+import { AdminDtoBase } from './base.dto';
 
-export class BurnGen0Buds {
-  @IsString()
-  @IsNotEmpty()
-  address!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  txHash!: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  block!: number;
-
-  @IsString()
-  @IsIn(['rinkeby', 'mainnet'])
-  network!: 'rinkeby' | 'mainnet';
-
+export class BurnGen0Buds extends AdminDtoBase {
   @IsNumber()
   @IsNotEmpty()
   @Min(0)
