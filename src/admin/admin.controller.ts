@@ -1,4 +1,3 @@
-import { BreedingPointDto } from './dto/breeding-point.dto';
 import {
   Body,
   Controller,
@@ -12,6 +11,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ConfigService } from '@nestjs/config';
+import { ethers } from 'ethers';
+import { BreedPairStatus, EventType } from '@prisma/client';
 import {
   BadRequestError,
   BreedingError,
@@ -20,11 +22,9 @@ import {
 } from 'src/utils/errors';
 import { UserService } from 'src/user/user.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { ConfigService } from '@nestjs/config';
 import { BurnGen0Buds } from './dto/burn-gen0-buds.dto';
+import { BreedingPointDto } from './dto/breeding-point.dto';
 import { BudService } from 'src/bud/bud.service';
-import { ethers } from 'ethers';
-import { BreedPairStatus } from '@prisma/client';
 import { AppGateway } from 'src/app.gateway';
 import { LandService } from 'src/land/land.service';
 import { ADDRESSES } from 'src/config';
@@ -69,12 +69,13 @@ export class AdminController {
         },
       });
 
-      await this.prismaService.breedingPointLog.create({
+      await this.prismaService.eventServiceLog.create({
         data: {
-          userAddress: address,
+          address,
           txHash,
-          block,
-          amount,
+          blockNumber: block,
+          type: EventType.DEPOSIT_BP,
+          data: JSON.stringify({ amount })
         },
       });
 
