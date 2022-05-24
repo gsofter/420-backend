@@ -154,6 +154,7 @@ model EventServiceLog {
   updatedAt DateTime @updatedAt
 
   @@unique([txHash])
+  @@index([txHash, type])
 }
 
 model Gen1Bud {

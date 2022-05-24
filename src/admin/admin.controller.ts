@@ -29,6 +29,8 @@ import { AppGateway } from 'src/app.gateway';
 import { LandService } from 'src/land/land.service';
 import { ADDRESSES } from 'src/config';
 import { BuyLandDto } from './dto/buy-land.dto';
+import { BreedService } from 'src/breed/breed.service';
+import { AdminService } from './admin.service';
 
 @Controller('admin')
 export class AdminController {
@@ -36,8 +38,10 @@ export class AdminController {
 
   constructor(
     private readonly appGateway: AppGateway,
+    private readonly adminService: AdminService,
     private readonly userService: UserService,
     private readonly budService: BudService,
+    private readonly breedService: BreedService,
     private readonly configService: ConfigService,
     private readonly prismaService: PrismaService,
     private readonly landService: LandService,
@@ -47,6 +51,8 @@ export class AdminController {
   @Put('breedingPoint')
   async addBreedingPoint(@Body() body: BreedingPointDto) {
     const { address, txHash, block, network, amount } = body;
+
+    await this.adminService.validateTransaction(txHash, EventType.DEPOSIT_BP);
 
     if (network !== this.configService.get<string>('network.name')) {
       throw BadRequestError('Invalid network');
@@ -75,7 +81,7 @@ export class AdminController {
           txHash,
           blockNumber: block,
           type: EventType.DEPOSIT_BP,
-          data: JSON.stringify({ amount })
+          data: JSON.stringify({ amount }),
         },
       });
 
@@ -96,6 +102,8 @@ export class AdminController {
   async burnGen0Buds(@Body() body: BurnGen0Buds) {
     const { address, txHash, block, network, maleBudId, femaleBudId } = body;
 
+    await this.adminService.validateTransaction(txHash, EventType.BURN_GEN0);
+
     if (network !== this.configService.get<string>('network.name')) {
       throw BadRequestError('Invalid network');
     }
@@ -111,30 +119,20 @@ export class AdminController {
     // TODO: Enable bud gender check and breeding status
     // TODO: Event verification
 
-    // await this.budService.verifyBudPairs(
-    //   {
-    //     address: ADDRESSES[network].BUD_BURN,
-    //     maleBudId,
-    //     femaleBudId,
-    //   },
-    //   { checkMetadata: true },
-    // );
+    await this.budService.verifyBudPairs(
+      {
+        address: ADDRESSES[network].BUD_BURN,
+        maleBudId,
+        femaleBudId,
+      },
+      { checkMetadata: true },
+    );
 
-    // if (
-    //   (await this.prismaService.breedPair.count({
-    //     where: {
-    //       status: BreedPairStatus.PAIRED,
-    //       OR: [
-    //         {
-    //           femaleBudId: femaleBudId,
-    //         },
-    //         { maleBudId: maleBudId },
-    //       ],
-    //     },
-    //   })) > 0
-    // ) {
-    //   throw ConflictRequestError('One of the bud pairs is in breeding');
-    // }
+    if (
+      (await this.breedService.findPairInBreeding(maleBudId, femaleBudId)) > 0
+    ) {
+      throw ConflictRequestError('One of the bud pairs is in breeding');
+    }
 
     // Roll the dice
     const result = this.budService.diceGen1Bud(
@@ -149,12 +147,19 @@ export class AdminController {
     };
 
     if (result.success) {
-      const newBud = await this.budService.issueGen1BudMint(address, result.data);
+      const newBud = await this.budService.issueGen1BudMint(
+        address,
+        result.data,
+      );
 
       await this.prismaService.eventServiceLog.create({
         data: {
           ...logData,
-          data: JSON.stringify({ maleBudId, femaleBudId, gen1:{ success: true, budId: newBud.id } })
+          data: JSON.stringify({
+            maleBudId,
+            femaleBudId,
+            gen1: { success: true, budId: newBud.id },
+          }),
         },
       });
 
@@ -165,7 +170,7 @@ export class AdminController {
           maleBudId,
           femaleBudId,
           newBudId: newBud.id,
-        }
+        },
       });
 
       return {
@@ -177,15 +182,19 @@ export class AdminController {
     await this.prismaService.eventServiceLog.create({
       data: {
         ...logData,
-        data: JSON.stringify({ maleBudId, femaleBudId, gen1:{ success: false, budId: null } })
+        data: JSON.stringify({
+          maleBudId,
+          femaleBudId,
+          gen1: { success: false, budId: null },
+        }),
       },
     });
 
     this.appGateway.emitGen0BudsBurned({
       success: false,
       data: {
-        address
-      }
+        address,
+      },
     });
 
     return {
@@ -198,6 +207,8 @@ export class AdminController {
   @Post('openLandSlots')
   async openNewLandSlots(@Body() body: BuyLandDto) {
     const { address, txHash, block, network, landId } = body;
+
+    await this.adminService.validateTransaction(txHash, EventType.MINT_LAND);
 
     if (network !== this.configService.get<string>('network.name')) {
       throw BadRequestError('Invalid network');
@@ -212,21 +223,21 @@ export class AdminController {
           txHash,
           blockNumber: block,
           type: EventType.MINT_LAND,
-          data: JSON.stringify({ landId })
+          data: JSON.stringify({ landId }),
         },
       });
 
       return {
         success: true,
-        data: null
-      }
+        data: null,
+      };
     } catch (e) {
       this.logger.error('openLandSlots error', e);
     }
 
     return {
       success: false,
-      data: null
-    }
+      data: null,
+    };
   }
 }

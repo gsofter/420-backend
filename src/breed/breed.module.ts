@@ -11,6 +11,7 @@ import { GiftCardModule } from 'src/gift-card/gift-card.module';
 @Module({
   imports: [PrismaModule, BudModule, HashTableModule, UserModule, LandModule, GiftCardModule],
   providers: [BreedService],
+  exports: [BreedService],
   controllers: [BreedController],
 })
 export class BreedModule {}
