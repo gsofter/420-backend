@@ -72,7 +72,7 @@ export class AdminController {
       await this.prismaService.user.update({
         where: { address },
         data: {
-          breedingPoint: user.breedingPoint + amount,
+          breedingPoint: user.breedingPoint + amount / 100,
         },
       });
 

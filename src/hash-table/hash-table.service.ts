@@ -23,6 +23,8 @@ export class HashTableService {
   /**
    * For given (thcId, budSize) pair, returns the positive or negative rate that's receiving at each level of breeding
    *
+   * TODO: Shuffle reward hash table on Production
+   * 
    * @param obj thcId, budSize
    * @returns rate
    */

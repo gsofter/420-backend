@@ -5,6 +5,6 @@ export class BreedingPointDto extends AdminDtoBase {
   @IsNumber()
   @IsNotEmpty()
   @Min(1)
-  @Max(1000)
+  @Max(10000 * 100)
   amount!: number;
 }
