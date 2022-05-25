@@ -293,7 +293,9 @@ export class BudService {
 
     const signature = await signMintRequest(
       minter,
+      "Gen1Bud",
       gen1Bud.id,
+      1,
       gen1Bud.createdAt.getTime(),
     );
 

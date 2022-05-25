@@ -75,7 +75,9 @@ export class GiftCardService {
 
     const signature = await signMintRequest(
       minter,
+      "GiftCard",
       tokenId,
+      1,
       card.createdAt.getTime(),
     );
 

@@ -1,13 +1,14 @@
 import { Body, Controller, forwardRef, Get, Inject, Post, Put, Req } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { BreedSlotType } from '@prisma/client';
+import { Throttle } from '@nestjs/throttler';
+import { BreedSlotType, BreedPair, BreedPairStatus, EventType } from '@prisma/client';
 import { BudService } from 'src/bud/bud.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'src/types';
 import { UserService } from 'src/user/user.service';
 import { BadRequestError, NotFoundError, UnproceesableEntityError } from 'src/utils/errors';
-import { signMintRequestWithoutTokenId } from 'src/utils/onchain/sign';
-import { OpenSlotDto } from './dto/land.dto';
+import { signMintRequest } from 'src/utils/onchain/sign';
+import { OpenSlotDto, PurchaseGameItemDto } from './dto/land.dto';
 
 @Controller('lands')
 export class LandController {
@@ -118,9 +119,9 @@ export class LandController {
     };
   }
 
-  @Get('purchase')
+  @Post('purchase')
+  @Throttle(2, 60)
   async purchaseLand(@Req() req: Request) {
-    const timestamp = Date.now();
     const isOg = await this.budService.checkOGOwner(req.user);
 
     let isAllowed = isOg;
@@ -133,8 +134,6 @@ export class LandController {
         }
       });
 
-      console.log('openCount', openCount);
-
       isAllowed = openCount >= 2;
     }
 
@@ -144,12 +143,67 @@ export class LandController {
       throw UnproceesableEntityError(`Not meeting the mint requirements`);
     }
 
-    const signature = await signMintRequestWithoutTokenId(req.user, timestamp);
+    const timestamp = Date.now();
+    const signature = await signMintRequest(req.user, "Land", 0, 1, timestamp);
 
     return {
       success: true,
       data: {
         signature,
+        timestamp
+      }
+    }
+  }
+
+  @Post('farmer-pass')
+  @Throttle(2, 60)
+  async purchaseFarmerPass(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
+    const completedCount = await this.prismaService.breedPair.count({
+      where: {
+        userAddress: req.user,
+        status: BreedPairStatus.COMPLETED,
+      }
+    });
+
+    if (completedCount <= 0) {
+      throw UnproceesableEntityError(`Not completed any breeding successfully yet`);
+    }
+
+    const timestamp = Date.now();
+    const signature = await signMintRequest(req.user, "GameItem", 3, amount, timestamp);
+
+    return {
+      success: true,
+      data: {
+        signature,
+        amount,
+        timestamp
+      }
+    }
+  }
+
+  @Post('superweed-serum')
+  @Throttle(2, 60)
+  async purchaseSuperWeedSerum(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
+    const mintLandCount = await this.prismaService.eventServiceLog.count({
+      where: {
+        address: req.user,
+        type: EventType.MINT_LAND,
+      }
+    });
+
+    if (mintLandCount <= 0) {
+      throw UnproceesableEntityError(`Not purchased any extra land yet`);
+    }
+
+    const timestamp = Date.now();
+    const signature = await signMintRequest(req.user, "GameItem", 2, amount, timestamp);
+
+    return {
+      success: true,
+      data: {
+        signature,
+        amount,
         timestamp
       }
     }

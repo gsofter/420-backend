@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers, utils } from 'ethers';
 import { solidityKeccak256 } from 'ethers/lib/utils';
 
 /**
@@ -13,7 +13,9 @@ import { solidityKeccak256 } from 'ethers/lib/utils';
  */
 export const signMintRequest = async (
   address: string,
+  typeString: "Gen1Bud" | "Land" | "GiftCard" | "GameItem",
   tokenId: number,
+  amount: number,
   timestamp: number,
 ): Promise<string | null> => {
   const WALLET_PRIVATE_KEY = process.env.ISSUER_PRIVATE_KEY;
@@ -28,37 +30,8 @@ export const signMintRequest = async (
     const signature = await issuerWallet.signMessage(
       Buffer.from(
         solidityKeccak256(
-          ['address', 'uint256', 'uint256'],
-          [address, tokenId, timestamp],
-        ).slice(2),
-        'hex',
-      ),
-    );
-
-    return signature;
-  } catch {}
-
-  return null;
-};
-
-export const signMintRequestWithoutTokenId = async (
-  address: string,
-  timestamp: number,
-): Promise<string | null> => {
-  const WALLET_PRIVATE_KEY = process.env.ISSUER_PRIVATE_KEY;
-
-  if (!WALLET_PRIVATE_KEY) {
-    return null;
-  }
-
-  try {
-    const issuerWallet = new ethers.Wallet(WALLET_PRIVATE_KEY);
-
-    const signature = await issuerWallet.signMessage(
-      Buffer.from(
-        solidityKeccak256(
-          ['address', 'uint256'],
-          [address, timestamp],
+          ['address', 'bytes32', 'uint256', 'uint256', 'uint256'],
+          [address, utils.id(typeString), tokenId, amount, timestamp],
         ).slice(2),
         'hex',
       ),
