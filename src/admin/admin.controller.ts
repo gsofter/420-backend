@@ -5,6 +5,7 @@ import {
   Get,
   Inject,
   Logger,
+  Param,
   Post,
   Put,
   Req,
@@ -238,6 +239,41 @@ export class AdminController {
     return {
       success: false,
       data: null,
+    };
+  }
+
+  @UseGuards(AuthGuard('admin'))
+  @Get('gen1/:id')
+  async getGen1Buds(@Param('id') id: number) {
+    const budId = Number(id);
+
+    if (isNaN(budId) || budId <= 0) {
+      return {
+        success: false,
+        data: null
+      }
+    }
+    const bud = await this.prismaService.gen1Bud.findFirst({
+      where: {
+        id: budId,
+      },
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        thc: true,
+        budSize: true,
+        gender: true,
+        shine: true,
+        color: true,
+        createdAt: true,
+        minterAddress: true
+      }
+    });
+
+    return {
+      success: true,
+      data: bud,
     };
   }
 }
