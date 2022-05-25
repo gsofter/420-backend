@@ -7,6 +7,6 @@ export class RenameGen1BudDto {
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(32)
+  @MaxLength(15)
   name!: string;
 }
