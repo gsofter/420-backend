@@ -40,10 +40,13 @@ enum BudShine {
 }
 
 enum GiftAmount {
+  USD50
   USD100
   USD200
   USD420
   USD1000
+  USD5000
+  USD10000
 }
 
 enum EventType {

@@ -1,12 +1,15 @@
 import { GiftAmount } from '@prisma/client';
 
-export const GiftAmounts = ['USD100', 'USD200', 'USD420', 'USD1000'] as const;
+export const GiftAmounts = ['USD50', 'USD100', 'USD200', 'USD420', 'USD1000', 'USD5000', 'USD10000'] as const;
 
 const giftCardTypes: Record<GiftAmount, number> = {
-  [GiftAmount.USD100]: 0,
-  [GiftAmount.USD200]: 1,
-  [GiftAmount.USD420]: 2,
-  [GiftAmount.USD1000]: 3,
+  [GiftAmount.USD50]: 0,
+  [GiftAmount.USD100]: 1,
+  [GiftAmount.USD200]: 2,
+  [GiftAmount.USD420]: 3,
+  [GiftAmount.USD1000]: 4,
+  [GiftAmount.USD5000]: 5,
+  [GiftAmount.USD10000]: 6,
 };
 
 export const getGiftCardTypeId = (value: GiftAmount) => {
