@@ -104,7 +104,7 @@ export class BreedController {
     const gameKeyId = req.gameKeyId;
     const dtoWithUser = { ...body, address: user };
 
-    await this.budService.verifyBudPairs(dtoWithUser, {
+    const [maleBud, femaleBud] = await this.budService.verifyBudPairs(dtoWithUser, {
       checkMetadata: true,
     });
 
@@ -156,7 +156,7 @@ export class BreedController {
     });
 
     // Create level 1 buds
-    await this.breedService.startBreedLevel(pair);
+    await this.breedService.startBreedLevel(pair, maleBud, femaleBud);
 
     return {
       success: true,
@@ -203,10 +203,10 @@ export class BreedController {
     );
 
     // Get the bonus rate for the current level
-    const bonusRate = await this.breedService.advanceBreedLevel(pair, budIds);
+    const { bonusRate, maleBud, femaleBud } = await this.breedService.advanceBreedLevel(pair, budIds);
 
     // Generate the next level buds
-    await this.breedService.startBreedLevel(pair);
+    await this.breedService.startBreedLevel(pair, maleBud, femaleBud);
 
     return {
       success: true,

@@ -10,6 +10,8 @@ type Options = {
   maxThc?: number;
   maxBudSize?: number;
   targetGender?: BudGender;
+  targetName?: string;
+  targetImage?: string;
   gen1?: boolean;
 };
 
@@ -34,7 +36,7 @@ export const generateRandomBud = (_options = defaultOptions): Bud => {
     ...defaultOptions,
     ..._options,
   };
-  const { maxThc, maxBudSize, targetGender, gen1 } = options;
+  const { maxThc, gen1, maxBudSize, targetGender, targetName, targetImage } = options;
 
   // Get name and image pair
   const nameAndImage = budNames[randomNumber(budNames.length)];
@@ -51,6 +53,14 @@ export const generateRandomBud = (_options = defaultOptions): Bud => {
 
   if (targetGender) {
     randomBud.gender = targetGender;
+  }
+
+  if (targetName) {
+    randomBud.name = targetName;
+  }
+
+  if (targetImage) {
+    randomBud.image = targetImage;
   }
 
   return randomBud;

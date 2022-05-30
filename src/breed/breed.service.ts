@@ -7,6 +7,7 @@ import { HashTableService } from 'src/hash-table/hash-table.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BreedPair, BreedPairStatus, BreedSlot, BreedSlotType } from '@prisma/client';
 import { BadRequestError, NotFoundError, UnproceesableEntityError } from 'src/utils/errors';
+import { Bud } from 'src/types';
 
 @Injectable()
 export class BreedService {
@@ -85,22 +86,22 @@ export class BreedService {
   /**
    * Start a new breed level - creating 4 random buds
    *
-   * TODO: Verify time elapsed since last breeding
-   *
    * @param breedPair BreedPair
+   * @param maleBud Bud
+   * @param femaleBud Bud
    * @returns Promise<BreedLevel>
    */
-  async startBreedLevel(breedPair: BreedPair) {
+  async startBreedLevel(breedPair: BreedPair, maleBud: Bud, femaleBud: Bud) {
     const newLevel = breedPair.currentLevel + 1;
     const maxLevelReached = newLevel >= this.breedTargetLevel;
 
     // Max level reached
     if (!maxLevelReached) {
       const buds = [
-        generateRandomBud({ targetGender: 'M' }),
-        generateRandomBud({ targetGender: 'F' }),
-        generateRandomBud({ targetGender: 'F' }),
-        generateRandomBud({ targetGender: 'M' }),
+        generateRandomBud({ targetGender: 'M', targetName: maleBud.name, targetImage: maleBud.image }),
+        generateRandomBud({ targetGender: 'F', targetName: femaleBud.name, targetImage: femaleBud.image }),
+        generateRandomBud({ targetGender: 'F', targetName: femaleBud.name, targetImage: femaleBud.image }),
+        generateRandomBud({ targetGender: 'M', targetName: maleBud.name, targetImage: maleBud.image }),
       ];
 
       const breedLevel = await this.prismaService.breedLevel.create({
@@ -178,12 +179,19 @@ export class BreedService {
       throw BadRequestError('Bud pair genders do not match');
     }
 
+    let maleBud: Bud = buds[0], femaleBud: Bud = buds[1];
+
     // Get additional bonus rates
     for (const bud of buds) {
       bonusRate += this.hashTableService.lookUpBreedRate({
         thcId: bud.thc,
         budSize: bud.budSize,
       });
+
+      if (bud.gender === 'M') 
+        maleBud = bud;
+      if (bud.gender === 'F') 
+        femaleBud = bud;
     }
 
     // Record bonus rate in the breed level
@@ -198,7 +206,11 @@ export class BreedService {
       },
     });
 
-    return bonusRate;
+    return {
+      bonusRate,
+      maleBud,
+      femaleBud
+    };
   }
 
   /**

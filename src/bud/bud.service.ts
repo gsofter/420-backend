@@ -163,6 +163,8 @@ export class BudService {
       if (!this.checkBudPairGenders(metadatas, maleBudId, femaleBudId)) {
         throw UnproceesableEntityError('Bud pair genders do not match');
       }
+
+      return metadatas;
     }
   }
 
