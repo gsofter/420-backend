@@ -72,7 +72,9 @@ export class BreedService {
   async findPairInBreeding(maleBudId: number, femaleBudId: number) {
     return this.prismaService.breedPair.count({
       where: {
-        status: BreedPairStatus.PAIRED,
+        status: {
+          in: [BreedPairStatus.PAIRED, BreedPairStatus.MAX_REACHED]
+        },
         OR: [
           {
             femaleBudId: femaleBudId,

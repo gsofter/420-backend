@@ -5,6 +5,7 @@ import {
   Get,
   Logger,
   Post,
+  Put,
   Query,
   Req,
   UseInterceptors,
@@ -13,9 +14,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'src/types';
 import {
   BadRequestError,
-  BreedingError,
   ConflictRequestError,
-  isPrismaError,
   NotFoundError,
 } from 'src/utils/errors';
 import { BreedService } from './breed.service';
@@ -30,6 +29,7 @@ import { BreedFinalizeDto } from './dto/breed-finalize.dto';
 import { BudService } from 'src/bud/bud.service';
 import { LandService } from 'src/land/land.service';
 import { GiftCardService } from 'src/gift-card/gift-card.service';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('breeds')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -98,15 +98,65 @@ export class BreedController {
     };
   }
 
+  @Put('invalidate')
+  @Throttle(5, 60)
+  async validatePair(@Req() req: Request, @Body() body: CreateBreedPairDto) {
+    const user = req.user;
+    const { maleBudId, femaleBudId } = body;
+
+    await this.budService.verifyBudPairs({
+      address: user,
+      maleBudId,
+      femaleBudId,
+    });
+
+    const { count } = await this.prismaService.breedPair.updateMany({
+      where: {
+        userAddress: {
+          not: user,
+        },
+        status: {
+          in: [BreedPairStatus.PAIRED, BreedPairStatus.MAX_REACHED],
+        },
+        OR: [
+          {
+            femaleBudId: femaleBudId,
+          },
+          { maleBudId: maleBudId },
+        ],
+      },
+      data: {
+        status: BreedPairStatus.FAILED,
+      },
+    });
+
+    if (count > 0) {
+      return {
+        success: true,
+        data:
+          (count > 1 ? `${count} pairs are ` : `${count} pair is `) +
+          'invalidated',
+      };
+    }
+
+    return {
+      success: false,
+      data: null,
+    };
+  }
+
   @Post('pair')
   async createPair(@Req() req: Request, @Body() body: CreateBreedPairDto) {
     const user = req.user;
     const gameKeyId = req.gameKeyId;
     const dtoWithUser = { ...body, address: user };
 
-    const [maleBud, femaleBud] = await this.budService.verifyBudPairs(dtoWithUser, {
-      checkMetadata: true,
-    });
+    const [maleBud, femaleBud] = await this.budService.verifyBudPairs(
+      dtoWithUser,
+      {
+        checkMetadata: true,
+      },
+    );
 
     if (
       (await this.breedService.findPairInBreeding(
@@ -203,7 +253,8 @@ export class BreedController {
     );
 
     // Get the bonus rate for the current level
-    const { bonusRate, maleBud, femaleBud } = await this.breedService.advanceBreedLevel(pair, budIds);
+    const { bonusRate, maleBud, femaleBud } =
+      await this.breedService.advanceBreedLevel(pair, budIds);
 
     // Generate the next level buds
     await this.breedService.startBreedLevel(pair, maleBud, femaleBud);
@@ -226,7 +277,7 @@ export class BreedController {
         id: pairId,
         userAddress: req.user,
         status: {
-          in: [BreedPairStatus.MAX_REACHED, BreedPairStatus.PAIRED]
+          in: [BreedPairStatus.MAX_REACHED, BreedPairStatus.PAIRED],
         },
       },
     });
@@ -241,7 +292,7 @@ export class BreedController {
         id: pair.id,
       },
       data: {
-        status: BreedPairStatus.CANCELED
+        status: BreedPairStatus.CANCELED,
       },
     });
 
@@ -251,14 +302,14 @@ export class BreedController {
         id: pair.slotId,
       },
       data: {
-        isUsed: false
+        isUsed: false,
       },
     });
 
     return {
       success: true,
-      data: null
-    }
+      data: null,
+    };
   }
 
   @Post('finalize')
