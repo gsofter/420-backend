@@ -18,7 +18,7 @@ import {
   NotFoundError,
 } from 'src/utils/errors';
 import { BreedService } from './breed.service';
-import { BreedPairQueryDto, CreateBreedPairDto } from './dto/breed-pair.dto';
+import { BreedPairQueryDto, CreateBreedPairDto, InvalidBreedPairDto } from './dto/breed-pair.dto';
 import { BreedUpDto } from './dto/breed-up.dto';
 import { getBonusRateStatus } from './../utils/breed';
 import { BreedPairDto } from './dto/breed.dto';
@@ -100,7 +100,7 @@ export class BreedController {
 
   @Put('invalidate')
   @Throttle(5, 60)
-  async validatePair(@Req() req: Request, @Body() body: CreateBreedPairDto) {
+  async validatePair(@Req() req: Request, @Body() body: InvalidBreedPairDto) {
     const user = req.user;
     const { maleBudId, femaleBudId } = body;
 

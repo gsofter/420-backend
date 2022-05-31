@@ -14,6 +14,16 @@ export class CreateBreedPairDto {
   slotId!: number;
 }
 
+export class InvalidBreedPairDto {
+  @IsNumber()
+  @IsNotEmpty()
+  maleBudId!: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  femaleBudId!: number;
+}
+
 export class BreedPairQueryDto {
   @IsNumber()
   @IsOptional()
