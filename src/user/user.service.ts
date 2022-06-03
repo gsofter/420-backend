@@ -2,6 +2,8 @@ import { ConfigService } from '@nestjs/config';
 import { Injectable, Logger } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { BigNumber } from 'ethers';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { UnproceesableEntityError } from 'src/utils/errors';
 
 @Injectable()
 export class UserService {
@@ -9,7 +11,11 @@ export class UserService {
   private timestampBuffer = 300000;
   private logger = new Logger('UserService');
 
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    private prismaService: PrismaService,
+  ) {
+  }
 
   /**
    * Retrieve the message the user will sign to login
@@ -67,6 +73,23 @@ Timestamp: ${timestamp}`;
     return jwt.verify(token, jwtPassPhrase, {
       algorithms: ['HS256'],
       issuer: '420 Game',
+    });
+  }
+
+  async consumeBreedingPoint(user: string, amount: number) {
+    const userObject = await this.prismaService.user.findUnique({
+      where: { address: user },
+    });
+
+    if (userObject.breedingPoint < amount) {
+      throw UnproceesableEntityError('Not enough breeding point');
+    }
+
+    return await this.prismaService.user.update({
+      where: { address: user },
+      data: {
+        breedingPoint: userObject.breedingPoint - amount,
+      },
     });
   }
 }

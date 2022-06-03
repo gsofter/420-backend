@@ -10,9 +10,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum BreedPairStatus {
+  PAIRED
+  COMPLETED
+  CANCELED
+  MAX_REACHED
+  FAILED
+}
+
+enum BreedSlotType {
+  INDOOR
+  OUTDOOR
+}
+
 enum BudGender {
-  Male
-  Female
+  M
+  F
 }
 
 enum BudColor {
@@ -26,13 +39,26 @@ enum BudShine {
   No
 }
 
+enum GiftAmount {
+  USD50
+  USD100
+  USD200
+  USD420
+  USD1000
+  USD5000
+  USD10000
+}
+
+enum EventType {
+  BURN_GEN0
+  MINT_LAND
+  DEPOSIT_BP
+}
+
 // Description: User data following sign-up workflow.
 model User {
   address       String   @id @db.VarChar(42)
   signature     String   @db.Text
-  r             String   @db.Text
-  s             String   @db.Text
-  v             Int      @db.SmallInt
   gameKeyId     Int?     @db.Integer
   breedingPoint Int      @default(0) @db.Integer
   createdAt     DateTime @default(now())
@@ -46,29 +72,38 @@ model User {
 }
 
 model BreedPair {
-  id          Int      @id @default(autoincrement())
-  maleBudId   Int
-  femaleBudId Int
-  startRate   Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userAddress String   @db.VarChar(42)
+  id           Int             @id @default(autoincrement())
+  maleBudId    Int
+  femaleBudId  Int
+  rate         Float
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  userAddress  String          @db.VarChar(42)
+  currentLevel Int             @default(0)
+  status       BreedPairStatus
+  slotId       Int
+  gameKeyId    Int
 
   // Relationships
-  user User @relation(fields: [userAddress], references: [address])
+  user   User         @relation(fields: [userAddress], references: [address])
+  levels BreedLevel[]
 
-  @@unique([maleBudId, femaleBudId])
+  @@index([id, userAddress, status])
 }
 
 model BreedLevel {
-  id        Int      @id @default(autoincrement())
-  pairId    Int
-  level     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  pairId           Int
+  level            Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  bonusRate        Float    @default(0)
+  maleBreedBudId   Int?
+  femaleBreedBudId Int?
 
   // Relationships
   buds BreedBud[]
+  pair BreedPair  @relation(fields: [pairId], references: [id])
 
   @@unique([pairId, level])
   @@index([pairId, level])
@@ -79,8 +114,7 @@ model BreedBud {
   name      String    @db.VarChar
   image     String    @db.VarChar
   thc       Int
-  gen       Int
-  size      Int
+  budSize   Int
   gender    BudGender
   shine     BudShine
   color     BudColor
@@ -93,4 +127,70 @@ model BreedBud {
 
   @@index([id, thc])
   @@index([levelId])
+}
+
+model BreedSlot {
+  id          Int           @id @default(autoincrement())
+  isOpen      Boolean       @default(false)
+  isUsed      Boolean       @default(false)
+  type        BreedSlotType @default(OUTDOOR)
+  gameKeyId   Int?
+  landTokenId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userAddress String @db.VarChar(42)
+
+  @@index([userAddress, isOpen])
+}
+
+model EventServiceLog {
+  id          Int       @id @default(autoincrement())
+  address     String
+  txHash      String
+  blockNumber Int
+  type        EventType
+  data        String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([txHash])
+  @@index([txHash, type])
+}
+
+model Gen1Bud {
+  id            Int       @id @default(autoincrement())
+  name          String    @db.VarChar
+  image         String    @db.VarChar
+  thc           Int
+  budSize       Int
+  gender        BudGender
+  shine         BudShine
+  color         BudColor
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  minterAddress String
+
+  signature String @db.Text
+
+  // Foreign keys
+  pairId Int?
+
+  @@index([minterAddress, id])
+}
+
+model GiftCard {
+  id            Int        @id @default(autoincrement())
+  value         GiftAmount
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  minterAddress String
+
+  signature String @db.Text
+  pairId    Int?
+
+  @@index([minterAddress, id])
+  @@index([value])
 }

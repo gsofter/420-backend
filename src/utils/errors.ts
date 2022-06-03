@@ -1,4 +1,21 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
+import {
+  PrismaClientInitializationError,
+  PrismaClientKnownRequestError,
+  PrismaClientRustPanicError,
+  PrismaClientUnknownRequestError,
+  PrismaClientValidationError,
+} from '@prisma/client/runtime';
+
+export function isPrismaError(error: Error) {
+  return (
+    error instanceof PrismaClientKnownRequestError ||
+    error instanceof PrismaClientUnknownRequestError ||
+    error instanceof PrismaClientRustPanicError ||
+    error instanceof PrismaClientInitializationError ||
+    error instanceof PrismaClientValidationError
+  );
+}
 
 export function UnauthorizedError(message = 'Request is not authorized.') {
   const err = new HttpException(
@@ -32,6 +49,22 @@ export function NotFoundError(message = 'Resource is not found.') {
   const err = new HttpException(
     { code: 'NotFound', message },
     HttpStatus.NOT_FOUND,
+  );
+  return err;
+}
+
+export function UnproceesableEntityError(message = 'Request cannot be processed') {
+  const err = new HttpException(
+    { code: 'UnprocessableEntity', message },
+    HttpStatus.UNPROCESSABLE_ENTITY,
+  );
+  return err;
+}
+
+export function BreedingError(message = 'There was an error. Please try again later.') {
+  const err = new HttpException(
+    { code: 'BreedingError', message },
+    HttpStatus.INTERNAL_SERVER_ERROR,
   );
   return err;
 }

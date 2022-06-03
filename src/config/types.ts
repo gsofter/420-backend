@@ -9,6 +9,9 @@ export type AppConfig = {
     chainId: number;
     rpc: string;
   };
+  admin: {
+    key: string;
+  };
   db: {
     url: string;
   };
@@ -18,8 +21,22 @@ export type AppConfig = {
   jwt: {
     passPhrase: string;
   };
+  bud: {
+    renameAllowedTime: number;
+  },
   breed: {
     timePeriod: number;
+    baseSuccessRate: number;
+    indoorSlotBounsRate: number;
+    breedingPointPerLevel: number;
+    breedingPointToOpenSlot: number;
+    breedingPointToCovertIndoor: number;
+    burnSuccessRate: number;
+    targetLevel: number;
   };
   rpc: string;
+  metadataApi: {
+    key: string;
+    url: string;
+  }
 };

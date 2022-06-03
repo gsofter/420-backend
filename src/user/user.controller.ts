@@ -1,17 +1,60 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
-import { splitSignature, verifyMessage } from 'ethers/lib/utils';
+import {
+  Body,
+  Controller,
+  forwardRef,
+  Get,
+  Inject,
+  Logger,
+  Post,
+  Req,
+} from '@nestjs/common';
+import { verifyMessage } from 'ethers/lib/utils';
 import type { Request } from 'src/types';
-import { BadRequestError } from 'src/utils/errors';
+import {
+  BadRequestError,
+  BreedingError,
+  NotFoundError,
+} from 'src/utils/errors';
 import { LoginDto } from './dto/login.dto';
 import { UserService } from './user.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { LandService } from 'src/land/land.service';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
+  private readonly logger = new Logger('UserController');
+
   constructor(
     private readonly userService: UserService,
     private readonly prismaService: PrismaService,
+
+    @Inject(forwardRef(() => LandService))
+    private readonly landService: LandService,
   ) {}
+
+  @Get('/')
+  async getUser(@Req() req: Request) {
+    const { user: address } = req;
+
+    const user = await this.prismaService.user.findUnique({
+      where: { address },
+      select: {
+        address: true,
+        breedingPoint: true,
+        gameKeyId: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) {
+      throw NotFoundError('User not found.');
+    }
+
+    return {
+      success: true,
+      data: user,
+    };
+  }
 
   @Post('login')
   async login(@Body() body: LoginDto) {
@@ -24,23 +67,21 @@ export class UserController {
 
     const derivedAddress = verifyMessage(message, signature);
 
-    if (derivedAddress === address) {
-      const { r, s, v } = splitSignature(signature);
+    if (derivedAddress.toLowerCase() === address.toLowerCase()) {
+      try {
+        await this.landService.createFreeLandSlots(address, gameKeyId);
+      } catch {
+        throw BreedingError('Error during open up free slots');
+      }
 
       const user = await this.prismaService.user.upsert({
         create: {
           address: address,
           signature: signature,
-          r,
-          s,
-          v,
           gameKeyId: gameKey,
         },
         update: {
           signature: signature,
-          r,
-          s,
-          v,
           gameKeyId: gameKey,
         },
         where: { address: address },

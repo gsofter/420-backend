@@ -3,10 +3,18 @@ import { Network } from './types';
 export const ADDRESSES = {
   rinkeby: {
     MULTICALL: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
-    BUD: '',
+    BUD: '0x7A82634C555c00c437FFCC910716b933F74eF4B4',
+    OG_ERC1155: '0xD46b511B86F4DB0a39BF277811D8C08f8C3C47B1',
+    OG_ERC20: '0x49933c977eD78ae67f939C184B2DCCed71788eE4',
+    BUD_BURN: '0xbeED24A1Faf22BFDaFb49C9f415EF2eD8d0C3660',
+    LAND: '',
   },
   mainnet: {
     MULTICALL: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696', // https://github.com/makerdao/multicall#multicall2-contract-addresses,
     BUD: '0xebbd75122a9e292b5205d9a374b5ea2c1933f903',
+    OG_ERC1155: '0xFe190723a465C99293c4f035045C0a6880D25DbE',
+    OG_ERC20: '0xE4e3A5Fc669F43C23857d180e173e73e3b0Ffa14',
+    LAND: '',
+    BUD_BURN: '',
   },
 } as const;

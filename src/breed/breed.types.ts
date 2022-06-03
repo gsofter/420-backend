@@ -3,3 +3,4 @@ export type CreateBudPair = {
   femaleBudId: number;
   address: string;
 };
+
