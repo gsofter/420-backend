@@ -101,6 +101,42 @@ export class BudService {
   }
 
   /**
+   * Check if the provided address is an owner of given gen0 bud id
+   * 
+   * @param budId number
+   * @param address string
+   * @throws UnproceesableEntityError
+   */
+  async isGen0BudOwner(budId: number, address: string) {
+    const network = this.configService.get<Network>('network.name');
+
+    let [owner] = [''];
+    try {
+      [owner] = await multicall(
+        this.rpcProvider,
+        ADDRESSES[network].MULTICALL,
+        BudAbi,
+        [
+          {
+            contractAddress: ADDRESSES[network].BUD,
+            functionName: 'ownerOf',
+            params: [budId],
+          },
+        ],
+      );
+    } catch (e) {
+      this.logger.error('multicall error check', e);
+      throw BreedingError('Check BUDs ownership... RPC call error');
+    }
+
+    if (owner !== address) {
+      throw UnproceesableEntityError('Not the bud owner');
+    }
+
+    return true;
+  }
+
+  /**
    * Verify if user owns buds referenced by maleBudId, and femaleBudId
    *
    * If such conditions are not met, the function throws an error

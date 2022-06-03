@@ -32,6 +32,7 @@ import { ADDRESSES } from 'src/config';
 import { BuyLandDto } from './dto/buy-land.dto';
 import { BreedService } from 'src/breed/breed.service';
 import { AdminService } from './admin.service';
+import { InvalidateBreedingDto } from './dto/invalidate-breeding.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -47,6 +48,48 @@ export class AdminController {
     private readonly prismaService: PrismaService,
     private readonly landService: LandService,
   ) {}
+
+  @UseGuards(AuthGuard('admin'))
+  @Put('invalidate')
+  async invalidateBreedingPairByBudId(@Req() req: Request, @Body() body: InvalidateBreedingDto) {
+    const { owner, budId } = body;
+
+    await this.budService.isGen0BudOwner(budId, owner);
+
+    const { count } = await this.prismaService.breedPair.updateMany({
+      where: {
+        userAddress: {
+          not: owner,
+        },
+        status: {
+          in: [BreedPairStatus.PAIRED, BreedPairStatus.MAX_REACHED],
+        },
+        OR: [
+          {
+            femaleBudId: budId,
+          },
+          { maleBudId: budId },
+        ],
+      },
+      data: {
+        status: BreedPairStatus.FAILED,
+      },
+    });
+
+    if (count > 0) {
+      return {
+        success: true,
+        data:
+          (count > 1 ? `${count} pairs are ` : `${count} pair is `) +
+          'invalidated',
+      };
+    }
+
+    return {
+      success: false,
+      data: null,
+    };
+  }
 
   @UseGuards(AuthGuard('admin'))
   @Put('breedingPoint')
