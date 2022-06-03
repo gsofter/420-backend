@@ -51,7 +51,7 @@ export class AdminController {
 
   @UseGuards(AuthGuard('admin'))
   @Put('invalidate-breeding')
-  async invalidateBreedingPairByBudId(@Req() req: Request, @Body() body: InvalidateBreedingDto) {
+  async invalidateBreedingPairByBudId(@Body() body: InvalidateBreedingDto) {
     const { owner, budId } = body;
 
     await this.budService.isGen0BudOwner(budId, owner);
