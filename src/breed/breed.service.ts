@@ -93,7 +93,7 @@ export class BreedService {
    */
   async startBreedLevel(breedPair: BreedPair, maleBud: Bud, femaleBud: Bud) {
     const newLevel = breedPair.currentLevel + 1;
-    const maxLevelReached = newLevel >= this.breedTargetLevel;
+    const maxLevelReached = newLevel > this.breedTargetLevel;
 
     // Max level reached
     if (!maxLevelReached) {
@@ -135,7 +135,7 @@ export class BreedService {
    * @param breedPair BreedPair
    * @param param1 { maleBudId, femaleBudId }
    */
-  async advanceBreedLevel(
+  async evaluateBreedLevel(
     breedPair: BreedPair,
     { maleBudId, femaleBudId }: Omit<CreateBudPair, 'address'>,
   ) {

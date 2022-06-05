@@ -282,7 +282,7 @@ export class BreedController {
 
     // Get the bonus rate for the current level
     const { bonusRate, maleBud, femaleBud } =
-      await this.breedService.advanceBreedLevel(pair, budIds);
+      await this.breedService.evaluateBreedLevel(pair, budIds);
 
     // Generate the next level buds
     await this.breedService.startBreedLevel(pair, maleBud, femaleBud);
@@ -355,11 +355,11 @@ export class BreedController {
       throw NotFoundError('Breed pair not found');
     }
 
-    if (pair.currentLevel !== this.breedTargetLevel) {
+    if (pair.currentLevel <= this.breedTargetLevel) {
       throw BadRequestError('Breed target level not reached');
     }
 
-    await this.breedService.advanceBreedLevel(pair, {
+    await this.breedService.evaluateBreedLevel(pair, {
       maleBudId,
       femaleBudId
     });
