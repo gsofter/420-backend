@@ -18,7 +18,11 @@ import {
   NotFoundError,
 } from 'src/utils/errors';
 import { BreedService } from './breed.service';
-import { BreedPairQueryDto, CreateBreedPairDto, InvalidBreedPairDto } from './dto/breed-pair.dto';
+import {
+  BreedPairQueryDto,
+  CreateBreedPairDto,
+  InvalidBreedPairDto,
+} from './dto/breed-pair.dto';
 import { BreedUpDto } from './dto/breed-up.dto';
 import { getBonusRateStatus } from './../utils/breed';
 import { BreedPairDto } from './dto/breed.dto';
@@ -110,7 +114,8 @@ export class BreedController {
       femaleBudId,
     });
 
-    const { count } = await this.prismaService.breedPair.updateMany({
+    // Find pairs
+    const pairs = await this.prismaService.breedPair.findMany({
       where: {
         userAddress: {
           not: user,
@@ -123,8 +128,38 @@ export class BreedController {
           { maleBudId: maleBudId },
         ],
       },
+    });
+
+    const count = pairs.length;
+
+    if (count === 0) {
+      return {
+        success: false,
+        data: null,
+      };
+    }
+
+    // Update pairs
+    await this.prismaService.breedPair.updateMany({
+      where: {
+        id: {
+          in: pairs.map((p) => p.id),
+        },
+      },
       data: {
         status: BreedPairStatus.FAILED,
+      },
+    });
+
+    // Update slots
+    await this.prismaService.breedSlot.updateMany({
+      where: {
+        id: {
+          in: pairs.map((p) => p.id),
+        },
+      },
+      data: {
+        isUsed: false,
       },
     });
 
@@ -136,11 +171,6 @@ export class BreedController {
           'invalidated',
       };
     }
-
-    return {
-      success: false,
-      data: null,
-    };
   }
 
   @Post('pair')
@@ -318,7 +348,7 @@ export class BreedController {
         id: pairId,
         userAddress: req.user,
         status: BreedPairStatus.PAIRED,
-        currentLevel: this.configService.get<number>('breed.targetLevel')
+        currentLevel: this.configService.get<number>('breed.targetLevel'),
       },
     });
 
