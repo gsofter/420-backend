@@ -18,7 +18,11 @@ import {
   NotFoundError,
 } from 'src/utils/errors';
 import { BreedService } from './breed.service';
-import { BreedPairQueryDto, CreateBreedPairDto, InvalidBreedPairDto } from './dto/breed-pair.dto';
+import {
+  BreedPairQueryDto,
+  CreateBreedPairDto,
+  InvalidBreedPairDto,
+} from './dto/breed-pair.dto';
 import { BreedUpDto } from './dto/breed-up.dto';
 import { getBonusRateStatus } from './../utils/breed';
 import { BreedPairDto } from './dto/breed.dto';
@@ -110,14 +114,13 @@ export class BreedController {
       femaleBudId,
     });
 
-    const { count } = await this.prismaService.breedPair.updateMany({
+    // Find pairs
+    const pairs = await this.prismaService.breedPair.findMany({
       where: {
         userAddress: {
           not: user,
         },
-        status: {
-          in: [BreedPairStatus.PAIRED, BreedPairStatus.MAX_REACHED],
-        },
+        status: BreedPairStatus.PAIRED,
         OR: [
           {
             femaleBudId: femaleBudId,
@@ -125,8 +128,38 @@ export class BreedController {
           { maleBudId: maleBudId },
         ],
       },
+    });
+
+    const count = pairs.length;
+
+    if (count === 0) {
+      return {
+        success: false,
+        data: null,
+      };
+    }
+
+    // Update pairs
+    await this.prismaService.breedPair.updateMany({
+      where: {
+        id: {
+          in: pairs.map((p) => p.id),
+        },
+      },
       data: {
         status: BreedPairStatus.FAILED,
+      },
+    });
+
+    // Update slots
+    await this.prismaService.breedSlot.updateMany({
+      where: {
+        id: {
+          in: pairs.map((p) => p.id),
+        },
+      },
+      data: {
+        isUsed: false,
       },
     });
 
@@ -138,11 +171,6 @@ export class BreedController {
           'invalidated',
       };
     }
-
-    return {
-      success: false,
-      data: null,
-    };
   }
 
   @Post('pair')
@@ -231,7 +259,7 @@ export class BreedController {
       throw NotFoundError('Breed pair not found');
     }
 
-    if (pair.currentLevel >= this.breedTargetLevel) {
+    if (pair.currentLevel > this.breedTargetLevel) {
       throw BadRequestError('Target level reached. Do finalize!');
     }
 
@@ -254,7 +282,7 @@ export class BreedController {
 
     // Get the bonus rate for the current level
     const { bonusRate, maleBud, femaleBud } =
-      await this.breedService.advanceBreedLevel(pair, budIds);
+      await this.breedService.evaluateBreedLevel(pair, budIds);
 
     // Generate the next level buds
     await this.breedService.startBreedLevel(pair, maleBud, femaleBud);
@@ -276,9 +304,7 @@ export class BreedController {
       where: {
         id: pairId,
         userAddress: req.user,
-        status: {
-          in: [BreedPairStatus.MAX_REACHED, BreedPairStatus.PAIRED],
-        },
+        status: BreedPairStatus.PAIRED,
       },
     });
 
@@ -315,13 +341,13 @@ export class BreedController {
   @Post('finalize')
   async finalizeBreeding(
     @Req() req: Request,
-    @Body() { pairId }: BreedFinalizeDto,
+    @Body() { pairId, maleBudId, femaleBudId }: BreedFinalizeDto,
   ) {
     const pair = await this.prismaService.breedPair.findFirst({
       where: {
         id: pairId,
         userAddress: req.user,
-        status: BreedPairStatus.MAX_REACHED,
+        status: BreedPairStatus.PAIRED,
       },
     });
 
@@ -329,9 +355,14 @@ export class BreedController {
       throw NotFoundError('Breed pair not found');
     }
 
-    if (pair.currentLevel !== this.breedTargetLevel) {
+    if (pair.currentLevel < this.breedTargetLevel) {
       throw BadRequestError('Breed target level not reached');
     }
+
+    await this.breedService.evaluateBreedLevel(pair, {
+      maleBudId,
+      femaleBudId
+    });
 
     const result = await this.breedService.finalizeBreeding(pair);
 

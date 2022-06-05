@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { DatadogTraceModule } from 'nestjs-ddtrace';
-import { LoggerModule } from 'nestjs-pino';
 import appConfig from './config/app.config';
 import { AuthMiddleware } from './middlewares/auth.middleware';
 import { HashTableModule } from './hash-table/hash-table.module';
@@ -27,11 +26,6 @@ import { AdminModule } from './admin/admin.module';
     ThrottlerModule.forRoot({
       ttl: 60,
       limit: 60,
-    }),
-    LoggerModule.forRoot({
-      pinoHttp: {
-        level: process.env.ENV !== 'production' ? 'trace' : 'info',
-      },
     }),
     DatadogTraceModule.forRoot(),
     PrismaModule,

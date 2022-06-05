@@ -52,18 +52,14 @@ export class AdminController {
   @UseGuards(AuthGuard('admin'))
   @Put('invalidate-breeding')
   async invalidateBreedingPairByBudId(@Body() body: InvalidateBreedingDto) {
-    const { owner, budId } = body;
+    const { prevOwner, owner, budId } = body;
 
     await this.budService.isGen0BudOwner(budId, owner);
 
-    const { count } = await this.prismaService.breedPair.updateMany({
+    const pairs = await this.prismaService.breedPair.findMany({
       where: {
-        userAddress: {
-          not: owner,
-        },
-        status: {
-          in: [BreedPairStatus.PAIRED, BreedPairStatus.MAX_REACHED],
-        },
+        userAddress: prevOwner,
+        status: BreedPairStatus.PAIRED,
         OR: [
           {
             femaleBudId: budId,
@@ -71,23 +67,56 @@ export class AdminController {
           { maleBudId: budId },
         ],
       },
+      select: {
+        id: true,
+        slotId: true,
+      },
+    });
+
+    if (pairs.length === 0) {
+      return {
+        success: false,
+        data: null,
+      };
+    }
+
+    this.logger.log(
+      `Bud TANSFER: Invalidate ${pairs.length} pairs that were in breeding`,
+      JSON.stringify({
+        data: pairs,
+      }),
+    );
+
+    // Update pairs
+    await this.prismaService.breedPair.updateMany({
+      where: {
+        id: {
+          in: pairs.map((p) => p.id),
+        },
+      },
       data: {
         status: BreedPairStatus.FAILED,
       },
     });
 
-    if (count > 0) {
-      return {
-        success: true,
-        data:
-          (count > 1 ? `${count} pairs are ` : `${count} pair is `) +
-          'invalidated',
-      };
-    }
+    // Update slots
+    await this.prismaService.breedSlot.updateMany({
+      where: {
+        id: {
+          in: pairs.map((p) => p.id),
+        },
+      },
+      data: {
+        isUsed: false,
+      },
+    });
 
+    const count = pairs.length;
     return {
-      success: false,
-      data: null,
+      success: true,
+      data:
+        (count > 1 ? `${count} pairs are ` : `${count} pair is `) +
+        'invalidated',
     };
   }
 
@@ -293,8 +322,8 @@ export class AdminController {
     if (isNaN(budId) || budId <= 0) {
       return {
         success: false,
-        data: null
-      }
+        data: null,
+      };
     }
     const bud = await this.prismaService.gen1Bud.findFirst({
       where: {
@@ -310,8 +339,8 @@ export class AdminController {
         shine: true,
         color: true,
         createdAt: true,
-        minterAddress: true
-      }
+        minterAddress: true,
+      },
     });
 
     return {

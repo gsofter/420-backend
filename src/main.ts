@@ -5,15 +5,17 @@ import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
-import { Logger as PinoLogger } from 'nestjs-pino';
+import { WinstonModule } from 'nest-winston';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { PrismaExceptionFilter } from './filters/prisma-exception.filter';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { logOptions } from './utils/logger/winston';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, { bufferLogs: true });
-  app.useLogger(app.get(PinoLogger));
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: WinstonModule.createLogger(logOptions)
+  });
 
   const logger = new Logger('App');
   const port = app.get(ConfigService).get('api.port');
