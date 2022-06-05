@@ -259,7 +259,7 @@ export class BreedController {
       throw NotFoundError('Breed pair not found');
     }
 
-    if (pair.currentLevel >= this.breedTargetLevel) {
+    if (pair.currentLevel > this.breedTargetLevel) {
       throw BadRequestError('Target level reached. Do finalize!');
     }
 
