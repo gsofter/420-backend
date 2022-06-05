@@ -3,7 +3,9 @@ import type { AppConfig } from './types';
 async function config(): Promise<AppConfig> {
   const env = process.env.NODE_ENV || 'development';
   const network = process.env.NETWORK || 'rinkeby';
-  const BREED_TIME = 2 * 60 * 60 * 24; // 2 days
+
+  // According to GG: "@Wukong for the breeding timer per level - I think we should shorten it to 1 day (originally was 2 by green paper)"
+  const BREED_TIME = 1 * 60 * 60 * 24; // 1 day
 
   const config = {
     env: {
