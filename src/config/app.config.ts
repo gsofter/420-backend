@@ -38,7 +38,7 @@ async function config(): Promise<AppConfig> {
       breedingPointToOpenSlot: 42,
       breedingPointToCovertIndoor: 69,
       burnSuccessRate: 60,
-      targetLevel: 5 + 1, // +1 for the finalize,
+      targetLevel: 5, // +1 for the finalize,
     },
     metadataApi: {
       key: process.env.METADATA_API_KEY,

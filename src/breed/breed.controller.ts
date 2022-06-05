@@ -341,14 +341,13 @@ export class BreedController {
   @Post('finalize')
   async finalizeBreeding(
     @Req() req: Request,
-    @Body() { pairId }: BreedFinalizeDto,
+    @Body() { pairId, maleBudId, femaleBudId }: BreedFinalizeDto,
   ) {
     const pair = await this.prismaService.breedPair.findFirst({
       where: {
         id: pairId,
         userAddress: req.user,
         status: BreedPairStatus.PAIRED,
-        currentLevel: this.configService.get<number>('breed.targetLevel'),
       },
     });
 
@@ -359,6 +358,11 @@ export class BreedController {
     if (pair.currentLevel !== this.breedTargetLevel) {
       throw BadRequestError('Breed target level not reached');
     }
+
+    await this.breedService.advanceBreedLevel(pair, {
+      maleBudId,
+      femaleBudId
+    });
 
     const result = await this.breedService.finalizeBreeding(pair);
 
