@@ -59,9 +59,7 @@ export class AdminController {
     const { count } = await this.prismaService.breedPair.updateMany({
       where: {
         userAddress: prevOwner,
-        status: {
-          in: [BreedPairStatus.PAIRED, BreedPairStatus.MAX_REACHED],
-        },
+        status: BreedPairStatus.PAIRED,
         OR: [
           {
             femaleBudId: budId,
