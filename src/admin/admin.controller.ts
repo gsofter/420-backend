@@ -52,15 +52,13 @@ export class AdminController {
   @UseGuards(AuthGuard('admin'))
   @Put('invalidate-breeding')
   async invalidateBreedingPairByBudId(@Body() body: InvalidateBreedingDto) {
-    const { owner, budId } = body;
+    const { prevOwner, owner, budId } = body;
 
     await this.budService.isGen0BudOwner(budId, owner);
 
     const { count } = await this.prismaService.breedPair.updateMany({
       where: {
-        userAddress: {
-          not: owner,
-        },
+        userAddress: prevOwner,
         status: {
           in: [BreedPairStatus.PAIRED, BreedPairStatus.MAX_REACHED],
         },
@@ -75,6 +73,8 @@ export class AdminController {
         status: BreedPairStatus.FAILED,
       },
     });
+
+    this.logger.log(`Bud TANSFER: Invalidate ${count} pairs that were in breeding`);
 
     if (count > 0) {
       return {
