@@ -14,7 +14,6 @@ enum BreedPairStatus {
   PAIRED
   COMPLETED
   CANCELED
-  MAX_REACHED
   FAILED
 }
 
