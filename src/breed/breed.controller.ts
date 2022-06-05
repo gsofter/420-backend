@@ -115,9 +115,7 @@ export class BreedController {
         userAddress: {
           not: user,
         },
-        status: {
-          in: [BreedPairStatus.PAIRED, BreedPairStatus.MAX_REACHED],
-        },
+        status: BreedPairStatus.PAIRED,
         OR: [
           {
             femaleBudId: femaleBudId,
@@ -276,9 +274,7 @@ export class BreedController {
       where: {
         id: pairId,
         userAddress: req.user,
-        status: {
-          in: [BreedPairStatus.MAX_REACHED, BreedPairStatus.PAIRED],
-        },
+        status: BreedPairStatus.PAIRED,
       },
     });
 
@@ -321,7 +317,8 @@ export class BreedController {
       where: {
         id: pairId,
         userAddress: req.user,
-        status: BreedPairStatus.MAX_REACHED,
+        status: BreedPairStatus.PAIRED,
+        currentLevel: this.configService.get<number>('breed.targetLevel')
       },
     });
 
