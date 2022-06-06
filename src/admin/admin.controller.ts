@@ -103,7 +103,7 @@ export class AdminController {
     await this.prismaService.breedSlot.updateMany({
       where: {
         id: {
-          in: pairs.map((p) => p.id),
+          in: pairs.map((p) => p.slotId),
         },
       },
       data: {
@@ -158,11 +158,15 @@ export class AdminController {
         },
       });
 
+      this.logger.log(
+        `Add BreedingPoint: user - ${address}, points - ${amount}`,
+      );
+
       return {
         success: true,
       };
     } catch (e) {
-      this.logger.error('addBreedingPoint: ' + e.message);
+      this.logger.error('addBreedingPoint: ' + e.message, e);
     }
 
     return {
@@ -218,6 +222,13 @@ export class AdminController {
       blockNumber: block,
       type: EventType.BURN_GEN0,
     };
+
+    this.logger.log(
+      `BURN Gen0 buds success: ${result.success}`, JSON.stringify({
+        ...logData,
+        result
+      }),
+    );
 
     if (result.success) {
       const newBud = await this.budService.issueGen1BudMint(
@@ -305,7 +316,7 @@ export class AdminController {
         data: null,
       };
     } catch (e) {
-      this.logger.error('openLandSlots error', e);
+      this.logger.error('OpenLandSlots error: ' + e.message, e);
     }
 
     return {

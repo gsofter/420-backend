@@ -90,7 +90,7 @@ export class BudController {
 
       return response.data[0].valid;
     } catch (e) {
-      this.logger.error('Bud name check API error', e);
+      this.logger.error('Bud name check API error: ' + e.message, e);
     }
 
     return false;

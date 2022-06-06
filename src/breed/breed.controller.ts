@@ -155,7 +155,7 @@ export class BreedController {
     await this.prismaService.breedSlot.updateMany({
       where: {
         id: {
-          in: pairs.map((p) => p.id),
+          in: pairs.map((p) => p.slotId),
         },
       },
       data: {

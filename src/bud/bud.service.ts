@@ -94,7 +94,7 @@ export class BudService {
         id: Number(_id),
       }));
     } catch (e) {
-      this.logger.error('getBudsMetadata: ' + e.message);
+      this.logger.error('getBudsMetadata: ' + e.message, e);
     }
 
     return [];
@@ -125,7 +125,7 @@ export class BudService {
         ],
       );
     } catch (e) {
-      this.logger.error('multicall error check', e);
+      this.logger.error('multicall error: ' + e.message, e);
       throw BreedingError('Check BUDs ownership... RPC call error');
     }
 
@@ -178,7 +178,7 @@ export class BudService {
         ],
       );
     } catch (e) {
-      this.logger.error('multicall error check', e);
+      this.logger.error('multicall error: ' + e.message, e);
       throw BreedingError('Check BUDs ownership... RPC call error');
     }
 
@@ -242,7 +242,7 @@ export class BudService {
 
       return BigNumber.from(erc1155Balance).gte(BigNumber.from("1")) || BigNumber.from(erc20Balance).gte(parseEther("1"));
     } catch (e) {
-      this.logger.error('checkOGOwner multicall error', e);
+      this.logger.error('checkOGOwner multicall error: ' + e.message, e);
       throw BreedingError('Check BUDs ownership... RPC call error');
     }
   }
