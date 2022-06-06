@@ -29,7 +29,7 @@ import { BreedPairDto } from './dto/breed.dto';
 import { ConfigService } from '@nestjs/config';
 import { BreedPairStatus } from '@prisma/client';
 import { UserService } from 'src/user/user.service';
-import { BreedFinalizeDto } from './dto/breed-finalize.dto';
+import { BreedFinalizeDto, BreedCancelDto } from './dto/breed-finalize.dto';
 import { BudService } from 'src/bud/bud.service';
 import { LandService } from 'src/land/land.service';
 import { GiftCardService } from 'src/gift-card/gift-card.service';
@@ -298,7 +298,7 @@ export class BreedController {
   @Post('cancel')
   async cancelBreeding(
     @Req() req: Request,
-    @Body() { pairId }: BreedFinalizeDto,
+    @Body() { pairId }: BreedCancelDto,
   ) {
     const pair = await this.prismaService.breedPair.findFirst({
       where: {
