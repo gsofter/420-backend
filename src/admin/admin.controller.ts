@@ -158,6 +158,10 @@ export class AdminController {
         },
       });
 
+      this.logger.log(
+        `Add BreedingPoint: user - ${address}, points - ${amount}`,
+      );
+
       return {
         success: true,
       };
@@ -218,6 +222,13 @@ export class AdminController {
       blockNumber: block,
       type: EventType.BURN_GEN0,
     };
+
+    this.logger.log(
+      `BURN Gen0 buds success: ${result.success}`, JSON.stringify({
+        ...logData,
+        result
+      }),
+    );
 
     if (result.success) {
       const newBud = await this.budService.issueGen1BudMint(
