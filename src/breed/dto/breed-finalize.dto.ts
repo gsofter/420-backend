@@ -13,3 +13,9 @@ export class BreedFinalizeDto {
   @IsNotEmpty()
   femaleBudId!: number;
 }
+
+export class BreedCancelDto {
+  @IsNumber()
+  @IsNotEmpty()
+  pairId!: number;
+}
