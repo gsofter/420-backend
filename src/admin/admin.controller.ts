@@ -162,7 +162,7 @@ export class AdminController {
         success: true,
       };
     } catch (e) {
-      this.logger.error('addBreedingPoint: ' + e.message);
+      this.logger.error('addBreedingPoint: ' + e.message, e);
     }
 
     return {
@@ -305,7 +305,7 @@ export class AdminController {
         data: null,
       };
     } catch (e) {
-      this.logger.error('openLandSlots error', e);
+      this.logger.error('OpenLandSlots error: ' + e.message, e);
     }
 
     return {

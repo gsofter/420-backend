@@ -36,7 +36,7 @@ export class AuthMiddleware implements NestMiddleware {
       });
 
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error('JWT decode error: ' + error.message, error);
       return next(UnauthorizedError('Invalid access token'));
     }
 

@@ -80,7 +80,7 @@ model BreedPair {
   userAddress  String          @db.VarChar(42)
   currentLevel Int             @default(0)
   status       BreedPairStatus
-  slotId       Int             @unique
+  slotId       Int
   gameKeyId    Int
 
   // Relationships
