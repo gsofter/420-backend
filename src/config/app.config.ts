@@ -6,7 +6,7 @@ async function config(): Promise<AppConfig> {
 
   // According to GG: "@Wukong for the breeding timer per level - I think we should shorten it to 1 day (originally was 2 by green paper)"
   // const BREED_TIME = 1 * 60 * 60 * 24; // 1 day
-  const BREED_TIME = 10; // 1 day
+  const BREED_TIME = 10 * 60; // 1 day
 
   const config = {
     env: {
