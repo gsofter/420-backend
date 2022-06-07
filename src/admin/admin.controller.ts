@@ -33,6 +33,7 @@ import { BuyLandDto } from './dto/buy-land.dto';
 import { BreedService } from 'src/breed/breed.service';
 import { AdminService } from './admin.service';
 import { InvalidateBreedingDto } from './dto/invalidate-breeding.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('admin')
 export class AdminController {
@@ -51,6 +52,7 @@ export class AdminController {
 
   @UseGuards(AuthGuard('admin'))
   @Put('invalidate-breeding')
+  @Throttle(60 * 1000, 60)
   async invalidateBreedingPairByBudId(@Body() body: InvalidateBreedingDto) {
     const { prevOwner, owner, budId } = body;
 
@@ -122,6 +124,7 @@ export class AdminController {
 
   @UseGuards(AuthGuard('admin'))
   @Put('breedingPoint')
+  @Throttle(60 * 1000, 60)
   async addBreedingPoint(@Body() body: BreedingPointDto) {
     const { address, txHash, block, network, amount } = body;
 
@@ -149,7 +152,7 @@ export class AdminController {
           data: JSON.stringify({ amount }),
         },
       });
-      
+
       // TODO: Verify txHash and actual event
       await this.prismaService.user.update({
         where: { address },
@@ -176,6 +179,7 @@ export class AdminController {
 
   @UseGuards(AuthGuard('admin'))
   @Post('burnBuds')
+  @Throttle(60 * 1000, 60)
   async burnGen0Buds(@Body() body: BurnGen0Buds) {
     const { address, txHash, block, network, maleBudId, femaleBudId } = body;
 
