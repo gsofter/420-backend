@@ -12,7 +12,7 @@ import { AdminService } from './admin.service';
 @Module({
   imports: [PrismaModule, BudModule, LandModule, UserModule, BreedModule],
   controllers: [AdminController],
-  providers: [AdminService, AdminGuardStrategy /* AppGateway */]
+  providers: [AdminService, AdminGuardStrategy, AppGateway]
 })
 export class AdminModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
