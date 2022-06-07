@@ -34,28 +34,28 @@ export class AppGateway
 
   private logger: Logger = new Logger('AppGateway');
 
-  @SubscribeMessage('simulateFailure')
-  handleFailure(client: Socket, payload: string): void {
-    this.server.emit('gen0BudsBurned', {
-      success: false,
-      data: {
-        address: payload
-      }
-    });
-  }
+  // @SubscribeMessage('simulateFailure')
+  // handleFailure(client: Socket, payload: string): void {
+  //   this.server.emit('gen0BudsBurned', {
+  //     success: false,
+  //     data: {
+  //       address: payload
+  //     }
+  //   });
+  // }
 
-  @SubscribeMessage('simulateSuccess')
-  handleSuccess(client: Socket, payload: string): void {
-    this.server.emit('gen0BudsBurned', {
-      success: true,
-      data: {
-        address: payload,
-        maleBudId: 1,
-        femaleBudId: 2,
-        newBudId: 2,
-      }
-    });
-  }
+  // @SubscribeMessage('simulateSuccess')
+  // handleSuccess(client: Socket, payload: string): void {
+  //   this.server.emit('gen0BudsBurned', {
+  //     success: true,
+  //     data: {
+  //       address: payload,
+  //       maleBudId: 1,
+  //       femaleBudId: 2,
+  //       newBudId: 2,
+  //     }
+  //   });
+  // }
 
   emitGen0BudsBurned(payload: EmitGen0BudsBurnedPayload) {
     this.server.emit('gen0BudsBurned', payload);
