@@ -140,14 +140,6 @@ export class AdminController {
     }
 
     try {
-      // TODO: Verify txHash and actual event
-      await this.prismaService.user.update({
-        where: { address },
-        data: {
-          breedingPoint: user.breedingPoint + amount / 100,
-        },
-      });
-
       await this.prismaService.eventServiceLog.create({
         data: {
           address,
@@ -155,6 +147,14 @@ export class AdminController {
           blockNumber: block,
           type: EventType.DEPOSIT_BP,
           data: JSON.stringify({ amount }),
+        },
+      });
+      
+      // TODO: Verify txHash and actual event
+      await this.prismaService.user.update({
+        where: { address },
+        data: {
+          breedingPoint: user.breedingPoint + amount / 100,
         },
       });
 
