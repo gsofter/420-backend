@@ -72,10 +72,20 @@ export class BudController {
       };
     }
 
-    throw UnproceesableEntityError('Proposed bud name cannot be accepted. Please try the other one');
+    throw UnproceesableEntityError('Proposed bud name cannot be accepted or duplicated. Please try the other one');
   }
 
   private async checkBudName(name: string) {
+    const exists = await this.prismaService.gen1Bud.count({
+      where: {
+        name
+      }
+    });
+
+    if (exists > 0) {
+      return false;
+    }
+
     try {
       const apiKey = this.configService.get<string>('metadataApi.key');
       const network = this.configService.get<string>('network.name');
