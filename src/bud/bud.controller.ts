@@ -62,7 +62,7 @@ export class BudController {
           id: budId,
         },
         data: {
-          name,
+          name: name.trim(),
         },
       });
 
@@ -76,13 +76,13 @@ export class BudController {
   }
 
   private async checkBudName(name: string) {
-    const exists = await this.prismaService.gen1Bud.count({
-      where: {
-        name
-      }
-    });
+    const result = await this.prismaService.$queryRaw<[{count: number}]>`
+      SELECT count(*)
+      FROM "Gen1Bud"
+      WHERE TRIM(name) = ${name.trim()}
+    `
 
-    if (exists > 0) {
+    if (result[0].count > 0) {
       return false;
     }
 
