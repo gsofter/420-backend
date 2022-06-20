@@ -8,6 +8,7 @@ export const ADDRESSES = {
     OG_ERC20: '0x49933c977eD78ae67f939C184B2DCCed71788eE4',
     BUD_BURN: '0xbeED24A1Faf22BFDaFb49C9f415EF2eD8d0C3660',
     LAND: '',
+    GAME_ITEM: '',
   },
   mainnet: {
     MULTICALL: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696', // https://github.com/makerdao/multicall#multicall2-contract-addresses,
@@ -16,5 +17,6 @@ export const ADDRESSES = {
     OG_ERC20: '0xE4e3A5Fc669F43C23857d180e173e73e3b0Ffa14',
     LAND: '',
     BUD_BURN: '',
+    GAME_ITEM: '',
   },
 } as const;
