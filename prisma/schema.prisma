@@ -52,6 +52,7 @@ enum EventType {
   BURN_GEN0
   MINT_LAND
   DEPOSIT_BP
+  WITHDRAW_BP
 }
 
 // Description: User data following sign-up workflow.
