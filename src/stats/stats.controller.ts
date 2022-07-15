@@ -12,15 +12,31 @@ export class StatsController {
 
   }
 
+  @Get('history')
+  async getHistory(@Req() req: Request) {
+    const userAddress = req.user;
+
+    const bpDeposits = await this.statsService.getBPDepositHistory(userAddress);
+
+    return {
+      history: {
+        bpDeposits
+      }
+    }
+  }
+
   @Get('metrics')
   async getMetrics(@Req() req: Request) {
-    const user = req.user;
-    const count = await this.statsService.getUserMetrics();
+    const userAddress = req.user;
+    const user = await this.statsService.getUserMetrics();
+    const slot = await this.statsService.getSlotMetrics();
+    const breeding = await this.statsService.getBreedingMetrics();
     
     return {
-      user: {
-        count
-      }
+      userAddress,
+      user,
+      slot,
+      breeding
     }
   }
 }
