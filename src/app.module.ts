@@ -15,6 +15,7 @@ import { AppGateway } from './app.gateway';
 import { LandModule } from './land/land.module';
 import { GiftCardModule } from './gift-card/gift-card.module';
 import { AdminModule } from './admin/admin.module';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { AdminModule } from './admin/admin.module';
     LandModule,
     GiftCardModule,
     AdminModule,
+    StatsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -54,5 +56,6 @@ export class AppModule implements NestModule {
     consumer.apply(AuthMiddleware).forRoutes('buds/*');
     consumer.apply(AuthMiddleware).forRoutes('lands/*');
     consumer.apply(AuthMiddleware).forRoutes('giftCards/*');
+    consumer.apply(AuthMiddleware).forRoutes('stats/*');
   }
 }
