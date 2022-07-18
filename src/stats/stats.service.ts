@@ -48,6 +48,21 @@ export class StatsService {
     return result;
   }
 
+  async getTopBreeders() {
+    const result = await this.prismaService.$queryRaw<[{count: number, minterAddress: string}]>`
+      SELECT
+        count(*) as count,
+        "minterAddress"
+      FROM "Gen1Bud"
+      GROUP BY "minterAddress"
+      ORDER BY count DESC
+      LIMIT 25
+      ;
+    `;
+
+    return result;
+  }
+
   async getUserMetrics() {
     const result = await this.prismaService.$queryRaw<[{count: number}]>`
       SELECT count(*)
