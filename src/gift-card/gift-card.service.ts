@@ -22,6 +22,7 @@ export class GiftCardService {
    */
   async dice(minter: string, pairId?: number) {
     const chance = randomNumber(100);
+    // const chance = 5;
 
     const rewardType = this.hashTableService.lookUpRewardTable(chance);
 

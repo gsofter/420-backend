@@ -13,7 +13,7 @@ import { solidityKeccak256 } from 'ethers/lib/utils';
  */
 export const signMintRequest = async (
   address: string,
-  typeString: "Gen1Bud" | "Land" | "Ticket" | "GameItem",
+  typeString: "Gen1Bud" | "Land" | "Ticket" | "GameItem" | "BurnBP",
   tokenId: number,
   amount: number,
   timestamp: number,

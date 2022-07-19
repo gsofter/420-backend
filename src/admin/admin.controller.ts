@@ -149,7 +149,7 @@ export class AdminController {
           txHash,
           blockNumber: block,
           type: EventType.DEPOSIT_BP,
-          data: JSON.stringify({ amount }),
+          data: JSON.stringify({ amount, balance: user.breedingPoint }),
         },
       });
 
@@ -176,6 +176,67 @@ export class AdminController {
       success: false,
     };
   }
+
+  @UseGuards(AuthGuard('admin'))
+  @Put('withdrawBreedingPoint')
+  async withdrawBreedingPoint(@Body() body: BreedingPointDto) {
+    const { address, txHash, block, network, amount } = body;
+
+    await this.adminService.validateTransaction(txHash, EventType.WITHDRAW_BP);
+
+    if (network !== this.configService.get<string>('network.name')) {
+      throw BadRequestError('Invalid network');
+    }
+
+    const user = await this.prismaService.user.findUnique({
+      where: { address },
+    });
+
+    if (!user) {
+      throw NotFoundError('User not found.');
+    }
+
+    try {
+      if (user.breedingPoint < amount / 100) {
+        this.logger.error(
+          `Insufficient balance: Withdraw BP from user - ${address}, points - ${amount}`,
+        );
+      }
+
+      // TODO: Verify txHash and actual event
+      await this.prismaService.user.update({
+        where: { address },
+        data: {
+          breedingPoint: user.breedingPoint - amount / 100,
+        },
+      });
+
+      await this.prismaService.eventServiceLog.create({
+        data: {
+          address,
+          txHash,
+          blockNumber: block,
+          type: EventType.WITHDRAW_BP,
+          data: JSON.stringify({ amount, balance: user.breedingPoint }),
+        },
+      });
+
+      this.logger.log(
+        `Withdraw BreedingPoint: user - ${address}, points - ${amount}`,
+      );
+
+      return {
+        success: true,
+      };
+    } catch (e) {
+      this.logger.error('withdrawBreedingPoint: ' + e.message, e);
+    }
+
+    return {
+      success: false,
+    };
+  }
+
 
   @UseGuards(AuthGuard('admin'))
   @Post('burnBuds')

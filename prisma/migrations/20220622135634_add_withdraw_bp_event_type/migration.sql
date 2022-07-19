@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "EventType" ADD VALUE 'WITHDRAW_BP';

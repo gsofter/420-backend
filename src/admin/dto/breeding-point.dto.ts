@@ -1,4 +1,4 @@
-import { IsIn, IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, Max, Min } from 'class-validator';
 import { AdminDtoBase } from './base.dto';
 
 export class BreedingPointDto extends AdminDtoBase {
