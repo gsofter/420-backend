@@ -6,6 +6,7 @@ import {
   Inject,
   Logger,
   Post,
+  Put,
   Req,
 } from '@nestjs/common';
 import { verifyMessage } from 'ethers/lib/utils';
@@ -14,11 +15,14 @@ import {
   BadRequestError,
   BreedingError,
   NotFoundError,
+  UnproceesableEntityError,
 } from 'src/utils/errors';
 import { LoginDto } from './dto/login.dto';
 import { UserService } from './user.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LandService } from 'src/land/land.service';
+import { ConvertBPDto } from './dto/convert.dto';
+import { signMintRequest } from 'src/utils/onchain/sign';
 
 @Controller('users')
 export class UserController {
@@ -94,5 +98,41 @@ export class UserController {
     }
 
     throw BadRequestError('Signature and Address do not match.');
+  }
+
+  @Put('convertBp2High')
+  async convertBp2High(@Req() req: Request, @Body() body: ConvertBPDto) {
+    const { amount } = body;
+    const { user : address } = req;
+    
+    const user = await this.prismaService.user.findUnique({
+      where: { address },
+      select: {
+        breedingPoint: true,
+      },
+    });
+
+    if (!user) {
+      throw NotFoundError('User not found.');
+    }
+
+    if (user.breedingPoint < amount) {
+      throw UnproceesableEntityError('Not enough balance');
+    }
+
+    const signature = await signMintRequest(
+      address,
+      "ConvertBP2HIGH",
+      1,
+      amount,
+      new Date().getTime(),
+    );
+
+    return {
+      success: true,
+      data: {
+        signature
+      }
+    }
   }
 }
