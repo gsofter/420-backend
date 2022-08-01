@@ -32,6 +32,9 @@ export class BreedPairDto implements BreedPair {
   slotId: number;
   gameKeyId: number;
 
+  @Exclude()
+  gameItemId: number | null;
+
   constructor(pair: BreedPair & { levels?: BreedLevel[] }, breedTime?: number) {
     this.id = pair.id;
     this.maleBudId = pair.maleBudId;
@@ -44,6 +47,7 @@ export class BreedPairDto implements BreedPair {
     this.status = pair.status;
     this.slotId = pair.slotId;
     this.gameKeyId = pair.gameKeyId;
+    this.gameItemId = pair.gameItemId;
 
     if (pair.levels) {
       this.levels = pair.levels.map(

@@ -7,6 +7,8 @@
 - Requirement:
   - burn a minimum 2 Gen0 buds.
   - Max purchasable N. of lands per player: 1
+- Benefits:
+  Yield 4.2 $HIGH per day
 
 2. Hoodie
 
@@ -15,6 +17,13 @@
 - Requirement:
   - None
   - Max purchasable N. of lands per player: unlimited
+- Usage:
+  - Success rate of creating a gen1 bud: 70%. 
+  - Skip 10 days of breeding. 
+  - Still pay the total $HIGH sacrifices of breeding.
+  - Metalights are wireless chargeable.
+  - First hoodie with printed electronics that are fully washable.
+  - New secret GOAT design(s) will be printed on it.
 
 3. SuperWeed Serum
 
@@ -23,6 +32,8 @@
 - Requirement:
   - Unlock at least 2 lands (you already start with 1)
   - Max purchasable N. of lands per player: unlimited
+- Usage:
+  The serum has 3 usages:  - First usage: reduce breeding time by 20%, increase success rate to 70%.  - Second usage: reduce breeding time by 20%, increase success rate to 58%.  - Third usage: reduce breeding time by 20%, increase success rate to 50%.  No matter which buds you use.
 
 4. Farmer Pass
 
@@ -32,6 +43,10 @@
   - Completed 1 successful breeding session
   - Max purchasable N. of lands per player: unlimited
   - The pass can be used on a maximum of 1 land at a time
+- Usage:
+  decrease breeding time by 15%.   
+  - Provides one free land upgrade into an indoors facility.   
+  - The pass can be used on a maximum of 1 land at a time.  
 
 5. Land Plot
 

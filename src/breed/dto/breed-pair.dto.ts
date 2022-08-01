@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, Max, Min } from 'class-validator';
 
 export class CreateBreedPairDto {
   @IsNumber()
@@ -12,7 +12,14 @@ export class CreateBreedPairDto {
   @IsNumber()
   @IsNotEmpty()
   slotId!: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  @Max(4)
+  gameItemId?: number;
 }
+
 
 export class InvalidBreedPairDto {
   @IsNumber()
