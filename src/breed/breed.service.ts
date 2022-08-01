@@ -13,7 +13,7 @@ import { ADDRESSES } from 'src/config';
 import * as Erc1155Abi from 'src/abis/ogErc1155.json';
 
 import { BadRequestError, BreedingError, NotFoundError, UnproceesableEntityError } from 'src/utils/errors';
-import { Bud, Network } from 'src/types';
+import { Bud, GameItem, Network } from 'src/types';
 import { ethers } from 'ethers';
 
 @Injectable()
@@ -169,7 +169,7 @@ export class BreedService {
     }
 
     // Check the last breeding time
-    if (!this.breedTimeElapsed(breedLevel.createdAt)) {
+    if (!this.breedTimeElapsed(breedLevel.createdAt, breedPair.gameItemId)) {
       throw UnproceesableEntityError('Breeding time not elapsed');
     }
 
@@ -229,8 +229,12 @@ export class BreedService {
    * @param startDate breed start time
    * @returns boolean
    */
-  breedTimeElapsed(startDate: Date) {
-    const breedTime = this.configService.get<number>('breed.timePeriod');
+  breedTimeElapsed(startDate: Date, gameItemId?: number) {
+    let breedTime = this.configService.get<number>('breed.timePeriod');
+
+    if (gameItemId && gameItemId === GameItem.SUPERWEED_SERUM) {
+      breedTime = Math.floor(2 * breedTime / 3);
+    }
 
     const elapsed = Date.now() - startDate.getTime();
     return elapsed >= breedTime * 1000;
