@@ -38,8 +38,6 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 
     this.logger.error('PrismaError: ' + e.message, e);
 
-    console.error('PrismaExceptionFilter', e);
-
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       code: 'BreedingError',
