@@ -19,3 +19,12 @@ export type BudWithId = Bud & {
   id: number
   revealed: boolean
 }
+
+export const GameItem = {
+  ROLLING_PAPER: 1,
+  HOODIE: 2,
+  SUPERWEED_SERUM: 3,
+  FARMER_PASS: 4
+} as const;
+
+export type GameItem = (typeof GameItem)[keyof typeof GameItem]

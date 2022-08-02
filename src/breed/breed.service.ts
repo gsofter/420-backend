@@ -1,18 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JsonRpcProvider } from '@ethersproject/providers';
+import { BreedPair, BreedPairStatus, BreedSlot, BreedSlotType } from '@prisma/client';
 import { CreateBudPair } from './breed.types';
 import { generateRandomBud } from './../utils/bud';
 import { BudService } from 'src/bud/bud.service';
 import { HashTableService } from 'src/hash-table/hash-table.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { BreedPair, BreedPairStatus, BreedSlot, BreedSlotType } from '@prisma/client';
-import { BadRequestError, NotFoundError, UnproceesableEntityError } from 'src/utils/errors';
-import { Bud } from 'src/types';
+
+import { multicall } from 'src/utils/multicall';
+import { ADDRESSES } from 'src/config';
+import * as Erc1155Abi from 'src/abis/ogErc1155.json';
+
+import { BadRequestError, BreedingError, NotFoundError, UnproceesableEntityError } from 'src/utils/errors';
+import { Bud, GameItem, Network } from 'src/types';
+import { ethers } from 'ethers';
 
 @Injectable()
 export class BreedService {
   private readonly logger = new Logger('BreedService');
   private breedTargetLevel = 0;
+  private rpcProvider: JsonRpcProvider;
 
   constructor(
     private configService: ConfigService,
@@ -21,6 +29,11 @@ export class BreedService {
     private prismaService: PrismaService,
   ) {
     this.breedTargetLevel = configService.get<number>('breed.targetLevel');
+
+    this.rpcProvider = new ethers.providers.StaticJsonRpcProvider(
+      configService.get<string>('network.rpc'),
+      configService.get<number>('network.chainId'),
+    );
   }
 
   /**
@@ -156,7 +169,7 @@ export class BreedService {
     }
 
     // Check the last breeding time
-    if (!this.breedTimeElapsed(breedLevel.createdAt)) {
+    if (!this.breedTimeElapsed(breedLevel.createdAt, breedPair.gameItemId)) {
       throw UnproceesableEntityError('Breeding time not elapsed');
     }
 
@@ -216,8 +229,12 @@ export class BreedService {
    * @param startDate breed start time
    * @returns boolean
    */
-  breedTimeElapsed(startDate: Date) {
-    const breedTime = this.configService.get<number>('breed.timePeriod');
+  breedTimeElapsed(startDate: Date, gameItemId?: number) {
+    let breedTime = this.configService.get<number>('breed.timePeriod');
+
+    if (gameItemId && gameItemId === GameItem.SUPERWEED_SERUM) {
+      breedTime = Math.floor(2 * breedTime / 3);
+    }
 
     const elapsed = Date.now() - startDate.getTime();
     return elapsed >= breedTime * 1000;
@@ -235,5 +252,61 @@ export class BreedService {
     const finalRate = pair.rate + bonus[0].sum;
 
     return this.budService.diceGen1Bud(finalRate);
+  }
+
+  async checkGameItemBalance(user: string, id: number, minAmount: number) {
+    const network = this.configService.get<Network>('network.name');
+
+    let [balance] = [0];
+    try {
+      [balance] = await multicall(
+        this.rpcProvider,
+        ADDRESSES[network].MULTICALL,
+        Erc1155Abi,
+        [
+          {
+            contractAddress: ADDRESSES[network].GAME_ITEM,
+            functionName: 'balanceOf',
+            params: [user, id],
+          },
+        ],
+      );
+      balance = Number(balance);
+    } catch (e) {
+      this.logger.error('multicall error: ' + e.message, e);
+      throw BreedingError('Check Game Item balance... RPC call error');
+    }
+
+    if (!balance || balance < minAmount) {
+      throw UnproceesableEntityError('Not enough balance of chosen game item');
+    }
+
+    return true;
+  }
+
+  async verifyGameItemPosession(pair: BreedPair) {
+    const gameItemId = pair.gameItemId;
+
+    if (!gameItemId) {
+      return true;
+    }
+
+    const minAmount = await this.prismaService.breedPair.count({
+      where: {
+        userAddress: pair.userAddress,
+        status: BreedPairStatus.PAIRED,
+        gameItemId,
+      }
+    });
+
+    if (minAmount === 0) {
+      throw BreedingError('Incorrect game item count');
+    }
+
+    return await this.checkGameItemBalance(pair.userAddress, gameItemId, minAmount);
+  }
+  
+  async processGameItemUsage(pair: BreedPair) {
+    
   }
 }

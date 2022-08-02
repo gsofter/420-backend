@@ -186,6 +186,10 @@ export class BreedController {
       },
     );
 
+    if (body.gameItemId) {
+      await this.breedService.checkGameItemBalance(user, body.gameItemId, 1);
+    }
+
     if (
       (await this.breedService.findPairInBreeding(
         body.maleBudId,
@@ -220,6 +224,7 @@ export class BreedController {
         rate: startSuccessRate,
         status: BreedPairStatus.PAIRED,
         slotId: body.slotId,
+        gameItemId: body.gameItemId,
       },
     });
 
@@ -262,6 +267,9 @@ export class BreedController {
     if (pair.currentLevel > this.breedTargetLevel) {
       throw BadRequestError('Target level reached. Do finalize!');
     }
+
+    // Used to verify if user still owns the game item used in the pair
+    await this.breedService.verifyGameItemPosession(pair);
 
     // Verify the original pair status again..
     // People might have transferred/sold the buds in the meantime

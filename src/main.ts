@@ -11,6 +11,7 @@ import { AppModule } from './app.module';
 import { PrismaExceptionFilter } from './filters/prisma-exception.filter';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { logOptions } from './utils/logger/winston';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -40,6 +41,7 @@ async function bootstrap() {
     }),
   );
 
+  app.useGlobalInterceptors(new LoggingInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalFilters(new PrismaExceptionFilter());
 

@@ -1,4 +1,4 @@
-import { ConfigService } from '@nestjs/config';
+
 import {
   BreedBud,
   BreedLevel,
@@ -9,6 +9,7 @@ import {
   BudShine,
 } from '@prisma/client';
 import { Exclude, Transform } from 'class-transformer';
+import { GameItem } from 'src/types';
 import { getBonusRateStatus } from 'src/utils/breed';
 
 export class BreedPairDto implements BreedPair {
@@ -32,6 +33,9 @@ export class BreedPairDto implements BreedPair {
   slotId: number;
   gameKeyId: number;
 
+  @Exclude()
+  gameItemId: number | null;
+
   constructor(pair: BreedPair & { levels?: BreedLevel[] }, breedTime?: number) {
     this.id = pair.id;
     this.maleBudId = pair.maleBudId;
@@ -44,10 +48,16 @@ export class BreedPairDto implements BreedPair {
     this.status = pair.status;
     this.slotId = pair.slotId;
     this.gameKeyId = pair.gameKeyId;
+    this.gameItemId = pair.gameItemId;
 
     if (pair.levels) {
+      let newBreedTime = breedTime;
+      if (pair.gameItemId && pair.gameItemId === GameItem.SUPERWEED_SERUM) { // Reduce breed time
+        newBreedTime = Math.floor(2 * breedTime / 3);
+      }
+
       this.levels = pair.levels.map(
-        (level) => new BreedLevelDto(level, breedTime),
+        (level) => new BreedLevelDto(level, newBreedTime),
       );
     }
   }
