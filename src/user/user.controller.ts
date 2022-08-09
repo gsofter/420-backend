@@ -120,18 +120,21 @@ export class UserController {
       throw UnproceesableEntityError('Not enough balance');
     }
 
+    const timestamp = new Date().getTime();
     const signature = await signMintRequest(
       address,
       "ConvertBP2HIGH",
       1,
       amount,
-      new Date().getTime(),
+      timestamp,
     );
 
     return {
       success: true,
       data: {
-        signature
+        signature,
+        timestamp,
+        amount
       }
     }
   }
