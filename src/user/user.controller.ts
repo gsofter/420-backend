@@ -125,7 +125,7 @@ export class UserController {
       address,
       "ConvertBP2HIGH",
       1,
-      amount,
+      amount * 100,
       timestamp,
     );
 
@@ -134,7 +134,7 @@ export class UserController {
       data: {
         signature,
         timestamp,
-        amount
+        amount: amount * 100,
       }
     }
   }
