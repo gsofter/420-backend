@@ -124,7 +124,7 @@ export class UserController {
     const signature = await signMintRequest(
       address,
       "ConvertBP2HIGH",
-      1,
+      0,
       amount * 100,
       timestamp,
     );
