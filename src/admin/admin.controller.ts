@@ -123,13 +123,9 @@ export class AdminController {
   @UseGuards(AuthGuard('admin'))
   @Put('breedingPoint')
   async addBreedingPoint(@Body() body: BreedingPointDto) {
-    const { address, txHash, block, network, amount } = body;
+    const { address, txHash, block, network, amount } = body;    
 
-    await this.adminService.validateTransaction(txHash, EventType.DEPOSIT_BP);
-
-    if (network !== this.configService.get<string>('network.name')) {
-      throw BadRequestError('Invalid network');
-    }
+    await this.adminService.validateTransaction({ address, txHash, block, network }, EventType.DEPOSIT_BP);
 
     const user = await this.prismaService.user.findUnique({
       where: { address },
@@ -179,11 +175,7 @@ export class AdminController {
   async withdrawBreedingPoint(@Body() body: BreedingPointDto) {
     const { address, txHash, block, network, amount } = body;
 
-    await this.adminService.validateTransaction(txHash, EventType.WITHDRAW_BP);
-
-    if (network !== this.configService.get<string>('network.name')) {
-      throw BadRequestError('Invalid network');
-    }
+    await this.adminService.validateTransaction({ address, txHash, block, network }, EventType.WITHDRAW_BP);
 
     const user = await this.prismaService.user.findUnique({
       where: { address },
@@ -240,11 +232,7 @@ export class AdminController {
   async burnGen0Buds(@Body() body: BurnGen0Buds) {
     const { address, txHash, block, network, maleBudId, femaleBudId } = body;
 
-    await this.adminService.validateTransaction(txHash, EventType.BURN_GEN0);
-
-    if (network !== this.configService.get<string>('network.name')) {
-      throw BadRequestError('Invalid network');
-    }
+    await this.adminService.validateTransaction({ address, txHash, block, network }, EventType.BURN_GEN0);
 
     const user = await this.prismaService.user.findUnique({
       where: { address },
@@ -353,11 +341,7 @@ export class AdminController {
   async openNewLandSlots(@Body() body: BuyLandDto) {
     const { address, txHash, block, network, landId } = body;
 
-    await this.adminService.validateTransaction(txHash, EventType.MINT_LAND);
-
-    if (network !== this.configService.get<string>('network.name')) {
-      throw BadRequestError('Invalid network');
-    }
+    await this.adminService.validateTransaction({ address, txHash, block, network }, EventType.MINT_LAND);
 
     try {
       await this.landService.createNewLandSlots(address, landId);
