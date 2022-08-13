@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -16,6 +21,7 @@ import { LandModule } from './land/land.module';
 import { GiftCardModule } from './gift-card/gift-card.module';
 import { AdminModule } from './admin/admin.module';
 import { StatsModule } from './stats/stats.module';
+import { StatsController } from './stats/stats.controller';
 
 @Module({
   imports: [
@@ -56,6 +62,9 @@ export class AppModule implements NestModule {
     consumer.apply(AuthMiddleware).forRoutes('buds/*');
     consumer.apply(AuthMiddleware).forRoutes('lands/*');
     consumer.apply(AuthMiddleware).forRoutes('giftCards/*');
-    consumer.apply(AuthMiddleware).forRoutes('stats/*');
+    consumer
+      .apply(AuthMiddleware)
+      .exclude('/stats/metrics')
+      .forRoutes(StatsController);
   }
 }
