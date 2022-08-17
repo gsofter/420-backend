@@ -56,7 +56,7 @@ export class StatsService {
       FROM "Gen1Bud"
       GROUP BY "minterAddress"
       ORDER BY count DESC
-      LIMIT 25
+      LIMIT 100
       ;
     `;
 
