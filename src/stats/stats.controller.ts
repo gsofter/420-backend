@@ -39,4 +39,13 @@ export class StatsController {
       topBreeders
     }
   }
+
+  // @Get('breeders')
+  // async getBreeders(@Req() req: Request) {
+  //   const topBreeders = await this.statsService.getTopBreeders();
+    
+  //   return {
+  //     topBreeders
+  //   }
+  // }
 }
