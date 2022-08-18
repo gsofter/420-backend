@@ -50,17 +50,20 @@ export class StatsService {
     const result = await this.prismaService.$queryRaw<
       [{ rank: number; count: number; minterAddress: string }]
     >`
-      SELECT
-        RANK() OVER(ORDER BY count DESC) AS rank,
-        "count",
-        "minterAddress"
+      SELECT *
       FROM (
         SELECT
-          count(*) as count,
+          DENSE_RANK() OVER(ORDER BY count DESC) AS rank,
+          "count",
           "minterAddress"
-        FROM "Gen1Bud"
-        GROUP BY "minterAddress"
-      ) AS mintCounts
+        FROM (
+          SELECT
+            count(*) as count,
+            "minterAddress"
+          FROM "Gen1Bud"
+          GROUP BY "minterAddress"
+        ) AS mintCounts
+      ) AS rankTable
       WHERE "minterAddress" = ${address};
     `;
 
@@ -74,7 +77,7 @@ export class StatsService {
       SELECT * 
       FROM (
         SELECT
-          RANK() OVER(ORDER BY count DESC) AS rank,
+          DENSE_RANK() OVER(ORDER BY count DESC) AS rank,
           "count",
           "minterAddress"
         FROM (
