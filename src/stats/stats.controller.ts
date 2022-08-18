@@ -1,5 +1,7 @@
-import { Controller, Get, Logger, Req } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Logger, Query, Req } from '@nestjs/common';
+import { isAddress } from 'ethers/lib/utils';
 import { Request } from 'src/types';
+import { SearchBreederDto } from './dto/search-breeder.dto';
 import { StatsService } from './stats.service';
 
 @Controller('stats')
@@ -37,6 +39,19 @@ export class StatsController {
       slot,
       breeding,
       topBreeders
+    }
+  }
+
+  @Get('searchBreeder')
+  async searchBreeder(@Query() { address }: SearchBreederDto) {
+    if (!isAddress(address)) {
+      throw new BadRequestException('address is not valid Ethereum address (must be checksumed)');
+    }
+
+    const result = await this.statsService.getBreeder(address);
+    
+    return {
+      breeder: result[0]
     }
   }
 

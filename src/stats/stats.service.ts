@@ -46,9 +46,30 @@ export class StatsService {
     return result;
   }
 
+  async getBreeder(address: string) {
+    const result = await this.prismaService.$queryRaw<
+      [{ rank: number; count: number; minterAddress: string }]
+    >`
+      SELECT
+        RANK() OVER(ORDER BY count DESC) AS rank,
+        "count",
+        "minterAddress"
+      FROM (
+        SELECT
+          count(*) as count,
+          "minterAddress"
+        FROM "Gen1Bud"
+        GROUP BY "minterAddress"
+      ) AS mintCounts
+      WHERE "minterAddress" = ${address};
+    `;
+
+    return result;
+  }
+
   async getTopBreeders() {
     const result = await this.prismaService.$queryRaw<
-      [{ count: number; minterAddress: string }]
+      [{ rank: number; count: number; minterAddress: string }]
     >`
       SELECT * 
       FROM (

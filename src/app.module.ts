@@ -64,7 +64,7 @@ export class AppModule implements NestModule {
     consumer.apply(AuthMiddleware).forRoutes('giftCards/*');
     consumer
       .apply(AuthMiddleware)
-      .exclude('/stats/metrics')
+      .exclude('/stats/metrics', '/stats/searchBreeder')
       .forRoutes(StatsController);
   }
 }
