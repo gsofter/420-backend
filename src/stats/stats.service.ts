@@ -8,36 +8,34 @@ export class StatsService {
 
   constructor(
     private prismaService: PrismaService,
-    private configService: ConfigService
-  ) {
-
-  }
+    private configService: ConfigService,
+  ) {}
 
   async getBPDepositHistory(address: string) {
     const records = await this.prismaService.eventServiceLog.findMany({
       where: {
         address,
-        type: 'DEPOSIT_BP'
+        type: 'DEPOSIT_BP',
       },
       select: {
         txHash: true,
         blockNumber: true,
         data: true,
         createdAt: true,
-      }
+      },
     });
 
-    return records.map(record => {
+    return records.map((record) => {
       const { data, ...rest } = record;
       return {
         ...rest,
-        amount: (JSON.parse(data))?.amount / 100 || null
-      }
+        amount: JSON.parse(data)?.amount / 100 || null,
+      };
     });
   }
 
   async getBreedingMetrics() {
-    const result = await this.prismaService.$queryRaw<[{count: number}]>`
+    const result = await this.prismaService.$queryRaw<[{ count: number }]>`
       SELECT
         count(*),
         "status"
@@ -49,14 +47,24 @@ export class StatsService {
   }
 
   async getTopBreeders() {
-    const result = await this.prismaService.$queryRaw<[{count: number, minterAddress: string}]>`
-      SELECT
-        count(*) as count,
-        "minterAddress"
-      FROM "Gen1Bud"
-      GROUP BY "minterAddress"
-      ORDER BY count DESC
-      LIMIT 100
+    const result = await this.prismaService.$queryRaw<
+      [{ count: number; minterAddress: string }]
+    >`
+      SELECT * 
+      FROM (
+        SELECT
+          RANK() OVER(ORDER BY count DESC) AS rank,
+          "count",
+          "minterAddress"
+        FROM (
+          SELECT
+            count(*) as count,
+            "minterAddress"
+          FROM "Gen1Bud"
+          GROUP BY "minterAddress"
+        ) AS mintCounts
+      ) AS "rankTable"
+      WHERE "rank" <= 10
       ;
     `;
 
@@ -64,7 +72,7 @@ export class StatsService {
   }
 
   async getUserMetrics() {
-    const result = await this.prismaService.$queryRaw<[{count: number}]>`
+    const result = await this.prismaService.$queryRaw<[{ count: number }]>`
       SELECT count(*)
       FROM "User"
     `;
@@ -73,7 +81,7 @@ export class StatsService {
   }
 
   async getSlotMetrics() {
-    const result = await this.prismaService.$queryRaw<[{count: number}]>`
+    const result = await this.prismaService.$queryRaw<[{ count: number }]>`
     SELECT
       "type",
       count(*)
