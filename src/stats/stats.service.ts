@@ -74,7 +74,7 @@ export class StatsService {
       SELECT * 
       FROM (
         SELECT
-          RANK() OVER(ORDER BY count DESC) AS rank,
+          DENSE_RANK() OVER(ORDER BY count DESC) AS rank,
           "count",
           "minterAddress"
         FROM (
