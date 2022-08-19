@@ -88,7 +88,7 @@ export class StatsService {
           GROUP BY "minterAddress"
         ) AS mintCounts
       ) AS "rankTable"
-      WHERE "rank" <= 100
+      WHERE "rank" <= 30
       ;
     `;
 
