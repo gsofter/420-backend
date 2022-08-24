@@ -36,6 +36,7 @@ import { InvalidateBreedingDto } from './dto/invalidate-breeding.dto';
 import { Throttle } from '@nestjs/throttler';
 
 @Controller('admin')
+@Throttle(60 * 1000, 60)
 export class AdminController {
   private readonly logger = new Logger('AdminController');
 
@@ -52,7 +53,6 @@ export class AdminController {
 
   @UseGuards(AuthGuard('admin'))
   @Put('invalidate-breeding')
-  @Throttle(60 * 1000, 60)
   async invalidateBreedingPairByBudId(@Body() body: InvalidateBreedingDto) {
     const { prevOwner, owner, budId } = body;
 
@@ -124,7 +124,6 @@ export class AdminController {
 
   @UseGuards(AuthGuard('admin'))
   @Put('breedingPoint')
-  @Throttle(60 * 1000, 60)
   async addBreedingPoint(@Body() body: BreedingPointDto) {
     const { address, txHash, block, network, amount } = body;    
 
@@ -232,7 +231,6 @@ export class AdminController {
 
   @UseGuards(AuthGuard('admin'))
   @Post('burnBuds')
-  @Throttle(60 * 1000, 60)
   async burnGen0Buds(@Body() body: BurnGen0Buds) {
     const { address, txHash, block, network, maleBudId, femaleBudId } = body;
 
