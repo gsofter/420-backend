@@ -4,7 +4,7 @@ import { Throttle } from '@nestjs/throttler';
 import { BreedSlotType, BreedPair, BreedPairStatus, EventType } from '@prisma/client';
 import { BudService } from 'src/bud/bud.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Request } from 'src/types';
+import { GameItem, Request } from 'src/types';
 import { UserService } from 'src/user/user.service';
 import { BadRequestError, NotFoundError, UnproceesableEntityError } from 'src/utils/errors';
 import { signMintRequest } from 'src/utils/onchain/sign';
@@ -165,12 +165,12 @@ export class LandController {
       }
     });
 
-    if (completedCount <= 0) {
-      throw UnproceesableEntityError(`Not completed any breeding successfully yet`);
+    if (completedCount <= 3) {
+      throw UnproceesableEntityError(`Not completed 4 successful breeding sessions`);
     }
 
     const timestamp = Date.now();
-    const signature = await signMintRequest(req.user, "GameItem", 3, amount, timestamp);
+    const signature = await signMintRequest(req.user, "GameItem", GameItem.FARMER_PASS, amount, timestamp);
 
     return {
       success: true,
@@ -197,7 +197,7 @@ export class LandController {
     }
 
     const timestamp = Date.now();
-    const signature = await signMintRequest(req.user, "GameItem", 2, amount, timestamp);
+    const signature = await signMintRequest(req.user, "GameItem", GameItem.SUPERWEED_SERUM, amount, timestamp);
 
     return {
       success: true,
