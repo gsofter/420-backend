@@ -159,6 +159,18 @@ export class LandController {
   @Throttle(10, 60)
   async purchaseRollPaper(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
     const timestamp = Date.now();
+
+    const burnCount = await this.prismaService.eventServiceLog.count({
+      where: {
+        address: req.user,
+        type: 'BURN_GEN0'
+      }
+    });
+
+    if (burnCount < 2) {
+      throw UnproceesableEntityError(`Not matching burn requirement (at least 2 sessions)`);
+    }
+
     const signature = await signMintRequest(req.user, "GameItem", GameItem.ROLLING_PAPER, amount, timestamp);
 
     return {
