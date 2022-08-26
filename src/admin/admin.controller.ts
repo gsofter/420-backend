@@ -336,39 +336,39 @@ export class AdminController {
     };
   }
 
-  @UseGuards(AuthGuard('admin'))
-  @Post('openLandSlots')
-  async openNewLandSlots(@Body() body: BuyLandDto) {
-    const { address, txHash, block, network, landId } = body;
+  // @UseGuards(AuthGuard('admin'))
+  // @Post('openLandSlots')
+  // async openNewLandSlots(@Body() body: BuyLandDto) {
+  //   const { address, txHash, block, network, landId } = body;
 
-    await this.adminService.validateTransaction({ address, txHash, block, network }, EventType.MINT_LAND);
+  //   await this.adminService.validateTransaction({ address, txHash, block, network }, EventType.MINT_LAND);
 
-    try {
-      await this.landService.createNewLandSlots(address, landId);
+  //   try {
+  //     await this.landService.createNewLandSlots(address, landId);
 
-      await this.prismaService.eventServiceLog.create({
-        data: {
-          address,
-          txHash,
-          blockNumber: block,
-          type: EventType.MINT_LAND,
-          data: JSON.stringify({ landId }),
-        },
-      });
+  //     await this.prismaService.eventServiceLog.create({
+  //       data: {
+  //         address,
+  //         txHash,
+  //         blockNumber: block,
+  //         type: EventType.MINT_LAND,
+  //         data: JSON.stringify({ landId }),
+  //       },
+  //     });
 
-      return {
-        success: true,
-        data: null,
-      };
-    } catch (e) {
-      this.logger.error('OpenLandSlots error: ' + e.message, e);
-    }
+  //     return {
+  //       success: true,
+  //       data: null,
+  //     };
+  //   } catch (e) {
+  //     this.logger.error('OpenLandSlots error: ' + e.message, e);
+  //   }
 
-    return {
-      success: false,
-      data: null,
-    };
-  }
+  //   return {
+  //     success: false,
+  //     data: null,
+  //   };
+  // }
 
   @UseGuards(AuthGuard('admin'))
   @Get('gen1/:id')
