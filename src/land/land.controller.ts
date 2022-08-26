@@ -155,8 +155,56 @@ export class LandController {
     }
   }
 
+  @Post('roll-paper')
+  @Throttle(10, 60)
+  async purchaseRollPaper(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
+    const timestamp = Date.now();
+    const signature = await signMintRequest(req.user, "GameItem", GameItem.ROLLING_PAPER, amount, timestamp);
+
+    return {
+      success: true,
+      data: {
+        signature,
+        amount,
+        timestamp
+      }
+    }
+  }
+
+  @Post('hoodie')
+  @Throttle(10, 60)
+  async purchaseHoodie(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
+    const timestamp = Date.now();
+    const signature = await signMintRequest(req.user, "GameItem", GameItem.HOODIE, amount, timestamp);
+
+    return {
+      success: true,
+      data: {
+        signature,
+        amount,
+        timestamp
+      }
+    }
+  }
+
+  @Post('weed-dr-pass')
+  @Throttle(10, 60)
+  async purchaseWeedDrPass(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
+    const timestamp = Date.now();
+    const signature = await signMintRequest(req.user, "GameItem", GameItem.WEED_DR_PASS, amount, timestamp);
+
+    return {
+      success: true,
+      data: {
+        signature,
+        amount,
+        timestamp
+      }
+    }
+  }
+
   @Post('farmer-pass')
-  @Throttle(2, 60)
+  @Throttle(10, 60)
   async purchaseFarmerPass(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
     const completedCount = await this.prismaService.breedPair.count({
       where: {
@@ -183,7 +231,7 @@ export class LandController {
   }
 
   @Post('superweed-serum')
-  @Throttle(2, 60)
+  @Throttle(10, 60)
   async purchaseSuperWeedSerum(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
     const mintLandCount = await this.prismaService.eventServiceLog.count({
       where: {
