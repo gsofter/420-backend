@@ -1,13 +1,13 @@
 import type { AppConfig } from './types';
 
-async function config(): AppConfig {
+function config(): AppConfig {
   const env = process.env.NODE_ENV || 'development';
   const network = process.env.NETWORK || 'rinkeby';
 
   // According to GG: "@Wukong for the breeding timer per level - I think we should shorten it to 1 day (originally was 2 by green paper)"
   const BREED_TIME = 1 * 60 * 60 * 24; // 1 day
 
-  const config: AppConfig = {
+  const config = {
     env: {
       name: env,
       isProd: env === 'production',
@@ -49,7 +49,7 @@ async function config(): AppConfig {
       key: process.env.METADATA_API_KEY,
       url: network === 'rinkeby' ? "https://420-dev.looklabs.xyz" : "https://420.looklabs.xyz"
     }
-  };
+  } as AppConfig;
 
   if (!config.jwt.passPhrase) {
     throw new Error('JWT_PASS_PHRASE is not defined');
