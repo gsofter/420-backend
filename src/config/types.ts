@@ -27,13 +27,16 @@ export type AppConfig = {
   breed: {
     timePeriod: number;
     baseSuccessRate: number;
-    indoorSlotBounsRate: number;
+    indoorSlotBonusRate: number;
     breedingPointPerLevel: number;
     breedingPointToOpenSlot: number;
     breedingPointToCovertIndoor: number;
     burnSuccessRate: number;
     targetLevel: number;
   };
+  land: {
+    price: number
+  },
   rpc: string;
   metadataApi: {
     key: string;

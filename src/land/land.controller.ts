@@ -9,6 +9,7 @@ import { UserService } from 'src/user/user.service';
 import { BadRequestError, NotFoundError, UnproceesableEntityError } from 'src/utils/errors';
 import { signMintRequest } from 'src/utils/onchain/sign';
 import { OpenSlotDto, PurchaseGameItemDto } from './dto/land.dto';
+import { LandService } from './land.service';
 
 @Controller('lands')
 export class LandController {
@@ -19,6 +20,7 @@ export class LandController {
     private readonly prismaService: PrismaService,
     private readonly configService: ConfigService,
     private readonly budService: BudService,
+    private readonly landService: LandService,
 
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
@@ -120,39 +122,37 @@ export class LandController {
   }
 
   @Post('purchase')
-  @Throttle(2, 60)
+  @Throttle(10, 60)
   async purchaseLand(@Req() req: Request) {
-    const isOg = await this.budService.checkOGOwner(req.user);
+    const { user } = req;
+    const bpPrice = this.configService.get<number>('land.price');
+    const currentTimestamp = Date.now();
 
-    let isAllowed = isOg;
+    await this.userService.consumeBreedingPoint(user, bpPrice);
 
-    if (!isOg) {
-      const openCount = await this.prismaService.breedSlot.count({
-        where: {
-          userAddress: req.user,
-          isOpen: true
-        }
-      });
+    // meant to use random id
+    await this.landService.createFreeLandSlots(user, currentTimestamp);
 
-      isAllowed = openCount >= 2;
-    }
+    const purchasedLands = await this.prismaService.breedSlot.findMany({
+      where: {
+        userAddress: user,
+        landTokenId: currentTimestamp
+      },
+    });
 
-    // TODO: Check the land contract if user already purchased max limit
-
-    if (!isAllowed) {
-      throw UnproceesableEntityError(`Not meeting the mint requirements`);
-    }
-
-    const timestamp = Date.now();
-    const signature = await signMintRequest(req.user, "Land", 0, 1, timestamp);
+    const userObject = await this.prismaService.user.findUnique({
+      where: { address: user },
+    });
 
     return {
       success: true,
       data: {
-        signature,
-        timestamp
-      }
-    }
+        purchasedLands,
+        user: {
+          breedingPoint: userObject.breedingPoint
+        }
+      },
+    };
   }
 
   @Post('roll-paper')

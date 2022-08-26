@@ -69,7 +69,7 @@ export class BreedService {
     // TODO: Add bonus rate if user owns eligible in-game items
     if (slot.type === BreedSlotType.INDOOR) {
       // Add bonus rate if slot is INDOOR
-      bonusRate += this.configService.get<number>('breed.indoorSlotBounsRate');
+      bonusRate += this.configService.get<number>('breed.indoorSlotBonusRate');
     }
 
     return baseSuccessRate + bonusRate;
@@ -232,8 +232,8 @@ export class BreedService {
   breedTimeElapsed(startDate: Date, gameItemId?: number) {
     let breedTime = this.configService.get<number>('breed.timePeriod');
 
-    if (gameItemId && gameItemId === GameItem.SUPERWEED_SERUM) {
-      breedTime = Math.floor(2 * breedTime / 3);
+    if (gameItemId && gameItemId === GameItem.FARMER_PASS) {
+      breedTime = Math.floor(1 * breedTime / 2);
     }
 
     const elapsed = Date.now() - startDate.getTime();

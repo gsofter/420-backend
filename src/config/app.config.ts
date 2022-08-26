@@ -1,13 +1,13 @@
 import type { AppConfig } from './types';
 
-async function config(): Promise<AppConfig> {
+async function config(): AppConfig {
   const env = process.env.NODE_ENV || 'development';
   const network = process.env.NETWORK || 'rinkeby';
 
   // According to GG: "@Wukong for the breeding timer per level - I think we should shorten it to 1 day (originally was 2 by green paper)"
   const BREED_TIME = 1 * 60 * 60 * 24; // 1 day
 
-  const config = {
+  const config: AppConfig = {
     env: {
       name: env,
       isProd: env === 'production',
@@ -35,18 +35,21 @@ async function config(): Promise<AppConfig> {
     breed: {
       timePeriod: network === 'mainnet' ? BREED_TIME : 10,
       baseSuccessRate: 20,
-      indoorSlotBounsRate: 5,
+      indoorSlotBonusRate: 5,
       breedingPointPerLevel: 15,
       breedingPointToOpenSlot: 42,
       breedingPointToCovertIndoor: 69,
       burnSuccessRate: 60,
       targetLevel: 5, // +1 for the finalize,
     },
+    land: {
+      price: 140 // breeding points
+    },
     metadataApi: {
       key: process.env.METADATA_API_KEY,
       url: network === 'rinkeby' ? "https://420-dev.looklabs.xyz" : "https://420.looklabs.xyz"
     }
-  } as AppConfig;
+  };
 
   if (!config.jwt.passPhrase) {
     throw new Error('JWT_PASS_PHRASE is not defined');
