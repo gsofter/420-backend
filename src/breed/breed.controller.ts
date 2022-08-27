@@ -433,18 +433,18 @@ export class BreedController {
       };
     }
 
-    // Try to get a git card
-    const giftCard = await this.giftCardService.dice(req.user, pair.id);
+    // // Try to get a git card
+    // const giftCard = await this.giftCardService.dice(req.user, pair.id);
 
-    if (giftCard) {
-      return {
-        success: true,
-        data: {
-          type: 'GIFT_CARD',
-          giftCard,
-        },
-      };
-    }
+    // if (giftCard) {
+    //   return {
+    //     success: true,
+    //     data: {
+    //       type: 'GIFT_CARD',
+    //       giftCard,
+    //     },
+    //   };
+    // }
 
     return {
       success: false,

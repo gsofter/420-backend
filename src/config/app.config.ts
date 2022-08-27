@@ -6,6 +6,7 @@ function config(): AppConfig {
 
   // According to GG: "@Wukong for the breeding timer per level - I think we should shorten it to 1 day (originally was 2 by green paper)"
   const BREED_TIME = 1 * 60 * 60 * 24; // 1 day
+  // const BREED_TIME = 10 * 60; // 10 min
 
   const config = {
     env: {
@@ -34,7 +35,7 @@ function config(): AppConfig {
     },
     breed: {
       timePeriod: network === 'mainnet' ? BREED_TIME : 10,
-      baseSuccessRate: 20,
+      baseSuccessRate: 10,
       indoorSlotBonusRate: 5,
       breedingPointPerLevel: 15,
       breedingPointToOpenSlot: 42,

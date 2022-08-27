@@ -33,8 +33,10 @@ import { BuyLandDto } from './dto/buy-land.dto';
 import { BreedService } from 'src/breed/breed.service';
 import { AdminService } from './admin.service';
 import { InvalidateBreedingDto } from './dto/invalidate-breeding.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('admin')
+@Throttle(60 * 1000, 60)
 export class AdminController {
   private readonly logger = new Logger('AdminController');
 
@@ -136,14 +138,6 @@ export class AdminController {
     }
 
     try {
-      // TODO: Verify txHash and actual event
-      await this.prismaService.user.update({
-        where: { address },
-        data: {
-          breedingPoint: user.breedingPoint + amount / 100,
-        },
-      });
-
       await this.prismaService.eventServiceLog.create({
         data: {
           address,
@@ -151,6 +145,14 @@ export class AdminController {
           blockNumber: block,
           type: EventType.DEPOSIT_BP,
           data: JSON.stringify({ amount, balance: user.breedingPoint }),
+        },
+      });
+
+      // TODO: Verify txHash and actual event
+      await this.prismaService.user.update({
+        where: { address },
+        data: {
+          breedingPoint: user.breedingPoint + amount / 100,
         },
       });
 
