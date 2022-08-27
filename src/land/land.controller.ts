@@ -131,7 +131,7 @@ export class LandController {
     await this.userService.consumeBreedingPoint(user, bpPrice);
 
     // meant to use random id
-    await this.landService.createFreeLandSlots(user, currentTimestamp);
+    await this.landService.createNewLandSlots(user, currentTimestamp);
 
     const purchasedLands = await this.prismaService.breedSlot.findMany({
       where: {
