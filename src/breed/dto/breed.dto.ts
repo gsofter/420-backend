@@ -33,7 +33,6 @@ export class BreedPairDto implements BreedPair {
   slotId: number;
   gameKeyId: number;
 
-  @Exclude()
   gameItemId: number | null;
 
   constructor(pair: BreedPair & { levels?: BreedLevel[] }, breedTime?: number) {
