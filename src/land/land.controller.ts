@@ -245,17 +245,6 @@ export class LandController {
   @Post('superweed-serum')
   @Throttle(10, 60)
   async purchaseSuperWeedSerum(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
-    const mintLandCount = await this.prismaService.eventServiceLog.count({
-      where: {
-        address: req.user,
-        type: EventType.MINT_LAND,
-      }
-    });
-
-    if (mintLandCount <= 0) {
-      throw UnproceesableEntityError(`Not purchased any extra land yet`);
-    }
-
     const timestamp = Date.now();
     const signature = await signMintRequest(req.user, "GameItem", GameItem.SUPERWEED_SERUM, amount, timestamp);
 
