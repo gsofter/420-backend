@@ -371,7 +371,7 @@ export class BreedController {
 
     await this.breedService.evaluateBreedLevel(pair, {
       maleBudId,
-      femaleBudId
+      femaleBudId,
     });
 
     const result = await this.breedService.finalizeBreeding(pair);
@@ -454,28 +454,21 @@ export class BreedController {
     };
   }
 
-  @Get('game-item-status/:id')
-  async getCurrentInBreedingItem(@Req() req: Request, @Param('id') id: number) {
-    const gameItemId = Number(id);
-    const { user } = req;
-
-    if (!GameItemValues.includes(gameItemId)) {
-      throw new BadRequestException('Not allowed game item');
-    }
-
-    const count = await this.prismaService.breedPair.count({
-      where: {
-        gameItemId,
-        userAddress: user,
-        status: BreedPairStatus.PAIRED,
-      },
-    });
+  @Get('game-item-status')
+  async getCurrentInBreedingItem(@Req() req: Request) {
+    const result = await this.prismaService.$queryRaw`
+      SELECT
+        count(*) as count,
+        "gameItemId"
+      FROM "BreedPair"
+      WHERE "BreedPair"."status" = ${BreedPairStatus.PAIRED}
+      AND "BreedPair"."userAddress" = ${req.user}
+      GROUP BY "gameItemId"
+    `;
 
     return {
       success: true,
-      data: {
-        count,
-      },
+      data: result,
     };
   }
 }
