@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   Body,
   ClassSerializerInterceptor,
   Controller,
   Get,
   Logger,
+  Param,
   Post,
   Put,
   Query,
@@ -11,7 +13,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Request } from 'src/types';
+import { GameItemValues, Request } from 'src/types';
 import {
   BadRequestError,
   ConflictRequestError,
@@ -449,6 +451,31 @@ export class BreedController {
     return {
       success: false,
       data: null,
+    };
+  }
+
+  @Get('game-item-status/:id')
+  async getCurrentInBreedingItem(@Req() req: Request, @Param('id') id: number) {
+    const gameItemId = Number(id);
+    const { user } = req;
+
+    if (!GameItemValues.includes(gameItemId)) {
+      throw new BadRequestException('Not allowed game item');
+    }
+
+    const count = await this.prismaService.breedPair.count({
+      where: {
+        gameItemId,
+        userAddress: user,
+        status: BreedPairStatus.PAIRED,
+      },
+    });
+
+    return {
+      success: true,
+      data: {
+        count,
+      },
     };
   }
 }

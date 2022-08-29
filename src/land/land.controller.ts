@@ -1,27 +1,22 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   forwardRef,
   Get,
   Inject,
-  Param,
   Post,
   Put,
-  Query,
   Req,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import {
   BreedSlotType,
-  BreedPair,
   BreedPairStatus,
-  EventType,
 } from '@prisma/client';
 import { BudService } from 'src/bud/bud.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { GameItem, GameItemValues, Request } from 'src/types';
+import { GameItem, Request } from 'src/types';
 import { UserService } from 'src/user/user.service';
 import {
   BadRequestError,
@@ -328,31 +323,6 @@ export class LandController {
         signature,
         amount,
         timestamp,
-      },
-    };
-  }
-
-  @Get('game-item-status/:id')
-  async getCurrentInBreedingItem(@Req() req: Request, @Param('id') id: number) {
-    const gameItemId = Number(id);
-    const { user } = req;
-
-    if (!GameItemValues.includes(gameItemId)) {
-      throw new BadRequestException('Not allowed game item');
-    }
-
-    const count = await this.prismaService.breedPair.count({
-      where: {
-        gameItemId,
-        userAddress: user,
-        status: BreedPairStatus.PAIRED,
-      },
-    });
-
-    return {
-      success: true,
-      data: {
-        count,
       },
     };
   }
