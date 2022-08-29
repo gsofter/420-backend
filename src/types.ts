@@ -30,4 +30,4 @@ export const GameItem = {
 
 export const GameItemValues: number[] = Object.keys(GameItem).map(name => GameItem[name]);
 
-export type GameItem = (typeof GameItem)[keyof typeof GameItem]
+export type GameItemType = (typeof GameItem)[keyof typeof GameItem]

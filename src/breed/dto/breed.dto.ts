@@ -1,4 +1,3 @@
-
 import {
   BreedBud,
   BreedLevel,
@@ -9,8 +8,7 @@ import {
   BudShine,
 } from '@prisma/client';
 import { Exclude, Transform } from 'class-transformer';
-import { GameItem } from 'src/types';
-import { getBonusRateStatus } from 'src/utils/breed';
+import { getBonusRateStatus, getBreedTime } from 'src/utils/breed';
 
 export class BreedPairDto implements BreedPair {
   id: number;
@@ -53,11 +51,7 @@ export class BreedPairDto implements BreedPair {
       let newBreedTime = breedTime;
 
       // Reduce breed time
-      if (pair.gameItemId && pair.gameItemId === GameItem.FARMER_PASS) { 
-        newBreedTime = Math.floor(1 * breedTime / 2);
-      } else if (pair.gameItemId && pair.gameItemId === GameItem.SUPERWEED_SERUM) { 
-        newBreedTime = Math.floor(4 * breedTime / 5);
-      }
+      newBreedTime = getBreedTime(breedTime, pair.gameItemId);
 
       this.levels = pair.levels.map(
         (level) => new BreedLevelDto(level, newBreedTime),
@@ -80,8 +74,8 @@ export class BreedLevelDto implements BreedLevel {
   bonusRate: number;
 
   buds: BreedBudDto[];
-  maleBreedBudId: number | null
-  femaleBreedBudId: number | null
+  maleBreedBudId: number | null;
+  femaleBreedBudId: number | null;
 
   constructor(level: BreedLevel & { buds?: BreedBud[] }, breedTime?: number) {
     this.id = level.id;

@@ -16,6 +16,7 @@ import { BadRequestError, BreedingError, NotFoundError, UnproceesableEntityError
 import { Bud, GameItem, Network } from 'src/types';
 import { ethers } from 'ethers';
 import { randomNumber } from 'src/utils/number';
+import { getBreedTime } from 'src/utils/breed';
 
 @Injectable()
 export class BreedService {
@@ -238,12 +239,8 @@ export class BreedService {
   breedTimeElapsed(startDate: Date, gameItemId?: number) {
     let breedTime = this.configService.get<number>('breed.timePeriod');
 
-    if (gameItemId && gameItemId === GameItem.FARMER_PASS) {
-      breedTime = Math.floor(1 * breedTime / 2);
-    } else if (gameItemId && gameItemId === GameItem.SUPERWEED_SERUM) {
-      breedTime = Math.floor(4 * breedTime / 5);
-    }
-
+    breedTime = getBreedTime(breedTime, gameItemId);
+    
     const elapsed = Date.now() - startDate.getTime();
     return elapsed >= breedTime * 1000;
   }
