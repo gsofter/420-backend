@@ -28,4 +28,6 @@ export const GameItem = {
   WEED_DR_PASS: 5,
 } as const;
 
+export const GameItemValues: number[] = Object.keys(GameItem).map(name => GameItem[name]);
+
 export type GameItem = (typeof GameItem)[keyof typeof GameItem]

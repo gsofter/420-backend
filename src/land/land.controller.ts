@@ -1,12 +1,33 @@
-import { Body, Controller, forwardRef, Get, Inject, Post, Put, Req } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  forwardRef,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
-import { BreedSlotType, BreedPair, BreedPairStatus, EventType } from '@prisma/client';
+import {
+  BreedSlotType,
+  BreedPair,
+  BreedPairStatus,
+  EventType,
+} from '@prisma/client';
 import { BudService } from 'src/bud/bud.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { GameItem, Request } from 'src/types';
+import { GameItem, GameItemValues, Request } from 'src/types';
 import { UserService } from 'src/user/user.service';
-import { BadRequestError, NotFoundError, UnproceesableEntityError } from 'src/utils/errors';
+import {
+  BadRequestError,
+  NotFoundError,
+  UnproceesableEntityError,
+} from 'src/utils/errors';
 import { signMintRequest } from 'src/utils/onchain/sign';
 import { OpenSlotDto, PurchaseGameItemDto } from './dto/land.dto';
 import { LandService } from './land.service';
@@ -25,8 +46,12 @@ export class LandController {
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
   ) {
-    this.bpToOpen = this.configService.get<number>('breed.breedingPointToOpenSlot');
-    this.bpForIndoor = this.configService.get<number>('breed.breedingPointToCovertIndoor');
+    this.bpToOpen = this.configService.get<number>(
+      'breed.breedingPointToOpenSlot',
+    );
+    this.bpForIndoor = this.configService.get<number>(
+      'breed.breedingPointToCovertIndoor',
+    );
   }
 
   @Get('slots')
@@ -136,7 +161,7 @@ export class LandController {
     const purchasedLands = await this.prismaService.breedSlot.findMany({
       where: {
         userAddress: user,
-        landTokenId: currentTimestamp
+        landTokenId: currentTimestamp,
       },
     });
 
@@ -149,112 +174,186 @@ export class LandController {
       data: {
         purchasedLands,
         user: {
-          breedingPoint: userObject.breedingPoint
-        }
+          breedingPoint: userObject.breedingPoint,
+        },
       },
     };
   }
 
   @Post('roll-paper')
   @Throttle(10, 60)
-  async purchaseRollPaper(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
+  async purchaseRollPaper(
+    @Req() req: Request,
+    @Body() { amount }: PurchaseGameItemDto,
+  ) {
     const timestamp = Date.now();
 
     const burnCount = await this.prismaService.eventServiceLog.count({
       where: {
         address: req.user,
-        type: 'BURN_GEN0'
-      }
+        type: 'BURN_GEN0',
+      },
     });
 
     if (burnCount < 2) {
-      throw UnproceesableEntityError(`Not matching burn requirement (at least 2 sessions)`);
+      throw UnproceesableEntityError(
+        `Not matching burn requirement (at least 2 sessions)`,
+      );
     }
 
-    const signature = await signMintRequest(req.user, "GameItem", GameItem.ROLLING_PAPER, amount, timestamp);
+    const signature = await signMintRequest(
+      req.user,
+      'GameItem',
+      GameItem.ROLLING_PAPER,
+      amount,
+      timestamp,
+    );
 
     return {
       success: true,
       data: {
         signature,
         amount,
-        timestamp
-      }
-    }
+        timestamp,
+      },
+    };
   }
 
   @Post('hoodie')
   @Throttle(10, 60)
-  async purchaseHoodie(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
+  async purchaseHoodie(
+    @Req() req: Request,
+    @Body() { amount }: PurchaseGameItemDto,
+  ) {
     const timestamp = Date.now();
-    const signature = await signMintRequest(req.user, "GameItem", GameItem.HOODIE, amount, timestamp);
+    const signature = await signMintRequest(
+      req.user,
+      'GameItem',
+      GameItem.HOODIE,
+      amount,
+      timestamp,
+    );
 
     return {
       success: true,
       data: {
         signature,
         amount,
-        timestamp
-      }
-    }
+        timestamp,
+      },
+    };
   }
 
   @Post('weed-dr-pass')
   @Throttle(10, 60)
-  async purchaseWeedDrPass(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
+  async purchaseWeedDrPass(
+    @Req() req: Request,
+    @Body() { amount }: PurchaseGameItemDto,
+  ) {
     const timestamp = Date.now();
-    const signature = await signMintRequest(req.user, "GameItem", GameItem.WEED_DR_PASS, amount, timestamp);
+    const signature = await signMintRequest(
+      req.user,
+      'GameItem',
+      GameItem.WEED_DR_PASS,
+      amount,
+      timestamp,
+    );
 
     return {
       success: true,
       data: {
         signature,
         amount,
-        timestamp
-      }
-    }
+        timestamp,
+      },
+    };
   }
 
   @Post('farmer-pass')
   @Throttle(10, 60)
-  async purchaseFarmerPass(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
+  async purchaseFarmerPass(
+    @Req() req: Request,
+    @Body() { amount }: PurchaseGameItemDto,
+  ) {
     const completedCount = await this.prismaService.breedPair.count({
       where: {
         userAddress: req.user,
         status: BreedPairStatus.COMPLETED,
-      }
+      },
     });
 
     if (completedCount <= 3) {
-      throw UnproceesableEntityError(`Not completed 4 successful breeding sessions`);
+      throw UnproceesableEntityError(
+        `Not completed 4 successful breeding sessions`,
+      );
     }
 
     const timestamp = Date.now();
-    const signature = await signMintRequest(req.user, "GameItem", GameItem.FARMER_PASS, amount, timestamp);
+    const signature = await signMintRequest(
+      req.user,
+      'GameItem',
+      GameItem.FARMER_PASS,
+      amount,
+      timestamp,
+    );
 
     return {
       success: true,
       data: {
         signature,
         amount,
-        timestamp
-      }
-    }
+        timestamp,
+      },
+    };
   }
 
   @Post('superweed-serum')
   @Throttle(10, 60)
-  async purchaseSuperWeedSerum(@Req() req: Request, @Body() { amount }: PurchaseGameItemDto) {
+  async purchaseSuperWeedSerum(
+    @Req() req: Request,
+    @Body() { amount }: PurchaseGameItemDto,
+  ) {
     const timestamp = Date.now();
-    const signature = await signMintRequest(req.user, "GameItem", GameItem.SUPERWEED_SERUM, amount, timestamp);
+    const signature = await signMintRequest(
+      req.user,
+      'GameItem',
+      GameItem.SUPERWEED_SERUM,
+      amount,
+      timestamp,
+    );
 
     return {
       success: true,
       data: {
         signature,
         amount,
-        timestamp
-      }
+        timestamp,
+      },
+    };
+  }
+
+  @Get('game-item-status/:id')
+  async getCurrentInBreedingItem(@Req() req: Request, @Param('id') id: number) {
+    const gameItemId = Number(id);
+    const { user } = req;
+
+    if (!GameItemValues.includes(gameItemId)) {
+      throw new BadRequestException('Not allowed game item');
     }
+
+    const count = await this.prismaService.breedPair.count({
+      where: {
+        gameItemId,
+        userAddress: user,
+        status: BreedPairStatus.PAIRED,
+      },
+    });
+
+    return {
+      success: true,
+      data: {
+        count,
+      },
+    };
   }
 }

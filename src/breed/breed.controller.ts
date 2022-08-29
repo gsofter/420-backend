@@ -104,7 +104,7 @@ export class BreedController {
 
   @Put('invalidate')
   @Throttle(5, 60)
-  async validatePair(@Req() req: Request, @Body() body: InvalidBreedPairDto) {
+  async invalidatePair(@Req() req: Request, @Body() body: InvalidBreedPairDto) {
     const user = req.user;
     const { maleBudId, femaleBudId } = body;
 
