@@ -51,8 +51,12 @@ export class BreedPairDto implements BreedPair {
 
     if (pair.levels) {
       let newBreedTime = breedTime;
-      if (pair.gameItemId && pair.gameItemId === GameItem.SUPERWEED_SERUM) { // Reduce breed time
-        newBreedTime = Math.floor(2 * breedTime / 3);
+
+      // Reduce breed time
+      if (pair.gameItemId && pair.gameItemId === GameItem.FARMER_PASS) { 
+        newBreedTime = Math.floor(1 * breedTime / 2);
+      } else if (pair.gameItemId && pair.gameItemId === GameItem.SUPERWEED_SERUM) { 
+        newBreedTime = Math.floor(4 * breedTime / 5);
       }
 
       this.levels = pair.levels.map(

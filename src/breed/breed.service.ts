@@ -15,6 +15,7 @@ import * as Erc1155Abi from 'src/abis/ogErc1155.json';
 import { BadRequestError, BreedingError, NotFoundError, UnproceesableEntityError } from 'src/utils/errors';
 import { Bud, GameItem, Network } from 'src/types';
 import { ethers } from 'ethers';
+import { randomNumber } from 'src/utils/number';
 
 @Injectable()
 export class BreedService {
@@ -47,8 +48,9 @@ export class BreedService {
     address,
     maleBudId,
     femaleBudId,
+    gameItemId,
   }: CreateBudPair, slot: BreedSlot) {
-    const baseSuccessRate = this.configService.get<number>(
+    let baseSuccessRate = this.configService.get<number>(
       'breed.baseSuccessRate',
     );
 
@@ -70,6 +72,10 @@ export class BreedService {
     if (slot.type === BreedSlotType.INDOOR) {
       // Add bonus rate if slot is INDOOR
       bonusRate += this.configService.get<number>('breed.indoorSlotBonusRate');
+    }
+
+    if (gameItemId === GameItem.SUPERWEED_SERUM) {
+      baseSuccessRate = randomNumber(50, 40) // Target rate is 70 - 50%
     }
 
     return baseSuccessRate + bonusRate;
@@ -234,6 +240,8 @@ export class BreedService {
 
     if (gameItemId && gameItemId === GameItem.FARMER_PASS) {
       breedTime = Math.floor(1 * breedTime / 2);
+    } else if (gameItemId && gameItemId === GameItem.SUPERWEED_SERUM) {
+      breedTime = Math.floor(4 * breedTime / 5);
     }
 
     const elapsed = Date.now() - startDate.getTime();
