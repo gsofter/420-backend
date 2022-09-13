@@ -49,6 +49,11 @@ yarn build
 yarn start:prod
 ```
 
+### Secrets
+
+When deployed with Elastic Beanstalk, secrets are read from AWS Secrets Manager.
+Refer to the `.ebextensions/01secrets.config` file for more information.
+
 ## Resources
 
 - Check out the [Prisma docs](https://www.prisma.io/docs)
