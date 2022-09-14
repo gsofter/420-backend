@@ -3,6 +3,7 @@ import { solidityKeccak256 } from 'ethers/lib/utils';
 import * as fs from 'fs';
 
 export const readWalletPrivateKey = () => {
+  // path is coming from here; https://github.com/looklabs/420-backend/blob/dev/.ebextensions/01secrets.config#L15
   const path = '/run/wallet-key';
   try {
     const buffer = fs.readFileSync(path);
