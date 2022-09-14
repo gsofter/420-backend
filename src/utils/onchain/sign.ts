@@ -37,6 +37,7 @@ export const signMintRequest = async (
   const WALLET_PRIVATE_KEY = issuerWalletPrivateKey || process.env.ISSUER_PRIVATE_KEY;
 
   if (!WALLET_PRIVATE_KEY) {
+    console.error(`WALLET_PRIVATE_KEY is not provided`);
     return null;
   }
 

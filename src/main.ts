@@ -12,7 +12,6 @@ import { PrismaExceptionFilter } from './filters/prisma-exception.filter';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { logOptions } from './utils/logger/winston';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
-import { readWalletPrivateKey } from './utils/onchain/sign';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -48,7 +47,5 @@ async function bootstrap() {
 
   await app.listen(port);
   logger.log('Application started on port ' + port);
-
-  console.log('issuerWalletPrivateKey', readWalletPrivateKey());
 }
 bootstrap();
