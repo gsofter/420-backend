@@ -55,7 +55,9 @@ export const signMintRequest = async (
     );
 
     return signature;
-  } catch {}
+  } catch (e) {
+    console.error('signMessage failed', e);
+  }
 
   return null;
 };
