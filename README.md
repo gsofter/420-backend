@@ -60,3 +60,12 @@ Refer to the `.ebextensions/01secrets.config` file for more information.
 - Share your feedback in the [`prisma2`](https://prisma.slack.com/messages/CKQTGR6T0/) channel on the [Prisma Slack](https://slack.prisma.io/)
 - Create issues and ask questions on [GitHub](https://github.com/prisma/prisma/)
 - Watch our biweekly "What's new in Prisma" livestreams on [Youtube](https://www.youtube.com/channel/UCptAHlN1gdwD89tFM3ENb6w)
+
+
+## Shop Requirement Plans
+
+- Call `balanceOfBatch` of https://etherscan.io/address/0x300b3C45f90744a219DEe4c7441Eae15cE42ef84#readContract, with 1 - 5 token ids for each address
+- Call `burntAmount` of https://etherscan.io/address/0x8EAa25F71D059293a8bFF0Da7974ea29a77D4154#readProxyContract, to get the number of Gen0 buds burnt for each address
+- Use `multicall` lib to run this for 100 addresses
+- Combine the SQL data with the result
+- Share possibility
