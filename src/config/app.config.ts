@@ -31,7 +31,7 @@ function config(): AppConfig {
       passPhrase: process.env.JWT_PASS_PHRASE,
     },
     bud: {
-      renameAllowedTime: 5 * 60 * 1000 // 5 minutes in millisceonds
+      renameAllowedTime: 10 * 60 * 1000 // 10 minutes in millisceonds
     },
     breed: {
       timePeriod: network === 'mainnet' ? BREED_TIME : 10,

@@ -5,7 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import type { Request } from 'src/types';
 import { NotFoundError, UnproceesableEntityError } from 'src/utils/errors';
 import { Gen1BudQueryDto } from './dto/gen1-query.dto';
-import { RenameGen1BudDto } from './dto/rename-bud.dto';
+import { CheckNameValidityDto, RenameGen1BudDto } from './dto/rename-bud.dto';
 
 @Controller('buds')
 export class BudController {
@@ -28,6 +28,21 @@ export class BudController {
     return {
       success: true,
       data: buds,
+    };
+  }
+
+  @Get('valid-name')
+  async checkNameValidity(
+    @Req() req: Request,
+    @Query() { name }: CheckNameValidityDto,
+  ) {
+    const isValid = await this.checkBudName(name);
+
+    return {
+      success: true,
+      data: {
+        isValid,
+      },
     };
   }
 
@@ -72,15 +87,17 @@ export class BudController {
       };
     }
 
-    throw UnproceesableEntityError('Proposed bud name cannot be accepted or duplicated. Please try the other one');
+    throw UnproceesableEntityError(
+      'Proposed bud name cannot be accepted or duplicated. Please try the other one',
+    );
   }
 
   private async checkBudName(name: string) {
-    const result = await this.prismaService.$queryRaw<[{count: number}]>`
+    const result = await this.prismaService.$queryRaw<[{ count: number }]>`
       SELECT count(*)
       FROM "Gen1Bud"
       WHERE TRIM(name) = ${name.trim()}
-    `
+    `;
 
     if (result[0].count > 0) {
       return false;
@@ -90,12 +107,14 @@ export class BudController {
       const apiKey = this.configService.get<string>('metadataApi.key');
       const network = this.configService.get<string>('network.name');
 
-      const url = `https://420${network === 'rinkeby' ? '-dev' : ''}.looklabs.xyz/${network === 'rinkeby' ? 'dev/' : ''}checkBudName`;
+      const url = `https://420${
+        network === 'rinkeby' ? '-dev' : ''
+      }.looklabs.xyz/${network === 'rinkeby' ? 'dev/' : ''}checkBudName`;
 
       const response = await axios.get(`${url}?budName=${name}`, {
         headers: {
-          'X-Api-Key': apiKey
-        }
+          'X-Api-Key': apiKey,
+        },
       });
 
       return response.data[0].valid;

@@ -10,3 +10,10 @@ export class RenameGen1BudDto {
   @MaxLength(15)
   name!: string;
 }
+
+export class CheckNameValidityDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(15)
+  name!: string;
+}
