@@ -16,7 +16,7 @@ function config(): AppConfig {
     network: {
       name: network,
       chainId: network === 'mainnet' ? 1 : 4,
-      rpc: 'https://' + network + '.infura.io/v3/' + process.env.INFURA_API_KEY,
+      rpc: process.env.RPC_URL || 'https://' + network + '.infura.io/v3/' + process.env.INFURA_API_KEY,
     },
     admin: {
       key: process.env.ADMIN_API_KEY,
