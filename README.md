@@ -69,3 +69,4 @@ Refer to the `.ebextensions/01secrets.config` file for more information.
 - Use `multicall` lib to run this for 100 addresses
 - Combine the SQL data with the result
 - Share possibility
+
