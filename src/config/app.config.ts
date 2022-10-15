@@ -2,7 +2,7 @@ import type { AppConfig } from './types';
 
 function config(): AppConfig {
   const env = process.env.NODE_ENV || 'development';
-  const network = process.env.NETWORK || 'rinkeby';
+  const network = process.env.NETWORK || 'goerli';
 
   // According to GG: "@Wukong for the breeding timer per level - I think we should shorten it to 1 day (originally was 2 by green paper)"
   const BREED_TIME = 1 * 60 * 60 * 24; // 1 day
@@ -48,7 +48,7 @@ function config(): AppConfig {
     },
     metadataApi: {
       key: process.env.METADATA_API_KEY,
-      url: network === 'rinkeby' ? "https://420-dev.looklabs.xyz" : "https://420.looklabs.xyz"
+      url: network === 'goerli' ? "https://420-dev.looklabs.xyz" : "https://420.looklabs.xyz"
     }
   } as AppConfig;
 

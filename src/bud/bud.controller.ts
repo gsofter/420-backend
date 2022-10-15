@@ -108,8 +108,8 @@ export class BudController {
       const network = this.configService.get<string>('network.name');
 
       const url = `https://420${
-        network === 'rinkeby' ? '-dev' : ''
-      }.looklabs.xyz/${network === 'rinkeby' ? 'dev/' : ''}checkBudName`;
+        network === 'goerli' ? '-dev' : ''
+      }.looklabs.xyz/${network === 'goerli' ? 'dev/' : ''}checkBudName`;
 
       const response = await axios.get(`${url}?budName=${name}`, {
         headers: {

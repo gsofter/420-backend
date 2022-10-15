@@ -72,7 +72,7 @@ export class BudService {
           axios
             .get(
               `${apiUrl}/${
-                network === 'rinkeby' ? 'dev/' : ''
+                network === 'goerli' ? 'dev/' : ''
               }budapi/buds/buds?${param}`,
               {
                 headers: {

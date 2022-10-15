@@ -14,6 +14,6 @@ export class AdminDtoBase {
   block!: number;
 
   @IsString()
-  @IsIn(['rinkeby', 'mainnet'])
+  @IsIn(['goerli', 'mainnet'])
   network!: string;
 }

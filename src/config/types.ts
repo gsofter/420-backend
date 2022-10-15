@@ -1,11 +1,11 @@
 export type AppConfig = {
   env: {
     name: 'development' | 'production';
-    network: 'rinkeby' | 'mainnet';
+    network: 'goerli' | 'mainnet';
     isProd: boolean;
   };
   network: {
-    name: 'rinkeby' | 'mainnet';
+    name: 'goerli' | 'mainnet';
     chainId: number;
     rpc: string;
   };
