@@ -289,7 +289,7 @@ export class BreedService {
     return true;
   }
 
-  async verifyGameItemPosession(pair: BreedPair) {
+  async verifyGameItemPossession(pair: BreedPair) {
     const gameItemId = pair.gameItemId;
 
     if (!gameItemId) {

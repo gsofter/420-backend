@@ -271,7 +271,7 @@ export class BreedController {
     }
 
     // Used to verify if user still owns the game item used in the pair
-    await this.breedService.verifyGameItemPosession(pair);
+    await this.breedService.verifyGameItemPossession(pair);
 
     // Verify the original pair status again..
     // People might have transferred/sold the buds in the meantime
