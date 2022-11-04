@@ -1,4 +1,5 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, Max, Min } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, Max, Min, ValidateIf } from 'class-validator';
+import { GameItem } from 'src/types';
 
 export class CreateBreedPairDto {
   @IsNumber()
@@ -18,6 +19,11 @@ export class CreateBreedPairDto {
   @Min(1)
   @Max(4)
   gameItemId?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  @ValidateIf(o => o.gameItemId === GameItem.FARMER_PASS)
+  upgradeSlot?: boolean;
 }
 
 

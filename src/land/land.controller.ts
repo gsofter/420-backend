@@ -175,94 +175,94 @@ export class LandController {
     };
   }
 
-  // @Post('roll-paper')
-  // @Throttle(10, 60)
-  // async purchaseRollPaper(
-  //   @Req() req: Request,
-  //   @Body() { amount }: PurchaseGameItemDto,
-  // ) {
-  //   const timestamp = Date.now();
+  @Post('roll-paper')
+  @Throttle(10, 60)
+  async purchaseRollPaper(
+    @Req() req: Request,
+    @Body() { amount }: PurchaseGameItemDto,
+  ) {
+    const timestamp = Date.now();
 
-  //   const burnCount = await this.prismaService.eventServiceLog.count({
-  //     where: {
-  //       address: req.user,
-  //       type: 'BURN_GEN0',
-  //     },
-  //   });
+    const burnCount = await this.prismaService.eventServiceLog.count({
+      where: {
+        address: req.user,
+        type: 'BURN_GEN0',
+      },
+    });
 
-  //   if (burnCount < 2) {
-  //     throw UnproceesableEntityError(
-  //       `Not matching burn requirement (at least 2 sessions)`,
-  //     );
-  //   }
+    if (burnCount < 2) {
+      throw UnproceesableEntityError(
+        `Not matching burn requirement (at least 2 sessions)`,
+      );
+    }
 
-  //   const signature = await signMintRequest(
-  //     req.user,
-  //     'GameItem',
-  //     GameItem.ROLLING_PAPER,
-  //     amount,
-  //     timestamp,
-  //   );
+    const signature = await signMintRequest(
+      req.user,
+      'GameItem',
+      GameItem.ROLLING_PAPER,
+      amount,
+      timestamp,
+    );
 
-  //   return {
-  //     success: true,
-  //     data: {
-  //       signature,
-  //       amount,
-  //       timestamp,
-  //     },
-  //   };
-  // }
+    return {
+      success: true,
+      data: {
+        signature,
+        amount,
+        timestamp,
+      },
+    };
+  }
 
-  // @Post('hoodie')
-  // @Throttle(10, 60)
-  // async purchaseHoodie(
-  //   @Req() req: Request,
-  //   @Body() { amount }: PurchaseGameItemDto,
-  // ) {
-  //   const timestamp = Date.now();
-  //   const signature = await signMintRequest(
-  //     req.user,
-  //     'GameItem',
-  //     GameItem.HOODIE,
-  //     amount,
-  //     timestamp,
-  //   );
+  @Post('hoodie')
+  @Throttle(10, 60)
+  async purchaseHoodie(
+    @Req() req: Request,
+    @Body() { amount }: PurchaseGameItemDto,
+  ) {
+    const timestamp = Date.now();
+    const signature = await signMintRequest(
+      req.user,
+      'GameItem',
+      GameItem.HOODIE,
+      amount,
+      timestamp,
+    );
 
-  //   return {
-  //     success: true,
-  //     data: {
-  //       signature,
-  //       amount,
-  //       timestamp,
-  //     },
-  //   };
-  // }
+    return {
+      success: true,
+      data: {
+        signature,
+        amount,
+        timestamp,
+      },
+    };
+  }
 
-  // @Post('weed-dr-pass')
-  // @Throttle(10, 60)
-  // async purchaseWeedDrPass(
-  //   @Req() req: Request,
-  //   @Body() { amount }: PurchaseGameItemDto,
-  // ) {
-  //   const timestamp = Date.now();
-  //   const signature = await signMintRequest(
-  //     req.user,
-  //     'GameItem',
-  //     GameItem.WEED_DR_PASS,
-  //     amount,
-  //     timestamp,
-  //   );
+  @Post('weed-dr-pass')
+  @Throttle(10, 60)
+  async purchaseWeedDrPass(
+    @Req() req: Request,
+    @Body() { amount }: PurchaseGameItemDto,
+  ) {
+    const timestamp = Date.now();
+    const signature = await signMintRequest(
+      req.user,
+      'GameItem',
+      GameItem.WEED_DR_PASS,
+      amount,
+      timestamp,
+    );
 
-  //   return {
-  //     success: true,
-  //     data: {
-  //       signature,
-  //       amount,
-  //       timestamp,
-  //     },
-  //   };
-  // }
+    return {
+      success: true,
+      data: {
+        signature,
+        amount,
+        timestamp,
+      },
+    };
+  }
 
   @Post('farmer-pass')
   @Throttle(10, 60)

@@ -13,7 +13,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { GameItemValues, Request } from 'src/types';
+import { GameItem, GameItemValues, Request } from 'src/types';
 import {
   BadRequestError,
   ConflictRequestError,
@@ -29,7 +29,7 @@ import { BreedUpDto } from './dto/breed-up.dto';
 import { getBonusRateStatus } from './../utils/breed';
 import { BreedPairDto } from './dto/breed.dto';
 import { ConfigService } from '@nestjs/config';
-import { BreedPairStatus } from '@prisma/client';
+import { BreedPairStatus, BreedSlotType } from '@prisma/client';
 import { UserService } from 'src/user/user.service';
 import { BreedFinalizeDto, BreedCancelDto } from './dto/breed-finalize.dto';
 import { BudService } from 'src/bud/bud.service';
@@ -201,7 +201,7 @@ export class BreedController {
       throw ConflictRequestError('One of the bud pairs is in breeding');
     }
 
-    const slot = await this.landService.findOpenBreedSlotById(
+    let slot = await this.landService.findOpenBreedSlotById(
       user,
       body.slotId,
     );
@@ -210,6 +210,18 @@ export class BreedController {
       throw BadRequestError(
         'Given slot is not open, not yours or being used for the other pair',
       );
+    }
+
+    if (body.upgradeSlot && body.gameItemId === GameItem.FARMER_PASS && slot.type === BreedSlotType.OUTDOOR) {
+      // CONVERT TO INDOOR when used farmer pass
+      slot = await this.prismaService.breedSlot.update({
+        where: {
+          id: slot.id,
+        },
+        data: {
+          type: BreedSlotType.INDOOR,
+        },
+      });
     }
 
     // Determine the start success rate
