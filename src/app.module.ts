@@ -50,7 +50,6 @@ import { StatsController } from './stats/stats.controller';
   providers: [
     AppGateway,
     {
-      // TODO: Check if server is behind proxy https://docs.nestjs.com/security/rate-limiting#proxies
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
