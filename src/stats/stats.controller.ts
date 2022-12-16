@@ -42,22 +42,22 @@ export class StatsController {
 
     // TODO: Discuss with frontend if this helps, otherwise, this increases the latency of the endpoint because of extra RPC calls
     
-    // const topBreederAddresses = topBreeders.map(
-    //   (breeder) => breeder.minterAddress,
-    // );
-    // const lockCounts = await this.statsService.getGen0BudLockCounts(
-    //   topBreederAddresses,
-    // );
-    // const gameItemMintCounts = await this.statsService.getGameItemMintCounts(
-    //   topBreederAddresses,
-    // );
+    const topBreederAddresses = topBreeders.map(
+      (breeder) => breeder.minterAddress,
+    );
+    const lockCounts = await this.statsService.getGen0BudLockCounts(
+      topBreederAddresses,
+    );
+    const gameItemMintCounts = await this.statsService.getGameItemMintCounts(
+      topBreederAddresses,
+    );
     return {
       user,
       slot,
       breeding,
       topBreeders,
-      // lockCounts,
-      // gameItemMintCounts,
+      lockCounts,
+      gameItemMintCounts,
     };
   }
 
