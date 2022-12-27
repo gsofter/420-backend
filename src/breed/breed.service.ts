@@ -79,6 +79,10 @@ export class BreedService {
       baseSuccessRate = randomNumber(50, 40) // Target rate is 70 - 50%
     }
 
+    if (gameItemId === GameItem.WEED_DR_PASS) {
+      baseSuccessRate = randomNumber(80, 50) // Target rate is 100 - 70%
+    }
+
     return baseSuccessRate + bonusRate;
   }
 
