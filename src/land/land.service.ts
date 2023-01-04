@@ -45,6 +45,7 @@ export class LandService {
 
     if (count > 0) {
       // Already opened free land slot
+      this.logger.log('land is already created for given game key', { gameKeyId, userAddress, count });
       return;
     }
 
@@ -79,6 +80,7 @@ export class LandService {
 
     if (count > 0) {
       // Already created slots for this land ID
+      this.logger.log('land is already created for landTokenId', { landTokenId, userAddress, count });
       return;
     }
 
