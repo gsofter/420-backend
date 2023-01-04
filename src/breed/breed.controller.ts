@@ -207,6 +207,7 @@ export class BreedController {
     );
 
     if (!slot || (slot.gameKeyId && slot.gameKeyId !== gameKeyId)) {
+      this.logger.log('Slot is already used', { slot, gameKeyId });
       throw BadRequestError(
         'Given slot is not open, not yours or being used for the other pair',
       );
