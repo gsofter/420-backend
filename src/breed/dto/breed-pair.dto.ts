@@ -17,7 +17,7 @@ export class CreateBreedPairDto {
   @IsOptional()
   @IsNumber()
   @Min(1)
-  @Max(4)
+  @Max(5)
   gameItemId?: number;
 
   @IsOptional()
