@@ -7,16 +7,19 @@ import {
   Post,
   Put,
   Req,
+  Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
+import { JsonRpcProvider } from '@ethersproject/providers';
 import {
   BreedSlotType,
   BreedPairStatus,
 } from '@prisma/client';
+import { ethers } from 'ethers';
 import { BudService } from 'src/bud/bud.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { GameItem, Request } from 'src/types';
+import { GameItem, Network, Request } from 'src/types';
 import { UserService } from 'src/user/user.service';
 import {
   BadRequestError,
@@ -26,11 +29,17 @@ import {
 import { signMintRequest } from 'src/utils/onchain/sign';
 import { OpenSlotDto, PurchaseGameItemDto } from './dto/land.dto';
 import { LandService } from './land.service';
+import { multicall } from 'src/utils/multicall';
+import { ADDRESSES } from 'src/config';
+import * as Gen0BudLockAbi from 'src/abis/gen0BudLock.json';
 
 @Controller('lands')
 export class LandController {
   private bpToOpen = 0;
   private bpForIndoor = 0;
+  private rpcProvider: JsonRpcProvider;
+  private network: Network;
+  private readonly logger = new Logger('LandController');
 
   constructor(
     private readonly prismaService: PrismaService,
@@ -47,6 +56,11 @@ export class LandController {
     this.bpForIndoor = this.configService.get<number>(
       'breed.breedingPointToCovertIndoor',
     );
+    this.rpcProvider = new ethers.providers.StaticJsonRpcProvider(
+      configService.get<string>('network.rpc'),
+      configService.get<number>('network.chainId'),
+    );
+    this.network = this.configService.get<Network>('network.name');
   }
 
   @Get('slots')
@@ -190,7 +204,28 @@ export class LandController {
       },
     });
 
-    if (burnCount < 2) {
+    let [burnAmount] = [0];
+    try {
+      [burnAmount] = await multicall(
+        this.rpcProvider,
+        ADDRESSES[this.network].MULTICALL,
+        Gen0BudLockAbi,
+        [
+          {
+            contractAddress: ADDRESSES[this.network].BUD_BURN,
+            functionName: 'burntAmount',
+            params: [req.user],
+          },
+        ],
+      );
+      burnAmount = Number(burnAmount);
+    } catch (e) {
+      this.logger.error('Gen0BudLock.burntAmount multicall error: ' + e.message, e);
+    }
+
+    this.logger.log('Mint roll-paper, check burn amount', { burnAmount, burnCount, address: req.user});
+
+    if (burnCount < 2 && burnAmount < 2) {
       throw UnproceesableEntityError(
         `Not matching burn requirement (at least 2 sessions)`,
       );
