@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { DatadogTraceModule } from 'nestjs-ddtrace';
 import appConfig from './config/app.config';
@@ -35,6 +36,7 @@ import { StatsController } from './stats/stats.controller';
       limit: 60,
     }),
     DatadogTraceModule.forRoot(),
+    ScheduleModule.forRoot(),
     PrismaModule,
     HashTableModule,
     UserModule,

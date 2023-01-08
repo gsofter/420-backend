@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { ethers } from 'ethers';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -22,6 +23,11 @@ export class StatsService {
       configService.get<string>('network.rpc'),
       configService.get<number>('network.chainId'),
     );
+  }
+
+  @Cron('10 * * * * *')
+  snapshotBreeding() {
+    this.logger.log('Called every minute, on the 10th second');
   }
 
   async getBPDepositHistory(address: string) {
