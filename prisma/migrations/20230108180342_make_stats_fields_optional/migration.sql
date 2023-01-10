@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "Stats" ALTER COLUMN "totalSuccess" DROP NOT NULL,
+ALTER COLUMN "totalFailure" DROP NOT NULL,
+ALTER COLUMN "totalCancels" DROP NOT NULL,
+ALTER COLUMN "totalDays" DROP NOT NULL,
+ALTER COLUMN "bpForBreeding" DROP NOT NULL,
+ALTER COLUMN "bpForLandUpgrade" DROP NOT NULL;

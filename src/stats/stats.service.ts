@@ -28,6 +28,99 @@ export class StatsService {
   @Cron('10 * * * * *')
   snapshotBreeding() {
     this.logger.log('Called every minute, on the 10th second');
+
+    // this.snapshotSuccessfulBreedings();
+    // this.snapshotFailedBreedings();
+    // this.snapshotCanceledBreedings();
+  }
+
+  async snapshotSuccessfulBreedings() {
+    const result = await this.prismaService.$queryRaw`
+      INSERT
+        INTO
+        "Stats" ("address",
+        "totalSuccess",
+        "updatedAt")
+      SELECT
+          "userAddress" AS "address",
+          count(*) AS "totalSuccess",
+          NOW() AS "updatedAt"
+      FROM
+          public."BreedPair"
+      WHERE
+          "status" = 'COMPLETED'
+      GROUP BY
+          "userAddress"
+      ON
+        conflict ("address") do
+      UPDATE
+      SET
+        "address" = EXCLUDED."address",
+        "totalSuccess" = EXCLUDED."totalSuccess",
+        "updatedAt" = EXCLUDED."updatedAt"
+    `;
+
+    return result;
+  }
+
+  async snapshotFailedBreedings() {
+    const result = await this.prismaService.$queryRaw`
+      INSERT
+        INTO
+        "Stats" ("address",
+        "totalFailure",
+        "updatedAt")
+      SELECT
+          "userAddress" AS "address",
+          count(*) AS "totalFailure",
+          NOW() AS "updatedAt"
+      FROM
+          public."BreedPair"
+      WHERE
+          "status" = 'FAILED'
+        AND
+          "currentLevel" = 5
+      GROUP BY
+          "userAddress"
+      ON
+        conflict ("address") do
+      UPDATE
+      SET
+        "address" = EXCLUDED."address",
+        "totalFailure" = EXCLUDED."totalFailure",
+        "updatedAt" = EXCLUDED."updatedAt"
+    `;
+
+    return result;
+  }
+
+  async snapshotCanceledBreedings() {
+    const result = await this.prismaService.$queryRaw`
+      INSERT
+        INTO
+        "Stats" ("address",
+        "totalCancels",
+        "updatedAt")
+      SELECT
+          "userAddress" AS "address",
+          count(*) AS "totalCancels",
+          NOW() AS "updatedAt"
+      FROM
+          public."BreedPair"
+      WHERE
+          "status" = 'CANCELED'
+      GROUP BY
+          "userAddress"
+      ON
+        conflict ("address") do
+      UPDATE
+      SET
+        "address" = EXCLUDED."address",
+        "totalCancels" = EXCLUDED."totalCancels",
+        "updatedAt" = EXCLUDED."updatedAt"
+    `;
+
+    return result;
   }
 
   async getBPDepositHistory(address: string) {

@@ -184,6 +184,21 @@ model Gen1Bud {
   @@index([minterAddress, id])
 }
 
+model Stats {
+  id               Int      @id @default(autoincrement())
+  address          String   @db.VarChar(42)
+  totalSuccess     Int?
+  totalFailure     Int?
+  totalCancels     Int?
+  totalDays        Int?
+  bpForBreeding    Int?
+  bpForLandUpgrade Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([address])
+}
+
 model GiftCard {
   id            Int        @id @default(autoincrement())
   value         GiftAmount
