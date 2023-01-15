@@ -1,11 +1,24 @@
-import { Transform } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Length, Max, MaxLength } from 'class-validator';
 
 export class SearchBreederDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(42)
+  @Length(42)
   address: string;
+}
+
+export class QueryStatsDto {
+  @IsNumber()
+  @Type(() => Number)
+  @Max(100)
+  @IsOptional()
+  limit?: number;
+
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  cursor?: number;
 }
 
 export class CheckShopRequirementsDto {

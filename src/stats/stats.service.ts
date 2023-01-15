@@ -9,6 +9,7 @@ import { multicall } from 'src/utils/multicall';
 import * as Gen0BudLock from 'src/abis/gen0BudLock.json';
 import * as Erc1155Abi from 'src/abis/ogErc1155.json';
 import { ADDRESSES } from 'src/config';
+import { QueryStatsDto } from './dto/search-breeder.dto';
 
 @Injectable()
 export class StatsService {
@@ -32,6 +33,32 @@ export class StatsService {
     // this.snapshotSuccessfulBreedings();
     // this.snapshotFailedBreedings();
     // this.snapshotCanceledBreedings();
+  }
+  
+  async queryStats({ limit, cursor } : QueryStatsDto) {
+    return this.prismaService.stats.findMany({
+      take: limit ? (limit > 100 ? 100 : limit) : 100, 
+      skip: cursor ? 1 : undefined,
+      cursor: cursor ? {
+        id: cursor,
+      } : undefined,
+      where: {
+        totalDays: {
+          gte: 0,
+        }
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    })
+  }
+
+  async queryStatsByAddress(address: string) {
+    return this.prismaService.stats.findUnique({
+      where: {
+        address
+      },
+    })
   }
 
   async snapshotSuccessfulBreedings() {

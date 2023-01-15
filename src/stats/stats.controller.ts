@@ -6,10 +6,13 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
+import { Param } from '@nestjs/common/decorators';
 import { isAddress } from 'ethers/lib/utils';
 import { Request } from 'src/types';
+import { checksumAddress } from 'src/utils/address';
 import {
   CheckShopRequirementsDto,
+  QueryStatsDto,
   SearchBreederDto,
 } from './dto/search-breeder.dto';
 import { StatsService } from './stats.service';
@@ -33,6 +36,56 @@ export class StatsController {
     };
   }
 
+  @Get('/:address')
+  async getUserStatsByAddress(
+    @Param('address') address: string,
+  ) {
+    if (!isAddress(address)) {
+      throw new BadRequestException('address is not a valid Ethereum address');
+    }
+
+    try {
+      const stats = await this.statsService.queryStatsByAddress(address);
+
+      if (!stats) {
+        throw new Error(`${address} stats record not found`);
+      }
+
+      return {
+        success: true,
+        data: stats,
+      };
+    } catch (error) {
+      this.logger.error('Get user stats by address error', { error });
+    }
+
+    return {
+      success: false,
+      data: null,
+    };
+  }
+
+  @Get('/')
+  async getUserStats(@Req() req: Request, @Query() query: QueryStatsDto) {
+    try {
+      const limit = query.limit ? Number(query.limit) : undefined;
+      const cursor = query.cursor ? Number(query.cursor) : undefined;
+      const stats = await this.statsService.queryStats({ limit, cursor });
+
+      return {
+        success: true,
+        data: stats,
+      };
+    } catch (error) {
+      this.logger.error('Get user stats error', { error });
+    }
+
+    return {
+      success: false,
+      data: [],
+    };
+  }
+
   @Get('metrics')
   async getMetrics(@Req() req: Request) {
     const user = await this.statsService.getUserMetrics();
@@ -41,7 +94,7 @@ export class StatsController {
     const topBreeders = await this.statsService.getTopBreeders();
 
     // TODO: Discuss with frontend if this helps, otherwise, this increases the latency of the endpoint because of extra RPC calls
-    
+
     const topBreederAddresses = topBreeders.map(
       (breeder) => breeder.minterAddress,
     );
