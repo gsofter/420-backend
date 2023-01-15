@@ -35,10 +35,11 @@ export class StatsService {
     await this.prismaService.$queryRaw`TRUNCATE TABLE public."Stats" RESTART IDENTITY`;
 
     // Snapshot again
-    await this.snapshotSuccessfulBreedings();
-    await this.snapshotFailedBreedings();
-    await this.snapshotCanceledBreedings();
-    await this.snapshotTotalBreedingHours();
+    // await this.snapshotSuccessfulBreedings();
+    // await this.snapshotFailedBreedings();
+    // await this.snapshotCanceledBreedings();
+    // await this.snapshotTotalBreedingHours();
+    await this.snapshotSpentBPsForBreeding();
 
     console.log('snapshotBreeding took time', (Date.now() - startTime).toLocaleString() + 'ms');
   }
@@ -67,6 +68,37 @@ export class StatsService {
         address
       },
     })
+  }
+
+  async snapshotSpentBPsForBreeding() {
+    await this.prismaService.$queryRaw`
+      insert
+        into
+        "Stats" ("address",
+        "bpForBreeding",
+        "updatedAt")
+      select 
+        "address",
+        sum("bpSpent") as "bpForBreeding",
+        now() as "updatedAt"
+      from
+        (
+        select
+          "userAddress" as "address",
+          ("currentLevel" * 15) as "bpSpent"
+        from
+          public."BreedPair"
+      ) as "temp"
+      group by
+        "address"
+      on
+          conflict ("address") do
+          update
+      set
+            "address" = EXCLUDED."address",
+            "bpForBreeding" = coalesce("Stats"."bpForBreeding", 0) + EXCLUDED."bpForBreeding",
+            "updatedAt" = EXCLUDED."updatedAt"
+    `;
   }
 
   async snapshotSuccessfulBreedings() {
