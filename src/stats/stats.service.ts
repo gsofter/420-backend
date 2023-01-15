@@ -26,18 +26,21 @@ export class StatsService {
     );
   }
 
-  @Cron('10 * * * * *')
+  @Cron('0 10 * * * *')
   async snapshotBreeding() {
-    this.logger.log('Called every minute, on the 10th second');
-
-    // this.snapshotSuccessfulBreedings();
-    // this.snapshotFailedBreedings();
-    // this.snapshotCanceledBreedings();
-
+    this.logger.log('Called every hour, at the start of the 10th minute');
     const startTime = Date.now();
-    // await this.snapshotTotalBreedingHours();
 
-    console.log('took time', (Date.now() - startTime).toLocaleString() + 'ms');
+    // Clean up first
+    await this.prismaService.$queryRaw`TRUNCATE TABLE public."Stats" RESTART IDENTITY`;
+
+    // Snapshot again
+    await this.snapshotSuccessfulBreedings();
+    await this.snapshotFailedBreedings();
+    await this.snapshotCanceledBreedings();
+    await this.snapshotTotalBreedingHours();
+
+    console.log('snapshotBreeding took time', (Date.now() - startTime).toLocaleString() + 'ms');
   }
   
   async queryStats({ limit, cursor } : QueryStatsDto) {
