@@ -73,29 +73,29 @@ export class StatsService {
 
   async snapshotSpentBPsForBreeding() {
     await this.prismaService.$queryRaw`
-      insert
-        into
+      INSERT
+        INTO
         "Stats" ("address",
         "bpForBreeding",
         "updatedAt")
-      select 
+      SELECT 
         "address",
-        sum("bpSpent") as "bpForBreeding",
-        now() as "updatedAt"
-      from
+        SUM("bpSpent") AS "bpForBreeding",
+        NOW() AS "updatedAt"
+      FROM
         (
-        select
-          "userAddress" as "address",
-          ("currentLevel" * 15) as "bpSpent"
-        from
+        SELECT
+          "userAddress" AS "address",
+          ("currentLevel" * 15) AS "bpSpent"
+        FROM
           public."BreedPair"
-      ) as "temp"
-      group by
+      ) AS "temp"
+      GROUP BY
         "address"
-      on
-          conflict ("address") do
-          update
-      set
+      ON
+          conflict ("address") DO
+          UPDATE
+      SET
             "address" = EXCLUDED."address",
             "bpForBreeding" = coalesce("Stats"."bpForBreeding", 0) + EXCLUDED."bpForBreeding",
             "updatedAt" = EXCLUDED."updatedAt"
@@ -104,25 +104,25 @@ export class StatsService {
 
   async snapshotSpentBpsForLandUpgrade() {
     await this.prismaService.$queryRaw`
-      insert
-        into
+      INSERT
+        INTO
         "Stats" ("address",
         "bpForLandUpgrade",
         "updatedAt")
-      select
-          "userAddress" as "address",
-          (count(*) * 69) as "bpForLandUpgrade",
-          now() as "updatedAt"
-      from
+      SELECT
+          "userAddress" AS "address",
+          (count(*) * 69) AS "bpForLandUpgrade",
+          NOW() AS "updatedAt"
+      FROM
           public."BreedSlot"
-      where
+      WHERE
         "type" = 'INDOOR'
-      group by
+      GROUP BY
           "userAddress"
-      on
-          conflict ("address") do
-          update
-      set
+      ON
+          conflict ("address") DO
+          UPDATE
+      SET
             "address" = EXCLUDED."address",
             "bpForLandUpgrade" = EXCLUDED."bpForLandUpgrade",
             "updatedAt" = EXCLUDED."updatedAt"
@@ -220,52 +220,52 @@ export class StatsService {
 
   async snapshotTotalBreedingHours() {
     await this.prismaService.$queryRaw`
-      insert
-        into
+      INSERT
+        INTO
         "Stats" ("address",
         "totalHours",
         "updatedAt")
-      select 
+      SELECT 
         "address",
-        sum("hoursSpent") as "totalHours",
-        now() as "updatedAt"
-      from
+        SUM("hoursSpent") AS "totalHours",
+        NOW() AS "updatedAt"
+      FROM
         (
-        select
-          "userAddress" as "address",
-          ("currentLevel" * (case
-            when "createdAt" < timestamp '2022-06-06 00:00:00' then 48
-            else 24
-          end) * (case
-            when "gameItemId" = 4 then 0.5
-            when "gameItemId" = 3 then 0.8
-            else 1
-          end)) as "hoursSpent"
-        from
+        SELECT
+          "userAddress" AS "address",
+          ("currentLevel" * (CASE
+            WHEN "createdAt" < TIMESTAMP '2022-06-06 00:00:00' THEN 48
+            ELSE 24
+          END) * (CASE
+            WHEN "gameItemId" = 4 THEN 0.5
+            WHEN "gameItemId" = 3 THEN 0.8
+            ELSE 1
+          END)) AS "hoursSpent"
+        FROM
           public."BreedPair"
-      ) as "temp"
-      group by
+      ) AS "temp"
+      GROUP BY
         "address"
-      on
-          conflict ("address") do
-          update
-      set
+      ON
+          conflict ("address") DO
+          UPDATE
+      SET
             "address" = EXCLUDED."address",
             "totalHours" = EXCLUDED."totalHours",
             "updatedAt" = EXCLUDED."updatedAt"
     `;
     // 2 days breeding (before Jun 6, 2022), without game item
     // await this.prismaService.$queryRaw`
-    //   insert
-    //     into
+    //   INSERT
+    //     INTO
     //     "Stats" ("address",
     //     "totalHours",
     //     "updatedAt")
-    //   select
-    //       "userAddress" as "address",
-    //       (count(*) * 5 * 2 * 24) as "totalHours",
-    //       now() as "updatedAt"
-    //   from
+    //   SELECT
+    //       "userAddress" AS "address",
+    //       (count(*) * 5 * 2 * 24) AS "totalHours",
+    //       NOW() AS "updatedAt"
+    //   FROM
     //       public."BreedPair"
     //   where
     //     "createdAt" < timestamp '2022-06-06 00:00:00'
@@ -275,12 +275,12 @@ export class StatsService {
     //         and "currentLevel" = 5))
     //     and ("gameItemId" is null
     //       or "gameItemId" = 5)
-    //   group by
+    //   GROUP BY
     //       "userAddress"
     //   on
     //       conflict ("address") do
-    //       update
-    //   set
+    //       UPDATE
+    //   SET
     //         "address" = EXCLUDED."address",
     //         "totalHours" = EXCLUDED."totalHours",
     //         "updatedAt" = EXCLUDED."updatedAt"
@@ -288,16 +288,16 @@ export class StatsService {
 
     // 1 day breeding (after Jun 6, 2022), without game item
     // await this.prismaService.$queryRaw`
-    //   insert
-    //     into
+    //   INSERT
+    //     INTO
     //     "Stats" ("address",
     //     "totalHours",
     //     "updatedAt")
-    //   select
-    //       "userAddress" as "address",
-    //       (count(*) * 5 * 24) as "totalHours",
-    //       now() as "updatedAt"
-    //   from
+    //   SELECT
+    //       "userAddress" AS "address",
+    //       (count(*) * 5 * 24) AS "totalHours",
+    //       NOW() AS "updatedAt"
+    //   FROM
     //       public."BreedPair"
     //   where
     //     "createdAt" >= timestamp '2022-06-06 00:00:00'
@@ -307,12 +307,12 @@ export class StatsService {
     //         and "currentLevel" = 5))
     //     and ("gameItemId" is null
     //       or "gameItemId" = 5)
-    //   group by
+    //   GROUP BY
     //       "userAddress"
     //   on
     //       conflict ("address") do
-    //       update
-    //   set
+    //       UPDATE
+    //   SET
     //         "address" = EXCLUDED."address",
     //         "totalHours" = coalesce("Stats"."totalHours", 0) + EXCLUDED."totalHours",
     //         "updatedAt" = EXCLUDED."updatedAt"
@@ -320,16 +320,16 @@ export class StatsService {
 
     // 1 day breeding, with farmer pass
     // await this.prismaService.$queryRaw`
-    //   insert
-    //     into
+    //   INSERT
+    //     INTO
     //     "Stats" ("address",
     //     "totalHours",
     //     "updatedAt")
-    //   select
-    //       "userAddress" as "address",
-    //       (count(*) * 5 * 12) as "totalHours",
-    //       now() as "updatedAt"
-    //   from
+    //   SELECT
+    //       "userAddress" AS "address",
+    //       (count(*) * 5 * 12) AS "totalHours",
+    //       NOW() AS "updatedAt"
+    //   FROM
     //       public."BreedPair"
     //   where
     //     "createdAt" >= timestamp '2022-06-06 00:00:00'
@@ -338,12 +338,12 @@ export class StatsService {
     //       or ("status" = 'FAILED'
     //         and "currentLevel" = 5))
     //     and "gameItemId" = 4
-    //   group by
+    //   GROUP BY
     //       "userAddress"
     //   on
     //       conflict ("address") do
-    //       update
-    //   set
+    //       UPDATE
+    //   SET
     //         "address" = EXCLUDED."address",
     //         "totalHours" = coalesce("Stats"."totalHours", 0) + EXCLUDED."totalHours",
     //         "updatedAt" = EXCLUDED."updatedAt"
@@ -351,16 +351,16 @@ export class StatsService {
 
     // 1 day breeding, with super weed  ( 24 * 4 = 5 * 24 / 5 / 4)
     // await this.prismaService.$queryRaw`
-    //   insert
-    //     into
+    //   INSERT
+    //     INTO
     //     "Stats" ("address",
     //     "totalHours",
     //     "updatedAt")
-    //   select
-    //       "userAddress" as "address",
-    //       (count(*) * 24 * 4) as "totalHours",
-    //       now() as "updatedAt"
-    //   from
+    //   SELECT
+    //       "userAddress" AS "address",
+    //       (count(*) * 24 * 4) AS "totalHours",
+    //       NOW() AS "updatedAt"
+    //   FROM
     //       public."BreedPair"
     //   where
     //     "createdAt" >= timestamp '2022-06-06 00:00:00'
@@ -369,12 +369,12 @@ export class StatsService {
     //       or ("status" = 'FAILED'
     //         and "currentLevel" = 5))
     //     and "gameItemId" = 3
-    //   group by
+    //   GROUP BY
     //       "userAddress"
     //   on
     //       conflict ("address") do
-    //       update
-    //   set
+    //       UPDATE
+    //   SET
     //         "address" = EXCLUDED."address",
     //         "totalHours" = coalesce("Stats"."totalHours", 0) + EXCLUDED."totalHours",
     //         "updatedAt" = EXCLUDED."updatedAt"
@@ -429,7 +429,7 @@ export class StatsService {
           "minterAddress"
         FROM (
           SELECT
-            count(*) as count,
+            count(*) AS count,
             "minterAddress"
           FROM "Gen1Bud"
           GROUP BY "minterAddress"
@@ -453,7 +453,7 @@ export class StatsService {
           "minterAddress"
         FROM (
           SELECT
-            count(*) as count,
+            count(*) AS count,
             "minterAddress"
           FROM "Gen1Bud"
           GROUP BY "minterAddress"
