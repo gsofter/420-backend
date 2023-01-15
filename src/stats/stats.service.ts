@@ -48,7 +48,7 @@ export class StatsService {
         id: cursor,
       } : undefined,
       where: {
-        totalDays: {
+        totalHours: {
           gte: 0,
         }
       },
@@ -161,11 +161,11 @@ export class StatsService {
       insert
         into
         "Stats" ("address",
-        "totalDays",
+        "totalHours",
         "updatedAt")
       select
           "userAddress" as "address",
-          (count(*) * 5 * 2 * 24) as "totalDays",
+          (count(*) * 5 * 2 * 24) as "totalHours",
           now() as "updatedAt"
       from
           public."BreedPair"
@@ -184,7 +184,7 @@ export class StatsService {
           update
       set
             "address" = EXCLUDED."address",
-            "totalDays" = EXCLUDED."totalDays",
+            "totalHours" = EXCLUDED."totalHours",
             "updatedAt" = EXCLUDED."updatedAt"
     `;
 
@@ -193,11 +193,11 @@ export class StatsService {
       insert
         into
         "Stats" ("address",
-        "totalDays",
+        "totalHours",
         "updatedAt")
       select
           "userAddress" as "address",
-          (count(*) * 5 * 24) as "totalDays",
+          (count(*) * 5 * 24) as "totalHours",
           now() as "updatedAt"
       from
           public."BreedPair"
@@ -216,7 +216,7 @@ export class StatsService {
           update
       set
             "address" = EXCLUDED."address",
-            "totalDays" = coalesce("Stats"."totalDays", 0) + EXCLUDED."totalDays",
+            "totalHours" = coalesce("Stats"."totalHours", 0) + EXCLUDED."totalHours",
             "updatedAt" = EXCLUDED."updatedAt"
     `;
 
@@ -225,11 +225,11 @@ export class StatsService {
       insert
         into
         "Stats" ("address",
-        "totalDays",
+        "totalHours",
         "updatedAt")
       select
           "userAddress" as "address",
-          (count(*) * 5 * 12) as "totalDays",
+          (count(*) * 5 * 12) as "totalHours",
           now() as "updatedAt"
       from
           public."BreedPair"
@@ -247,7 +247,7 @@ export class StatsService {
           update
       set
             "address" = EXCLUDED."address",
-            "totalDays" = coalesce("Stats"."totalDays", 0) + EXCLUDED."totalDays",
+            "totalHours" = coalesce("Stats"."totalHours", 0) + EXCLUDED."totalHours",
             "updatedAt" = EXCLUDED."updatedAt"
     `;
 
@@ -256,11 +256,11 @@ export class StatsService {
       insert
         into
         "Stats" ("address",
-        "totalDays",
+        "totalHours",
         "updatedAt")
       select
           "userAddress" as "address",
-          (count(*) * 24 * 4) as "totalDays",
+          (count(*) * 24 * 4) as "totalHours",
           now() as "updatedAt"
       from
           public."BreedPair"
@@ -278,7 +278,7 @@ export class StatsService {
           update
       set
             "address" = EXCLUDED."address",
-            "totalDays" = coalesce("Stats"."totalDays", 0) + EXCLUDED."totalDays",
+            "totalHours" = coalesce("Stats"."totalHours", 0) + EXCLUDED."totalHours",
             "updatedAt" = EXCLUDED."updatedAt"
     `;
   }

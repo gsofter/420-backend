@@ -190,7 +190,7 @@ model Stats {
   totalSuccess     Int?
   totalFailure     Int?
   totalCancels     Int?
-  totalDays        Int?
+  totalHours       Int?
   bpForBreeding    Int?
   bpForLandUpgrade Int?
   createdAt        DateTime @default(now())
