@@ -27,12 +27,17 @@ export class StatsService {
   }
 
   @Cron('10 * * * * *')
-  snapshotBreeding() {
+  async snapshotBreeding() {
     this.logger.log('Called every minute, on the 10th second');
 
     // this.snapshotSuccessfulBreedings();
     // this.snapshotFailedBreedings();
     // this.snapshotCanceledBreedings();
+
+    const startTime = Date.now();
+    // await this.snapshotTotalBreedingHours();
+
+    console.log('took time', (Date.now() - startTime).toLocaleString() + 'ms');
   }
   
   async queryStats({ limit, cursor } : QueryStatsDto) {
@@ -149,6 +154,135 @@ export class StatsService {
 
     return result;
   }
+
+  async snapshotTotalBreedingHours() {
+    // 2 days breeding (before Jun 6, 2022), without game item
+    await this.prismaService.$queryRaw`
+      insert
+        into
+        "Stats" ("address",
+        "totalDays",
+        "updatedAt")
+      select
+          "userAddress" as "address",
+          (count(*) * 5 * 2 * 24) as "totalDays",
+          now() as "updatedAt"
+      from
+          public."BreedPair"
+      where
+        "createdAt" < timestamp '2022-06-06 00:00:00'
+        and 
+        ("status" = 'COMPLETED'
+          or ("status" = 'FAILED'
+            and "currentLevel" = 5))
+        and ("gameItemId" is null
+          or "gameItemId" = 5)
+      group by
+          "userAddress"
+      on
+          conflict ("address") do
+          update
+      set
+            "address" = EXCLUDED."address",
+            "totalDays" = EXCLUDED."totalDays",
+            "updatedAt" = EXCLUDED."updatedAt"
+    `;
+
+    // 1 day breeding (after Jun 6, 2022), without game item
+    await this.prismaService.$queryRaw`
+      insert
+        into
+        "Stats" ("address",
+        "totalDays",
+        "updatedAt")
+      select
+          "userAddress" as "address",
+          (count(*) * 5 * 24) as "totalDays",
+          now() as "updatedAt"
+      from
+          public."BreedPair"
+      where
+        "createdAt" >= timestamp '2022-06-06 00:00:00'
+        and 
+        ("status" = 'COMPLETED'
+          or ("status" = 'FAILED'
+            and "currentLevel" = 5))
+        and ("gameItemId" is null
+          or "gameItemId" = 5)
+      group by
+          "userAddress"
+      on
+          conflict ("address") do
+          update
+      set
+            "address" = EXCLUDED."address",
+            "totalDays" = coalesce("Stats"."totalDays", 0) + EXCLUDED."totalDays",
+            "updatedAt" = EXCLUDED."updatedAt"
+    `;
+
+    // 1 day breeding, with farmer pass
+    await this.prismaService.$queryRaw`
+      insert
+        into
+        "Stats" ("address",
+        "totalDays",
+        "updatedAt")
+      select
+          "userAddress" as "address",
+          (count(*) * 5 * 12) as "totalDays",
+          now() as "updatedAt"
+      from
+          public."BreedPair"
+      where
+        "createdAt" >= timestamp '2022-06-06 00:00:00'
+        and 
+        ("status" = 'COMPLETED'
+          or ("status" = 'FAILED'
+            and "currentLevel" = 5))
+        and "gameItemId" = 4
+      group by
+          "userAddress"
+      on
+          conflict ("address") do
+          update
+      set
+            "address" = EXCLUDED."address",
+            "totalDays" = coalesce("Stats"."totalDays", 0) + EXCLUDED."totalDays",
+            "updatedAt" = EXCLUDED."updatedAt"
+    `;
+
+    // 1 day breeding, with super weed  ( 24 * 4 = 5 * 24 / 5 / 4)
+    await this.prismaService.$queryRaw`
+      insert
+        into
+        "Stats" ("address",
+        "totalDays",
+        "updatedAt")
+      select
+          "userAddress" as "address",
+          (count(*) * 24 * 4) as "totalDays",
+          now() as "updatedAt"
+      from
+          public."BreedPair"
+      where
+        "createdAt" >= timestamp '2022-06-06 00:00:00'
+        and 
+        ("status" = 'COMPLETED'
+          or ("status" = 'FAILED'
+            and "currentLevel" = 5))
+        and "gameItemId" = 3
+      group by
+          "userAddress"
+      on
+          conflict ("address") do
+          update
+      set
+            "address" = EXCLUDED."address",
+            "totalDays" = coalesce("Stats"."totalDays", 0) + EXCLUDED."totalDays",
+            "updatedAt" = EXCLUDED."updatedAt"
+    `;
+  }
+
 
   async getBPDepositHistory(address: string) {
     const records = await this.prismaService.eventServiceLog.findMany({
