@@ -36,7 +36,7 @@ export class StatsController {
     };
   }
 
-  @Get('/:address')
+  @Get('/user/:address')
   async getUserStatsByAddress(
     @Param('address') address: string,
   ) {
