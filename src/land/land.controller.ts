@@ -197,39 +197,39 @@ export class LandController {
   ) {
     const timestamp = Date.now();
 
-    const burnCount = await this.prismaService.eventServiceLog.count({
-      where: {
-        address: req.user,
-        type: 'BURN_GEN0',
-      },
-    });
+    // const burnCount = await this.prismaService.eventServiceLog.count({
+    //   where: {
+    //     address: req.user,
+    //     type: 'BURN_GEN0',
+    //   },
+    // });
 
-    let [burnAmount] = [0];
-    try {
-      [burnAmount] = await multicall(
-        this.rpcProvider,
-        ADDRESSES[this.network].MULTICALL,
-        Gen0BudLockAbi,
-        [
-          {
-            contractAddress: ADDRESSES[this.network].BUD_BURN,
-            functionName: 'burntAmount',
-            params: [req.user],
-          },
-        ],
-      );
-      burnAmount = Number(burnAmount);
-    } catch (e) {
-      this.logger.error('Gen0BudLock.burntAmount multicall error: ' + e.message, e);
-    }
+    // let [burnAmount] = [0];
+    // try {
+    //   [burnAmount] = await multicall(
+    //     this.rpcProvider,
+    //     ADDRESSES[this.network].MULTICALL,
+    //     Gen0BudLockAbi,
+    //     [
+    //       {
+    //         contractAddress: ADDRESSES[this.network].BUD_BURN,
+    //         functionName: 'burntAmount',
+    //         params: [req.user],
+    //       },
+    //     ],
+    //   );
+    //   burnAmount = Number(burnAmount);
+    // } catch (e) {
+    //   this.logger.error('Gen0BudLock.burntAmount multicall error: ' + e.message, e);
+    // }
 
-    this.logger.log('Mint roll-paper, check burn amount', { burnAmount, burnCount, address: req.user});
+    // this.logger.log('Mint roll-paper, check burn amount', { burnAmount, burnCount, address: req.user});
 
-    if (burnCount < 2 && burnAmount < 2) {
-      throw UnproceesableEntityError(
-        `Not matching burn requirement (at least 2 sessions)`,
-      );
-    }
+    // if (burnCount < 2 && burnAmount < 2) {
+    //   throw UnproceesableEntityError(
+    //     `Not matching burn requirement (at least 2 sessions)`,
+    //   );
+    // }
 
     const signature = await signMintRequest(
       req.user,
