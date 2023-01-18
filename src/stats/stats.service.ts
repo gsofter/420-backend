@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, Stats } from '@prisma/client';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -113,11 +113,17 @@ export class StatsService {
   }
 
   async queryStatsByAddress(address: string) {
-    return this.prismaService.$queryRaw`
+    const stats = await this.prismaService.$queryRaw<[Stats]>`
     SELECT *, ${Prisma.raw(this.getStatsScoreQuery())}
     FROM "Stats"
     WHERE "address" = ${address}
     `;
+
+    if (!Array.isArray(stats) || !stats[0]?.address) {
+      return null;
+    }
+
+    return stats[0];
   }
 
   async snapshotSpentBPsForBreeding() {
