@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -46,29 +47,77 @@ export class StatsService {
   }
   
   async queryStats({ limit, cursor } : QueryStatsDto) {
-    return this.prismaService.stats.findMany({
-      take: limit ? (limit > 100 ? 100 : limit) : 100, 
-      skip: cursor ? 1 : undefined,
-      cursor: cursor ? {
-        id: cursor,
-      } : undefined,
-      where: {
-        totalHours: {
-          gte: 0,
-        }
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    })
+    const take = limit ? (limit > 100 ? 100 : limit) : 100;
+
+    if (cursor) {
+      return this.prismaService.$queryRaw`
+        SELECT "stats_original".*
+        FROM
+          (
+            SELECT
+              *,
+              ${Prisma.raw(this.getStatsScoreQuery('score'))}
+            FROM "public"."Stats"
+          ) AS "stats_original",
+          (
+          SELECT
+            ${Prisma.raw(this.getStatsScoreQuery('score_comp'))}
+          FROM
+            "public"."Stats"
+          WHERE
+            ("public"."Stats"."id") = (${cursor})) AS "order_cmp"
+        WHERE
+          "stats_original"."score" <= "order_cmp"."score_comp"
+        ORDER BY
+          "stats_original"."score" DESC 
+        LIMIT ${take} OFFSET 1
+      `
+    };
+
+    return this.prismaService.$queryRaw`
+      SELECT
+        *,
+        ${Prisma.raw(this.getStatsScoreQuery())}
+      FROM
+        "public"."Stats"
+      ORDER BY
+        "score" DESC
+      LIMIT ${take}
+    `;
+
+    // return this.prismaService.stats.findMany({
+    //   take, 
+    //   skip: cursor ? 1 : undefined,
+    //   cursor: cursor ? {
+    //     id: cursor,
+    //   } : undefined,
+    //   where: {
+    //     totalHours: {
+    //       gte: 0,
+    //     }
+    //   },
+    //   orderBy: {
+    //     createdAt: 'desc',
+    //   },
+    // })
+  }
+
+  getStatsScoreQuery(name = 'score') {
+    return `(coalesce("totalSuccess", 0) * 1 +
+    coalesce("totalHours", 0) * 0.05 + 
+    coalesce("totalFailure", 0) * 0.5 + 
+    coalesce("bpForBreeding", 0) * 0.2 + 
+    coalesce("bpForLandUpgrade", 0) * 0.3 + 
+    coalesce("totalCancels", 0) * 1.25 
+    ) as "${name}"`;
   }
 
   async queryStatsByAddress(address: string) {
-    return this.prismaService.stats.findUnique({
-      where: {
-        address
-      },
-    })
+    return this.prismaService.$queryRaw`
+    SELECT *, ${Prisma.raw(this.getStatsScoreQuery())}
+    FROM "Stats"
+    WHERE "address" = ${address}
+    `;
   }
 
   async snapshotSpentBPsForBreeding() {
