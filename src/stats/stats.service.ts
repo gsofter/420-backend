@@ -51,13 +51,19 @@ export class StatsService {
 
     if (cursor) {
       return this.prismaService.$queryRaw`
-        SELECT "stats_original".*
+        SELECT 
+          "stats_original".*
         FROM
           (
             SELECT
               *,
-              ${Prisma.raw(this.getStatsScoreQuery('score'))}
-            FROM "public"."Stats"
+              DENSE_RANK() OVER(ORDER BY "score" DESC) AS "rank"
+            FROM (
+              SELECT
+                *,
+                ${Prisma.raw(this.getStatsScoreQuery('score'))}
+              FROM "public"."Stats"
+            ) AS "with_score"
           ) AS "stats_original",
           (
           SELECT
@@ -75,11 +81,16 @@ export class StatsService {
     };
 
     return this.prismaService.$queryRaw`
-      SELECT
+      SELECT 
         *,
-        ${Prisma.raw(this.getStatsScoreQuery())}
-      FROM
-        "public"."Stats"
+        DENSE_RANK() OVER(ORDER BY "score" DESC) AS "rank"
+      FROM (
+        SELECT
+          *,
+          ${Prisma.raw(this.getStatsScoreQuery())}
+        FROM
+          "public"."Stats"
+      ) as "with_score"
       ORDER BY
         "score" DESC
       LIMIT ${take}
@@ -113,10 +124,18 @@ export class StatsService {
   }
 
   async queryStatsByAddress(address: string) {
-    const stats = await this.prismaService.$queryRaw<[Stats]>`
-    SELECT *, ${Prisma.raw(this.getStatsScoreQuery())}
-    FROM "Stats"
-    WHERE "address" = ${address}
+    const stats = await this.prismaService.$queryRaw<[Stats & { rank:number }]>`
+      SELECT *
+      FROM (
+        SELECT
+          *,
+          DENSE_RANK() OVER(ORDER BY "score" DESC) AS "rank"
+        FROM (
+          SELECT *, ${Prisma.raw(this.getStatsScoreQuery())}
+          FROM "Stats"
+        ) AS "with_score"
+      ) AS "with_rank"
+      WHERE "address" = ${address}
     `;
 
     if (!Array.isArray(stats) || !stats[0]?.address) {
