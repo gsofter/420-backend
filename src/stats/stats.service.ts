@@ -114,11 +114,11 @@ export class StatsService {
   }
 
   getStatsScoreQuery(name = 'score') {
-    return `(coalesce("totalSuccess", 0) * 1 +
-    coalesce("totalHours", 0) * 0.05 + 
+    return `(coalesce("totalSuccess", 0) * 1.5 +
+    coalesce("totalHours", 0) * 0.01 + 
     coalesce("totalFailure", 0) * 0.5 + 
     coalesce("bpForBreeding", 0) * 0.2 + 
-    coalesce("bpForLandUpgrade", 0) * 0.3 + 
+    coalesce("bpForLandUpgrade", 0) * 0.02 + 
     coalesce("totalCancels", 0) * 1.25 
     ) as "${name}"`;
   }
