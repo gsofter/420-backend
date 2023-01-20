@@ -46,7 +46,7 @@ export class StatsService {
     console.log('snapshotBreeding took time', (Date.now() - startTime).toLocaleString() + 'ms');
   }
   
-  async queryStats({ limit, cursor } : QueryStatsDto) {
+  async queryStats({ limit, cursor } : QueryStatsDto): Promise<Array<Stats & { rank: number}>> {
     const take = limit ? (limit > 100 ? 100 : limit) : 100;
 
     if (cursor) {

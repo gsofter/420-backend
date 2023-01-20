@@ -7,6 +7,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { Param } from '@nestjs/common/decorators';
+import { Stats } from '@prisma/client';
 import { isAddress } from 'ethers/lib/utils';
 import { Request } from 'src/types';
 import { checksumAddress } from 'src/utils/address';
@@ -51,9 +52,11 @@ export class StatsController {
         throw new Error(`${address} stats record not found`);
       }
 
+      const { createdAt, updatedAt, ...rest } = stats;
+
       return {
         success: true,
-        data: stats,
+        data: rest,
       };
     } catch (error) {
       this.logger.error('Get user stats by address error', { error });
@@ -70,11 +73,12 @@ export class StatsController {
     try {
       const limit = query.limit ? Number(query.limit) : undefined;
       const cursor = query.cursor ? Number(query.cursor) : undefined;
-      const stats = await this.statsService.queryStats({ limit, cursor });
+      const stats = (await this.statsService.queryStats({ limit, cursor }));
 
+      const withoutTimestamps = stats.map(({ createdAt, updatedAt, ...rest}) => rest);
       return {
         success: true,
-        data: stats,
+        data: withoutTimestamps,
       };
     } catch (error) {
       this.logger.error('Get user stats error', { error });
