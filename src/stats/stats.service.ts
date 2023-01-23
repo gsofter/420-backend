@@ -115,7 +115,7 @@ export class StatsService {
 
   getStatsScoreQuery(name = 'score') {
     // n(SBC) + n(DB) - n(FBC) + n(BB) + n(BP) + n(SL) - n(CB) + n(BG)
-    return `(coalesce("totalSuccess", 0) * 1.5 +
+    return `(coalesce("totalSuccess", 0) * 10 +
     coalesce("totalHours", 0) * 0.01 - 
     coalesce("totalFailure", 0) * 0.05 + 
     coalesce("bpForBreeding", 0) * 0.01 + 
