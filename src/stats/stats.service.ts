@@ -57,7 +57,7 @@ export class StatsService {
           (
             SELECT
               *,
-              DENSE_RANK() OVER(ORDER BY "score" DESC) AS "rank"
+              RANK() OVER(ORDER BY "score" DESC) AS "rank"
             FROM (
               SELECT
                 *,
@@ -83,7 +83,7 @@ export class StatsService {
     return this.prismaService.$queryRaw`
       SELECT 
         *,
-        DENSE_RANK() OVER(ORDER BY "score" DESC) AS "rank"
+        RANK() OVER(ORDER BY "score" DESC) AS "rank"
       FROM (
         SELECT
           *,
@@ -130,7 +130,7 @@ export class StatsService {
       FROM (
         SELECT
           *,
-          DENSE_RANK() OVER(ORDER BY "score" DESC) AS "rank"
+          RANK() OVER(ORDER BY "score" DESC) AS "rank"
         FROM (
           SELECT *, ${Prisma.raw(this.getStatsScoreQuery())}
           FROM "Stats"
@@ -499,7 +499,7 @@ export class StatsService {
       SELECT *
       FROM (
         SELECT
-          DENSE_RANK() OVER(ORDER BY count DESC) AS rank,
+          RANK() OVER(ORDER BY count DESC) AS rank,
           "count",
           "minterAddress"
         FROM (
@@ -523,7 +523,7 @@ export class StatsService {
       SELECT * 
       FROM (
         SELECT
-          DENSE_RANK() OVER(ORDER BY count DESC) AS rank,
+          RANK() OVER(ORDER BY count DESC) AS rank,
           "count",
           "minterAddress"
         FROM (
