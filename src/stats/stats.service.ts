@@ -42,6 +42,7 @@ export class StatsService {
     await this.snapshotTotalBreedingHours();
     await this.snapshotSpentBPsForBreeding();
     await this.snapshotSpentBpsForLandUpgrade();
+    await this.snapshotBurnedG0Buds();
 
     console.log('snapshotBreeding took time', (Date.now() - startTime).toLocaleString() + 'ms');
   }
@@ -120,7 +121,8 @@ export class StatsService {
     coalesce("totalFailure", 0) * 0.05 + 
     coalesce("bpForBreeding", 0) * 0.01 + 
     coalesce("bpForLandUpgrade", 0) * 0.02 - 
-    coalesce("totalCancels", 0) * 1.25 
+    coalesce("totalCancels", 0) * 1.25 +
+    coalesce("burnedBuds", 0) * 1.1 
     ) as "${name}"`;
   }
 
@@ -227,6 +229,35 @@ export class StatsService {
       SET
         "address" = EXCLUDED."address",
         "totalSuccess" = EXCLUDED."totalSuccess",
+        "updatedAt" = EXCLUDED."updatedAt"
+    `;
+
+    return result;
+  }
+
+  async snapshotBurnedG0Buds() {
+    const result = await this.prismaService.$queryRaw`
+      INSERT
+        INTO
+        "Stats" ("address",
+        "burnedBuds",
+        "updatedAt")
+      SELECT
+          "address",
+          count(*) * 2 AS "burnedBuds",
+          NOW() AS "updatedAt"
+      FROM
+          public."EventServiceLog"
+      WHERE
+          "type" = 'BURN_GEN0'
+      GROUP BY
+          "address"
+      ON
+        conflict ("address") do
+      UPDATE
+      SET
+        "address" = EXCLUDED."address",
+        "burnedBuds" = EXCLUDED."burnedBuds",
         "updatedAt" = EXCLUDED."updatedAt"
     `;
 

@@ -193,6 +193,7 @@ model Stats {
   totalHours       Int?
   bpForBreeding    Int?
   bpForLandUpgrade Int?
+  burnedBuds       Int?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
