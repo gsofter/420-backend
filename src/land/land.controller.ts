@@ -70,6 +70,7 @@ export class LandController {
     const userLands = await this.prismaService.breedSlot.findMany({
       where: {
         userAddress: user,
+        deletedAt: null,
       },
     });
 
@@ -87,6 +88,7 @@ export class LandController {
       where: {
         id: slotId,
         userAddress: user,
+        deletedAt: null,
       },
     });
 
@@ -125,6 +127,7 @@ export class LandController {
       where: {
         id: slotId,
         userAddress: user,
+        deletedAt: null,
       },
     });
 
@@ -171,6 +174,7 @@ export class LandController {
       where: {
         userAddress: user,
         landTokenId: currentTimestamp,
+        deletedAt: null,
       },
     });
 

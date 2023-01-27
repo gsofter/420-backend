@@ -418,6 +418,7 @@ export class BreedController {
         where: {
           userAddress: req.user,
           isOpen: false,
+          deletedAt: null
         },
       });
 

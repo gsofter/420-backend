@@ -14,6 +14,7 @@ export class LandService {
       isUsed: false,
       gameKeyId,
       id: slotId,
+      deletedAt: null,
     };
 
     const slots = await this.prismaService.breedSlot.findMany({
@@ -30,6 +31,7 @@ export class LandService {
         isOpen: true,
         isUsed: false,
         id: slotId,
+        deletedAt: null,
       }
     });
   }
@@ -40,6 +42,7 @@ export class LandService {
         gameKeyId,
         userAddress,
         landTokenId: null,
+        deletedAt: null,
       },
     });
 
@@ -75,6 +78,7 @@ export class LandService {
       where: {
         userAddress,
         landTokenId,
+        deletedAt: null,
       },
     });
 
