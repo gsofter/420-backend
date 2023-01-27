@@ -137,6 +137,42 @@ export class BudService {
   }
 
   /**
+   * Check if the provided address is an owner of given game key
+   * 
+   * @param gameKeyId number
+   * @param address string
+   * @throws UnproceesableEntityError
+   */
+  async isGameKeyOwner(gameKeyId: number, address: string) {
+    const network = this.configService.get<Network>('network.name');
+
+    let [owner] = [''];
+    try {
+      [owner] = await multicall(
+        this.rpcProvider,
+        ADDRESSES[network].MULTICALL,
+        BudAbi,
+        [
+          {
+            contractAddress: ADDRESSES[network].GAME_KEY,
+            functionName: 'ownerOf',
+            params: [gameKeyId],
+          },
+        ],
+      );
+    } catch (e) {
+      this.logger.error('multicall error: ' + e.message, e);
+      throw BreedingError('Check Game key ownership... RPC call error');
+    }
+
+    if (owner !== address) {
+      throw UnproceesableEntityError('Not the game key owner');
+    }
+
+    return true;
+  }
+
+  /**
    * Verify if user owns buds referenced by maleBudId, and femaleBudId
    *
    * If such conditions are not met, the function throws an error

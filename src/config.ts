@@ -9,6 +9,7 @@ export const ADDRESSES = {
     BUD_BURN: '0x8b29E498a4F7e876fc310FE25BEFAb44515244E3',
     LAND: '',
     GAME_ITEM: '0x0fBA7ac394d74Ccb4C0F874a37b3C362FdcCBbd3',
+    GAME_KEY: '0x798B64aEF56313b18D71DD95088Ba3d054Fe4CcB',
   },
   mainnet: {
     MULTICALL: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696', // https://github.com/makerdao/multicall#multicall2-contract-addresses,
@@ -18,5 +19,6 @@ export const ADDRESSES = {
     LAND: '',
     BUD_BURN: '0x8EAa25F71D059293a8bFF0Da7974ea29a77D4154',
     GAME_ITEM: '0x300b3C45f90744a219DEe4c7441Eae15cE42ef84',
+    GAME_KEY: '0xb8bE3Baea710c42b1fee566F1086B169B726F4a8',
   },
 } as const;

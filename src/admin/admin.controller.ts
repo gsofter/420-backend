@@ -34,6 +34,7 @@ import { BreedService } from 'src/breed/breed.service';
 import { AdminService } from './admin.service';
 import { InvalidateBreedingDto } from './dto/invalidate-breeding.dto';
 import { Throttle } from '@nestjs/throttler';
+import { InvalidateSlotsDto } from './dto/invalidate-slots.dto';
 
 @Controller('admin')
 @Throttle(60 * 1000, 60)
@@ -118,6 +119,70 @@ export class AdminController {
       success: true,
       data:
         (count > 1 ? `${count} pairs are ` : `${count} pair is `) +
+        'invalidated',
+    };
+  }
+
+  @UseGuards(AuthGuard('admin'))
+  @Put('invalidate-slots')
+  async invalidSlotsForGameKey(@Body() body: InvalidateSlotsDto) {
+    const { prevOwner, owner, gameKeyId } = body;
+
+    await this.budService.isGameKeyOwner(gameKeyId, owner);
+
+    const slots = await this.prismaService.breedSlot.findMany({
+      where: {
+        userAddress: prevOwner,
+        gameKeyId,
+      },
+      select: {
+        id: true,
+      }
+    });
+
+    if (slots.length === 0) {
+      return {
+        success: false,
+        data: null,
+      };
+    }
+
+    // Soft delete slots
+    await this.prismaService.breedSlot.updateMany({
+      where: {
+        id: {
+          in: slots.map((s) => s.id),
+        },
+      },
+      data: {
+        deletedAt: new Date(),
+      }
+    });
+
+    // Update related pairs on those slots
+    await this.prismaService.breedPair.updateMany({
+      where: {
+        slotId: {
+          in: slots.map((s) => s.id),
+        },
+      },
+      data: {
+        status: BreedPairStatus.FAILED,
+      },
+    });
+
+    this.logger.log(
+      `Game Key TANSFER: Invalidate ${slots.length} slots that were used`,
+      JSON.stringify({
+        data: slots,
+      }),
+    );
+
+    const count = slots.length;
+    return {
+      success: true,
+      data:
+        (count > 1 ? `${count} slots are ` : `${count} slot is `) +
         'invalidated',
     };
   }
