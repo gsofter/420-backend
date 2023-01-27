@@ -137,7 +137,7 @@ model BreedSlot {
   isUsed      Boolean       @default(false)
   type        BreedSlotType @default(OUTDOOR)
   gameKeyId   Int?
-  landTokenId Int?
+  landTokenId BigInt?       @db.BigInt
   userAddress String        @db.VarChar(42)
 
   createdAt DateTime @default(now())

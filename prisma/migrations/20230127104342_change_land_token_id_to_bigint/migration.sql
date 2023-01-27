@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "BreedSlot" ALTER COLUMN "landTokenId" SET DATA TYPE BIGINT;
