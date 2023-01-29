@@ -35,6 +35,7 @@ import { AdminService } from './admin.service';
 import { InvalidateBreedingDto } from './dto/invalidate-breeding.dto';
 import { Throttle } from '@nestjs/throttler';
 import { InvalidateSlotsDto } from './dto/invalidate-slots.dto';
+import { Network } from 'src/types';
 
 @Controller('admin')
 @Throttle(60 * 1000, 60)
@@ -127,6 +128,24 @@ export class AdminController {
   @Put('invalidate-slots')
   async invalidSlotsForGameKey(@Body() body: InvalidateSlotsDto) {
     const { prevOwner, owner, gameKeyId } = body;
+    const network = this.configService.get<Network>('network.name');
+
+    if (prevOwner === ADDRESSES[network].STAKING) {
+      this.logger.log(`Game key #${gameKeyId} is being unstaked, skip invalidating`, { prevOwner, owner, gameKeyId });
+
+      return {
+        success: false,
+        message: 'Skip invalidate, because game key is unstaked and could be staked again'
+      }
+    }
+
+    if (owner === ADDRESSES[network].STAKING) {
+      this.logger.log(`Game key #${gameKeyId} is being staked, skip invalidating`, { prevOwner, owner, gameKeyId });
+      return {
+        success: false,
+        message: 'No need to invalidate because game key is to be staked'
+      }
+    }
 
     await this.budService.isGameKeyOwner(gameKeyId, owner);
 
