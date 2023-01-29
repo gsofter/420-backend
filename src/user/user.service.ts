@@ -1,20 +1,33 @@
 import { ConfigService } from '@nestjs/config';
 import { Injectable, Logger } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { BigNumber } from 'ethers';
+import { JsonRpcProvider } from '@ethersproject/providers';
+import { BigNumber, ethers } from 'ethers';
+import * as GameKeyAbi from 'src/abis/gameKey.json';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UnproceesableEntityError } from 'src/utils/errors';
+import { BreedingError, UnproceesableEntityError } from 'src/utils/errors';
+import { Network } from 'src/types';
+import { multicall } from 'src/utils/multicall';
+import { ADDRESSES } from 'src/config';
 
 @Injectable()
 export class UserService {
   // Buffer (in milliseconds) for signature validity allowance check.
   private timestampBuffer = 300000;
   private logger = new Logger('UserService');
+  private rpcProvider: JsonRpcProvider;
 
   constructor(
     private configService: ConfigService,
     private prismaService: PrismaService,
   ) {
+    const rpcUrl = configService.get<string>('network.rpc');
+    const chainId = configService.get<number>('network.chainId');
+
+    this.rpcProvider = new ethers.providers.StaticJsonRpcProvider(
+      rpcUrl,
+      chainId,
+    );
   }
 
   /**
@@ -91,5 +104,30 @@ Timestamp: ${timestamp}`;
         breedingPoint: userObject.breedingPoint - amount,
       },
     });
+  }
+
+  async isGameKeyStaked(gameKeyId: number) {
+    const network = this.configService.get<Network>('network.name');
+
+    let [owner] = [''];
+    try {
+      [owner] = await multicall(
+        this.rpcProvider,
+        ADDRESSES[network].MULTICALL,
+        GameKeyAbi,
+        [
+          {
+            contractAddress: ADDRESSES[network].GAME_KEY,
+            functionName: 'ownerOf',
+            params: [gameKeyId],
+          },
+        ],
+      );
+    } catch (e) {
+      this.logger.error('multicall error: ' + e.message, e);
+      throw BreedingError('Check game key stake issue.. RPC call error');
+    }
+    
+    return owner === ADDRESSES[network].STAKING;
   }
 }

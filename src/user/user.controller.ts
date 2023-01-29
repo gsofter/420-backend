@@ -69,6 +69,10 @@ export class UserController {
       throw BadRequestError('Invalid message and/or timestamp.');
     }
 
+    if (this.userService.isGameKeyStaked(gameKeyId)) {
+      throw UnproceesableEntityError('Game key is not staked');
+    }
+
     const derivedAddress = verifyMessage(message, signature);
 
     if (derivedAddress.toLowerCase() === address.toLowerCase()) {
