@@ -33,6 +33,9 @@ import { multicall } from 'src/utils/multicall';
 import { ADDRESSES } from 'src/config';
 import * as Gen0BudLockAbi from 'src/abis/gen0BudLock.json';
 
+// @ts-ignore 
+BigInt.prototype.toJSON = function() { return Number(this.toString()); }
+
 @Controller('lands')
 export class LandController {
   private bpToOpen = 0;
