@@ -65,12 +65,25 @@ export class LandController {
 
   @Get('slots')
   async getUserSlots(@Req() req: Request) {
-    const { user } = req;
+    const { user, gameKeyId } = req;
 
     const userLands = await this.prismaService.breedSlot.findMany({
       where: {
-        userAddress: user,
-        deletedAt: null,
+        OR: [
+          {
+            userAddress: user,
+            deletedAt: null,
+            gameKeyId
+          },
+          {
+            userAddress: user,
+            deletedAt: null,
+            gameKeyId: null,
+            landTokenId: {
+              not: null
+            }
+          }
+        ]
       },
     });
 
