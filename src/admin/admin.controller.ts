@@ -127,7 +127,7 @@ export class AdminController {
   @UseGuards(AuthGuard('admin'))
   @Put('invalidate-slots')
   async invalidSlotsForGameKey(@Body() body: InvalidateSlotsDto) {
-    const { prevOwner, owner, gameKeyId } = body;
+    const { prevOwner, owner, gameKeyId, option } = body;
     const network = this.configService.get<Network>('network.name');
 
     if (prevOwner === ADDRESSES[network].STAKING) {
@@ -147,8 +147,10 @@ export class AdminController {
       }
     }
 
-    await this.budService.isGameKeyOwner(gameKeyId, owner);
-
+    if (option !== 201) {
+      await this.budService.isGameKeyOwner(gameKeyId, owner);
+    } 
+    
     const slots = await this.prismaService.breedSlot.findMany({
       where: {
         userAddress: prevOwner,

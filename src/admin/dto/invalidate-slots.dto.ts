@@ -12,4 +12,7 @@ export class InvalidateSlotsDto {
   @IsNumber()
   @IsNotEmpty()
   gameKeyId!: number;
+
+  @IsNumber()
+  option?: number;
 }
